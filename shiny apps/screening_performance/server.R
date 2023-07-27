@@ -16,7 +16,7 @@ shinyServer(function(input, output) {
   
   ##### DATA #####
   
-  real_gsds <-readRDS(file="./data/real_gsd_values.rds")
+  real_gsds <-readRDS(file="data/real_gsd_values.RDS")
 
 
   ##### FUNCTIONS ######
