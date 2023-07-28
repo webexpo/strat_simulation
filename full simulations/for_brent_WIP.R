@@ -14,6 +14,7 @@ library(rjags)
 
 source("data generation/load.webexpo.data_gen.functions.R")
 source("parameter estimation/bayesian/load.webexpo.SEG.functions.R")
+source("parameter estimation/frequentist/percentile.R")
 
 ##### Fonctions #####
 
@@ -42,6 +43,30 @@ decision_brent_bayesian <- function( raw_data = c("0.39", "0.59", "0.93", "0.166
   return( decision )
   
 }
+
+
+decision_brent_frequentist <- function( raw_data = c("0.39", "0.59", "0.93", "0.166", "0.86", "0.10"),
+                                     confidence_level_perc = 70 ) {
+  
+  
+  
+  
+  ### frequentist
+  
+
+  estimated_p95_ucl <-  fun.perc( as.numeric( raw_data ) , alpha= 1-confidence_level_perc/100,perc=0.95)$uc 
+    
+    
+  #### output metrics - risk decision
+  
+  if ( estimated_p95_ucl < 1) { decision <- "compliant" } else { decision <- "not compliant" }
+  
+  ##### final return
+  
+  return( decision )
+  
+}
+
 
 
 simulation_brent_bayesian <- function( sample_size           = 10,
@@ -80,6 +105,43 @@ simulation_brent_bayesian <- function( sample_size           = 10,
   
 }
 
+
+simulation_brent_frequentist <- function( sample_size           = 10,
+                                       ratio_p95overoel      = 1,
+                                       gsd_value             = 2.5,
+                                       n_sim                 = 500,
+                                       confidence_level_perc = 70 ) {
+  
+  ## intermediate calculations
+  
+  gm_value <- exp( ( log( ratio_p95overoel) - qnorm(0.95)*log( gsd_value ) ) )
+  
+  ## data generation
+  
+  simulated_values <-  webexpo.seg.gener.LN( n            = sample_size * n_sim,
+                                             no.censoring = TRUE,
+                                             gm           = gm_value,
+                                             gsd          = gsd_value)
+  
+  simulated_data_matrix <- matrix( data = simulated_values , nrow = sample_size )
+  
+  ## Looping across the n.sim iterations
+  
+  simulation_result <- apply( X = simulated_data_matrix ,
+                              MARGIN = 2,
+                              FUN = decision_brent_frequentist ,
+                              confidence_level_perc = confidence_level_perc ,
+                              simplify = TRUE)
+  
+  # result
+  
+  decision_perc_compliant <- 100*length(simulation_result[simulation_result=="compliant"])/length(simulation_result)
+  
+  
+  return(decision_perc_compliant)
+  
+}
+
 ##### inputs #####
 
 sample_size <- 10
@@ -92,10 +154,17 @@ n_sim <- 1000
 
 confidence_level_perc <- 95
 
-##### Example ##### ( ~ 5 mins for n_sim = 10000 )
+##### Example ##### ( ~ 5 mins for n_sim = 1000 )
 
 simulation_brent_bayesian( sample_size           = sample_size,
                            ratio_p95overoel      = ratio_p95overoel,
                            gsd_value             = gsd_value,
                            n_sim                 = n_sim,
                            confidence_level_perc = confidence_level_perc )
+
+simulation_brent_frequentist( sample_size           = sample_size,
+                           ratio_p95overoel      = ratio_p95overoel,
+                           gsd_value             = gsd_value,
+                           n_sim                 = n_sim,
+                           confidence_level_perc = confidence_level_perc )
+
