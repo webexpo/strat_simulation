@@ -1,10 +1,10 @@
-#' function that estimates the compliance probability based on the expostats bayesian model  / a frequentist model
+#' functions that estimates the compliance probability based on the expostats bayesian model  or a frequentist model
 #' 
 #' compliance is defined as : the X% upper confidence limit on the 95th percentile is below the OEL
 #' 
-#' inputs include sample size, true GSD, true 95th percentile relative to OEL, level of confidence 
+#' inputs include sample size, true GSD, true 95th percentile relative to OEL, and level of confidence 
 #' 
-#' These functions assume no non detects
+#' These functions assume there is no non detect
 
 ##### Libraries #####  
 
@@ -17,6 +17,14 @@ source("parameter estimation/bayesian/load.webexpo.SEG.functions.R")
 source("parameter estimation/frequentist/percentile.R")
 
 ##### Fonctions #####
+
+#' Compliance function using the Expostats Bayesian model for a single sample
+#' 
+#' 
+#' @param raw_data vector of values to be analysed ( character format, see default )
+#' @param confidence_level_perc Level of confidence in % for the upper confidence limit 
+#' 
+#' @return decision : either "compliant" or "not compliant"
 
 decision_brent_bayesian <- function( raw_data = c("0.39", "0.59", "0.93", "0.166", "0.86", "0.10"),
                                      confidence_level_perc = 70 ) {
@@ -44,18 +52,22 @@ decision_brent_bayesian <- function( raw_data = c("0.39", "0.59", "0.93", "0.166
   
 }
 
+#' Compliance function using a frequentist equation for a single sample
+#' 
+#' 
+#' @param raw_data vector of values to be analysed ( character format, see default )
+#' @param confidence_level_perc Level of confidence in % for the upper confidence limit 
+#' 
+#' @return decision : either "compliant" or "not compliant"
+
 
 decision_brent_frequentist <- function( raw_data = c("0.39", "0.59", "0.93", "0.166", "0.86", "0.10"),
                                      confidence_level_perc = 70 ) {
   
   
+  ### frequentist equation
   
-  
-  ### frequentist
-  
-
   estimated_p95_ucl <-  fun.perc( as.numeric( raw_data ) , alpha= 1-confidence_level_perc/100,perc=0.95)$uc 
-    
     
   #### output metrics - risk decision
   
@@ -67,6 +79,17 @@ decision_brent_frequentist <- function( raw_data = c("0.39", "0.59", "0.93", "0.
   
 }
 
+
+#' Compliance probability function ( proportion of "compliant" across many repetitions )using the Expostats Bayesian model
+#' 
+#' 
+#' @param sample_size sample size for the  strategy
+#' @param ratio_p95overoel True 95th percentile relative to the OEL 
+#' @param gsd_value True geometric standard deviation
+#' @param n_sim Number of repetitions of the simulation 
+#' @param confidence_level_perc Level of confidence in % for the upper confidence limit  
+#' 
+#' @return proportion of the repetitions for which the decision was "compliant" in %
 
 
 simulation_brent_bayesian <- function( sample_size           = 10,
@@ -104,6 +127,19 @@ simulation_brent_bayesian <- function( sample_size           = 10,
   return(decision_perc_compliant)
   
 }
+
+
+
+#' Compliance probability function ( proportion of "compliant" across many repetitions )using a frequientist model
+#' 
+#' 
+#' @param sample_size sample size for the  strategy
+#' @param ratio_p95overoel True 95th percentile relative to the OEL 
+#' @param gsd_value True geometric standard deviation
+#' @param n_sim Number of repetitions of the simulation 
+#' @param confidence_level_perc Level of confidence in % for the upper confidence limit  
+#' 
+#' @return proportion of the repetitions for which the decision was "compliant" in %
 
 
 simulation_brent_frequentist <- function( sample_size           = 10,
@@ -152,9 +188,9 @@ gsd_value <- 2.5
 
 n_sim <- 1000
 
-confidence_level_perc <- 95
+confidence_level_perc <- 80
 
-##### Example ##### ( ~ 5 mins for n_sim = 1000 )
+##### Example ##### ( ~ 5 mins for n_sim = 1000 for the Bayesian model, ideally, n_sim should be closer to 5000 even more for good reproducibility ). the frequentist function is instantaneous up to n_sim=100 000
 
 simulation_brent_bayesian( sample_size           = sample_size,
                            ratio_p95overoel      = ratio_p95overoel,
