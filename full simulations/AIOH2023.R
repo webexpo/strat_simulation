@@ -155,8 +155,19 @@
       
       results <- c( median(ideal_analysis$p95_chain),quantile(ideal_analysis$p95_chain,0.7),
                     median(naive_analysis$p95_chain),quantile(naive_analysis$p95_chain,0.7),
-                    median(me_analysis$p95_chain),quantile(me_analysis$p95_chain,0.7))
-      names(results) <- c("ideal_p95","ideal_p95UCL70","naive_p95","naive_p95UCL70","me_p95","me_p95UCL70")
+                    median(me_analysis$p95_chain),quantile(me_analysis$p95_chain,0.7),
+                    
+                    median(ideal_analysis$gm_chain),
+                    median(naive_analysis$gm_chain),
+                    median(me_analysis$gm_chain),
+                    
+                    median(ideal_analysis$gsd_chain),
+                    median(naive_analysis$gsd_chain),
+                    median(me_analysis$gsd_chain))
+      
+      names(results) <- c("ideal_p95","ideal_p95UCL70","naive_p95","naive_p95UCL70","me_p95","me_p95UCL70",
+                          "ideal_gm","naive_gm","me_gm",
+                          "ideal_gsd","naive_gsd","me_gsd")
       
       return( results) }
     
@@ -255,9 +266,9 @@
     
     oel <- 300
     
-    me.cv <- expanded_uncertainty/coverage_factor
+    me.cv <- 0.4
    
-    n_simul <- 1000 
+    n_simul <- 5000 
     
     ##  traditional simulation
     
@@ -313,38 +324,28 @@
         stopCluster(cl)
         
         
-        # estimation of computing time ( 1 min on my compter)
+        # estimation of computing time ( 9 min on my computer for 5000 iterations)
         end_time <- Sys.time()
         mytime <- end_time - start_time 
         
         
-        ## interpretation of results / 
+        ## interpretation of results 
         
         
-        # if sim was run without parallel computing (factor 10 slower)
-        simulation_summary_trad <- data.frame( ideal_p95 = numeric(n_simul),
+    simulation_summary <- data.frame( ideal_p95 = numeric(n_simul),
                                                ideal_p95_ucl = numeric(n_simul),
                                                naive_p95 = numeric(n_simul),
                                                naive_p95_ucl = numeric(n_simul),
                                                me_p95 = numeric(n_simul),
-                                               me_p95_ucl = numeric(n_simul))
-        for ( i in 1:n_simul) { 
-          
-          simulation_summary_trad$ideal_p95[i] <- simulation_result[[i]][1]
-          simulation_summary_trad$ideal_p95_ucl[i] <- simulation_result[[i]][2]
-          simulation_summary_trad$naive_p95[i] <- simulation_result[[i]][3]
-          simulation_summary_trad$naive_p95_ucl[i] <- simulation_result[[i]][4]
-          simulation_summary_trad$me_p95[i] <- simulation_result[[i]][5]
-          simulation_summary_trad$me_p95_ucl[i] <- simulation_result[[i]][6]
-          
-          }
-        #parrallel computing summary
-        simulation_summary <- data.frame( ideal_p95 = numeric(n_simul),
-                                               ideal_p95_ucl = numeric(n_simul),
-                                               naive_p95 = numeric(n_simul),
-                                               naive_p95_ucl = numeric(n_simul),
-                                               me_p95 = numeric(n_simul),
-                                               me_p95_ucl = numeric(n_simul))
+                                               me_p95_ucl = numeric(n_simul),
+                                                
+                                                ideal_gm = numeric(n_simul),
+                                                naive_gm = numeric(n_simul),
+                                                me_gm = numeric(n_simul),
+                                                  
+                                                ideal_gsd = numeric(n_simul),
+                                                naive_gsd = numeric(n_simul),
+                                                me_gsd = numeric(n_simul))
         for ( i in 1:n_simul) { 
           
           simulation_summary$ideal_p95[i] <- simulation_result_par[[i]][1]
@@ -353,7 +354,14 @@
           simulation_summary$naive_p95_ucl[i] <- simulation_result_par[[i]][4]
           simulation_summary$me_p95[i] <- simulation_result_par[[i]][5]
           simulation_summary$me_p95_ucl[i] <- simulation_result_par[[i]][6]
+         
+           simulation_summary$ideal_gm[i] = simulation_result_par[[i]][7]
+          simulation_summary$naive_gm[i] = simulation_result_par[[i]][8]
+          simulation_summary$me_gm[i] = simulation_result_par[[i]][9]
           
+          simulation_summary$ideal_gsd[i] = simulation_result_par[[i]][10]
+          simulation_summary$naive_gsd[i] = simulation_result_par[[i]][11]
+          simulation_summary$me_gsd[i] = simulation_result_par[[i]][12]
         }
 
     
@@ -497,3 +505,106 @@ p <- p + geom_point( aes( x = model , y = est) , size = 2)
 p <- p + theme_solarized()
 
 p
+
+
+###### visuals 4 : gm + boxplot ####
+
+
+mcmc.data <- data.frame( p95_ucl = c( simulation_summary$ideal_p95_ucl,
+                                  simulation_summary$naive_p95_ucl,
+                                  simulation_summary$me_p95_ucl),
+                         p95 = c( simulation_summary$ideal_p95,
+                                      simulation_summary$naive_p95,
+                                      simulation_summary$me_p95),
+                         gm = c( simulation_summary$ideal_gm,
+                                  simulation_summary$naive_gm,
+                                  simulation_summary$me_gm),
+                         gsd = c( simulation_summary$ideal_gsd,
+                                 simulation_summary$naive_gsd,
+                                 simulation_summary$me_gsd),
+                         type = c( rep("p95_ideal", mylength), rep("p95_naive", mylength) , rep("p95_me", mylength)))
+f <- function(x) {
+  r <- quantile(x, probs = c(0.1, 0.25, 0.5, 0.75, 0.9))
+  names(r) <- c("ymin", "lower", "middle", "upper", "ymax")
+  r
+}
+
+p <- ggplot( mcmc.data, aes(x=type, y=p95_ucl)) 
+
+p <- p +  stat_summary(fun.data = f, geom="boxplot")
+
+p <- p +  scale_y_log10()
+
+p
+
+########################simulated data
+
+data.g <- bayesian.output.D$group.id
+
+data.g$mu <-numeric(length(data.g[,1]))
+
+for (i in 1:length(data.g[,1])) data.g$mu[i]<-median(bayesian.output.D$mu.chain[i,])
+
+data.g$sw <- median(bayesian.output.D$sigma.chain[i,])
+
+dat <-data.frame(value=numeric(0), group=character(0),stringsAsFactors=F)
+
+for (i in 1:length(data.g[,1])) dat <- rbind(dat, data.frame(value=exp(rnorm(1000,data.g$mu[i],data.g$sw[i])),      group=rep(data.g$name[i],1000),stringsAsFactors=F))
+
+
+######observed data
+
+
+data.fin <-data.frame(x.orig=data.formatted$data)
+
+data.fin$x <-data.simply.imputed$imputed$data$xfin
+
+data.fin$censored=!data.formatted$notcensored
+
+data.fin$id <-data.formatted$var
+
+
+#####min max for graph
+
+min.val <-exp(min(data.g$mu-1.5*data.g$sw))
+max.val <-exp(max(data.g$mu-1.5*data.g$sw))
+
+
+####graph
+
+
+
+
+
+p1 <- ggplot(dat, aes(x=group, y=value, fill = group, color=group, group=group),ylim=c(min.val,max.val))
+
+if(pal_col == TRUE){
+  
+  p1 <- p1 + geom_boxplot(lwd = 0.8, alpha = 0.1) +
+    geom_point(position=position_jitter(width=0.3), alpha=0.2) +
+    geom_hline(yintercept = c.oel,colour = "red", size = 2)
+  
+  
+}else{
+  
+  p1 <- p1 + geom_boxplot(color= "gray20", lwd = 0.8, fill= alpha(paste0("gray", round(seq(5, 25, length.out = length(unique(dat$group))))), 0.3)) +
+    geom_point(position=position_jitter(width=0.3), alpha=0.2, color = "black") +
+    geom_hline(yintercept = c.oel,colour = "black", size = 2)
+}
+
+
+p1 <- p1 + geom_point(data=data.fin, fill="white", colour = "black", shape=20, size = 4, aes(x=id, y=x, pch=censored, group=id)) +
+  scale_y_log10(breaks=c(.01,.1,1,10,100),labels=c(.01,.1,1,10,100)) +
+  labs(x = boxplot.cat.1, y = boxplot.cat.2) +
+  theme(axis.title.x=element_text(size=16,vjust=-1)) +
+  theme(axis.text.x=element_text(size=14)) +
+  theme(axis.title.y=element_text(size=16,angle=90)) +
+  theme(axis.text.y=element_text(size=14,angle=0)) +
+  theme(aspect.ratio=0.6) +
+  theme(legend.position = "none") +
+  annotate("text", 2.5, c.oel*1.5, label = boxplot.cat.3, size=5 , color="red") +
+  theme(axis.line = element_line(size = 3, colour = "grey80")) +
+  theme(axis.ticks = element_line(size = 2))   +
+  coord_flip(xlim = NULL, ylim = NULL, expand = TRUE)
+
+return(p1)
