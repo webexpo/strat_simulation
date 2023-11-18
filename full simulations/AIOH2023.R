@@ -529,6 +529,8 @@ f <- function(x) {
   r
 }
 
+
+
 p <- ggplot( mcmc.data, aes(x=type, y=p95_ucl)) 
 
 p <- p +  stat_summary(fun.data = f, geom="boxplot")
@@ -536,6 +538,8 @@ p <- p +  stat_summary(fun.data = f, geom="boxplot")
 p <- p +  scale_y_log10()
 
 p
+
+
 
 ########################simulated data
 
