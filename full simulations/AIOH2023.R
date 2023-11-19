@@ -266,7 +266,7 @@
     
     oel <- 300
     
-    me.cv <- 0.4
+    me.cv <- expanded_uncertainty/coverage_factor
    
     n_simul <- 5000 
     
