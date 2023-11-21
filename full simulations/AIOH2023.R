@@ -293,7 +293,7 @@
         
         # creating the clusters ( use detectCores() to count the cores available, choose this number minus 2 or 4 below) 
         
-        cl <- makeCluster(8)
+        cl <- makeCluster(14)
         
         # libraries and scripts to be used in each cluster
         
@@ -522,7 +522,7 @@ mcmc.data <- data.frame( p95_ucl = c( simulation_summary$ideal_p95_ucl,
                          gsd = c( simulation_summary$ideal_gsd,
                                  simulation_summary$naive_gsd,
                                  simulation_summary$me_gsd),
-                         type = c( rep("p95_ideal", mylength), rep("p95_naive", mylength) , rep("p95_me", mylength)))
+                         type = c( rep("p95_ideal", n_simul), rep("p95_naive", n_simul) , rep("p95_me", n_simul)))
 f <- function(x) {
   r <- quantile(x, probs = c(0.1, 0.25, 0.5, 0.75, 0.9))
   names(r) <- c("ymin", "lower", "middle", "upper", "ymax")
@@ -533,82 +533,18 @@ f <- function(x) {
 
 p <- ggplot( mcmc.data, aes(x=type, y=p95_ucl)) 
 
-p <- p +  stat_summary(fun.data = f, geom="boxplot")
+p <- p +  stat_summary(fun.data = f, geom="boxplot",color="blue",size=2)
 
-p <- p +  scale_y_log10()
+p <- p + geom_point(position=position_jitter(width=0.3), alpha=0.05, size = 2)
+
+p <- p +  scale_y_log10(limits=c(75,300))
+
+p <- p + theme_calc()
+
+
+p <- p +  theme(axis.text.x=element_text(size=14),axis.title.x=element_text(size=16,vjust=+0.55))+
+  theme(axis.text.y=element_text(size=14),axis.title.y=element_text(size=16,vjust=+0.55))+
+  labs(x=expression ( x=""), y=expression ( x="Estimated 70% UCLs for for P95"))
 
 p
 
-
-
-########################simulated data
-
-data.g <- bayesian.output.D$group.id
-
-data.g$mu <-numeric(length(data.g[,1]))
-
-for (i in 1:length(data.g[,1])) data.g$mu[i]<-median(bayesian.output.D$mu.chain[i,])
-
-data.g$sw <- median(bayesian.output.D$sigma.chain[i,])
-
-dat <-data.frame(value=numeric(0), group=character(0),stringsAsFactors=F)
-
-for (i in 1:length(data.g[,1])) dat <- rbind(dat, data.frame(value=exp(rnorm(1000,data.g$mu[i],data.g$sw[i])),      group=rep(data.g$name[i],1000),stringsAsFactors=F))
-
-
-######observed data
-
-
-data.fin <-data.frame(x.orig=data.formatted$data)
-
-data.fin$x <-data.simply.imputed$imputed$data$xfin
-
-data.fin$censored=!data.formatted$notcensored
-
-data.fin$id <-data.formatted$var
-
-
-#####min max for graph
-
-min.val <-exp(min(data.g$mu-1.5*data.g$sw))
-max.val <-exp(max(data.g$mu-1.5*data.g$sw))
-
-
-####graph
-
-
-
-
-
-p1 <- ggplot(dat, aes(x=group, y=value, fill = group, color=group, group=group),ylim=c(min.val,max.val))
-
-if(pal_col == TRUE){
-  
-  p1 <- p1 + geom_boxplot(lwd = 0.8, alpha = 0.1) +
-    geom_point(position=position_jitter(width=0.3), alpha=0.2) +
-    geom_hline(yintercept = c.oel,colour = "red", size = 2)
-  
-  
-}else{
-  
-  p1 <- p1 + geom_boxplot(color= "gray20", lwd = 0.8, fill= alpha(paste0("gray", round(seq(5, 25, length.out = length(unique(dat$group))))), 0.3)) +
-    geom_point(position=position_jitter(width=0.3), alpha=0.2, color = "black") +
-    geom_hline(yintercept = c.oel,colour = "black", size = 2)
-}
-
-
-p1 <- p1 + geom_point(data=data.fin, fill="white", colour = "black", shape=20, size = 4, aes(x=id, y=x, pch=censored, group=id)) +
-  scale_y_log10(breaks=c(.01,.1,1,10,100),labels=c(.01,.1,1,10,100)) +
-  labs(x = boxplot.cat.1, y = boxplot.cat.2) +
-  theme(axis.title.x=element_text(size=16,vjust=-1)) +
-  theme(axis.text.x=element_text(size=14)) +
-  theme(axis.title.y=element_text(size=16,angle=90)) +
-  theme(axis.text.y=element_text(size=14,angle=0)) +
-  theme(aspect.ratio=0.6) +
-  theme(legend.position = "none") +
-  annotate("text", 2.5, c.oel*1.5, label = boxplot.cat.3, size=5 , color="red") +
-  theme(axis.line = element_line(size = 3, colour = "grey80")) +
-  theme(axis.ticks = element_line(size = 2))   +
-  coord_flip(xlim = NULL, ylim = NULL, expand = TRUE)
-
-return(p1)
