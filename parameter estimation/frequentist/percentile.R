@@ -1,4 +1,4 @@
-#' Function for estimating the exceedance fraction from a vector of lognormal exposure values
+#' Function for estimating ta percentile from a vector of lognormal exposure values
 #' 
 #' Based on Zwillinger, D.; Kokoska, S. (2000) Standard Probability and Statistics Tables and Formulae. Chapman & Hall / CRC, Boca Raton, FL
 #' Pp 176
