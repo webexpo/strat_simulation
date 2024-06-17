@@ -1,10 +1,6 @@
-#########################################################################
-#
-#
-#   Support functions for the revisited pilot study for Santé Canada project
-#
-#
-###########################################################################
+
+#'   Support functions for sampling strat simulations
+
 
 
 ################### estimation of log(geometric mean) from GSD and exceedance fraction
@@ -26,7 +22,7 @@
         
         
  
-######## transfer betweem 95th perc and exceedance        
+######## transfer between 95th perc and exceedance        
              
         p95fromF <- function( oel = 1 , gsd = 1.5 , frac = 0.05) {
           
@@ -46,4 +42,58 @@
         }
         
         Ffromp95(oel = 1 , gsd = 2.5 , p95 = 0.5)
+        
+        
+        
+        compute_rmse = function(x, theta){
+          
+          mean.x = mean(x)
+          
+          N = length(x)
+          
+          if(is.null(N))
+            stop("x must be a vector of minimum length 1")
+          
+          rmse = sqrt((mean.x - theta) ^ 2 + sum((x - mean.x) ^ 2) / (N - 1))
+          return(rmse)
+        }
+        
+        compute_relrmse = function(x, theta){
+          
+          mean.x = mean(x)
+          
+          N = length(x)
+          
+          if(is.null(N))
+            stop("x must be a vector of minimum length 1")
+          
+          rmse = sqrt((mean.x - theta) ^ 2 + sum((x - mean.x) ^ 2) / (N - 1))/theta
+          return(rmse)
+        }
+        
+        
+        compute_bias = function(x, theta){
+          
+          bias = mean(x) - theta 
+          
+          return(bias)
+        }
+        
+        
+        compute_relbias = function(x, theta){
+          
+          bias = 100 * (mean(x) - theta) / theta
+          
+          return(bias)
+        }
+        
+        
+        compute_relprecision = function(x, theta){
+          
+          sd.x = sd(x)
+          
+          rp = 100 * sd.x / theta
+          
+          return(rp)
+        }
         

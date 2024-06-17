@@ -1,3 +1,10 @@
+#' exploring the impact of measurement error industrial hygiene measurement data interpretation
+
+#' question : for one example of true distribution, what is the impact of a 50% expanded measurement error (CV=50/1.96) on P95 and its UCL
+
+#' This is an extension of the AIOH2023.r analysis, triggered by exchanges with Theo Scheffers who described a GUM approach to measurement error handling
+
+#' This script presents the interpretation of the simulation, which was run 5 times
 
 
 ##### DATA ####
@@ -21,12 +28,40 @@ sample_size <- c(6,3,6,3)
 
 gsd <- c(2.5,2.5,1.5,1.5)
 
-simulation_summary1 <- readRDS("C:/jerome/Dropbox/temp/aioh2023-S2_1.RDS")
-simulation_summary2 <- readRDS("C:/jerome/Dropbox/temp/aioh2023-S2_2.RDS")
-simulation_summary3 <- readRDS("C:/jerome/Dropbox/temp/aioh2023-S2_3.RDS")
-simulation_summary4 <- readRDS("C:/jerome/Dropbox/temp/aioh2023-S2_4.RDS")
+source("other/support_functions.R")
 
-    
+setwd("C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/GUM measurement error 2024")
+
+simulation_summary1 <- list ( sa = readRDS("aioh2023-S2_1.RDS"),
+                              sb = readRDS("aioh2023-S2_1b.RDS"),
+                              sc = readRDS("aioh2023-S2_1c.RDS"),
+                              sd = readRDS("aioh2023-S2_1d.RDS"),
+                              se = readRDS("aioh2023-S2_1e.RDS")
+                                           )
+
+simulation_summary2 <- list ( sa = readRDS("aioh2023-S2_2.RDS"),
+                              sb = readRDS("aioh2023-S2_2b.RDS"),
+                              sc = readRDS("aioh2023-S2_2c.RDS"),
+                              sd = readRDS("aioh2023-S2_2d.RDS"),
+                              se = readRDS("aioh2023-S2_2e.RDS")
+                           )
+
+simulation_summary3 <- list ( sa = readRDS("aioh2023-S2_3.RDS"),
+                              sb = readRDS("aioh2023-S2_3b.RDS"),
+                              sc = readRDS("aioh2023-S2_3c.RDS"),
+                              sd = readRDS("aioh2023-S2_3d.RDS"),
+                              se = readRDS("aioh2023-S2_3e.RDS")
+                           )
+
+simulation_summary4 <- list ( sa = readRDS("aioh2023-S2_4.RDS"),
+                              sb = readRDS("aioh2023-S2_4b.RDS"),
+                              sc = readRDS("aioh2023-S2_4c.RDS"),
+                              sd = readRDS("aioh2023-S2_4d.RDS"),
+                              se = readRDS("aioh2023-S2_4e.RDS")
+                           )
+
+
+
 #### FUNCTIONS ####
 
 ## relative rmse results function
@@ -168,67 +203,234 @@ coverage.result <- function( simulation_summary , true_p95 ) {
 
 #### RESULTS ####
 
-## summary of coverage results (ideal = 70%)
+###### coverage ######
 
-coverage_table <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+coverage_matrix_n6_2.5 <- matrix( nrow = 6 , ncol = 5)
+
+for (i in 1:5) { coverage_matrix_n6_2.5[,i] <- coverage.result( simulation_summary1[[i]] , true_p95 )$p95 }
+  
+coverage_matrix_n3_2.5 <- matrix( nrow = 6 , ncol = 5) 
+
+for (i in 1:5) { coverage_matrix_n3_2.5[,i] <- coverage.result( simulation_summary2[[i]] , true_p95 )$p95 }
+  
+coverage_matrix_n6_1.5 <- matrix( nrow = 6 , ncol = 5)
+
+for (i in 1:5) { coverage_matrix_n6_1.5[,i] <- coverage.result( simulation_summary3[[i]] , true_p95 )$p95 }
+
+coverage_matrix_n3_1.5 <- matrix( nrow = 6 , ncol = 5)
+
+for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summary4[[i]] , true_p95 )$p95 }
+  
+  
+  
+  coverage_table <- data.frame( approach = c("ideal_F" , "ideal_B" ,
                                            "naive_F" , "naive_B",
                                            "me_F" , "me_B"),
-                              n6_2.5 = coverage.result( simulation_summary1 , true_p95 )$p95,
-                              n3_2.5 = coverage.result( simulation_summary2 , true_p95 )$p95,
-                              n6_1.5 = coverage.result( simulation_summary3 , true_p95 )$p95,
-                              n3_1.5 = coverage.result( simulation_summary4 , true_p95 )$p95)
+                              n6_2.5_mean =  apply( coverage_matrix_n6_2.5 , 1 , mean ),
+                              n6_2.5_sd =  apply( coverage_matrix_n6_2.5 , 1 , sd ),
+                              n3_2.5_mean =  apply( coverage_matrix_n3_2.5 , 1 , mean ),
+                              n3_2.5_sd =  apply( coverage_matrix_n3_2.5 , 1 , sd ),
+                              n6_1.5_mean =  apply( coverage_matrix_n6_1.5 , 1 , mean ),
+                              n6_1.5_sd =  apply( coverage_matrix_n6_1.5 , 1 , sd ),
+                              n3_1.5_mean =  apply( coverage_matrix_n3_1.5 , 1 , mean ),
+                              n3_1.5_sd =  apply( coverage_matrix_n3_1.5 , 1 , sd ))
 
+###### bias ######                                
   
-#### SUPPORT #####
+       bias_array_n6_2.5 <- array( dim=c(6,3,5) )
+  
+      for (i in 1:5) { bias_array_n6_2.5[,,i] <- as.matrix(bias.result( simulation_summary1[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+  
+       
+      bias_table_n6_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                 "naive_F" , "naive_B",
+                                                 "me_F" , "me_B"),
+                                    gm_mean =  apply( bias_array_n6_2.5[,1,] , 1 , mean ),
+                                    gm_sd =  apply( bias_array_n6_2.5[,1,] , 1 , sd ),
+                                    gsd_mean =  apply( bias_array_n6_2.5[,2,] , 1 , mean ),
+                                    gsd_sd =  apply( bias_array_n6_2.5[,2,] , 1 , sd ),
+                                    p95_mean =  apply( bias_array_n6_2.5[,3,] , 1 , mean ),
+                                    p95_sd =  apply( bias_array_n6_2.5[,3,] , 1 , sd ))
+      
+      bias_array_n3_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { bias_array_n3_2.5[,,i] <- as.matrix(bias.result( simulation_summary2[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      
+      bias_table_n3_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                 "naive_F" , "naive_B",
+                                                 "me_F" , "me_B"),
+                                    gm_mean =  apply( bias_array_n3_2.5[,1,] , 1 , mean ),
+                                    gm_sd =  apply( bias_array_n3_2.5[,1,] , 1 , sd ),
+                                    gsd_mean =  apply( bias_array_n3_2.5[,2,] , 1 , mean ),
+                                    gsd_sd =  apply( bias_array_n3_2.5[,2,] , 1 , sd ),
+                                    p95_mean =  apply( bias_array_n3_2.5[,3,] , 1 , mean ),
+                                    p95_sd =  apply( bias_array_n3_2.5[,3,] , 1 , sd ))
+  
+      bias_array_n6_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { bias_array_n6_1.5[,,i] <- as.matrix(bias.result( simulation_summary3[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      
+      bias_table_n6_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                 "naive_F" , "naive_B",
+                                                 "me_F" , "me_B"),
+                                    gm_mean =  apply( bias_array_n6_1.5[,1,] , 1 , mean ),
+                                    gm_sd =  apply( bias_array_n6_1.5[,1,] , 1 , sd ),
+                                    gsd_mean =  apply( bias_array_n6_1.5[,2,] , 1 , mean ),
+                                    gsd_sd =  apply( bias_array_n6_1.5[,2,] , 1 , sd ),
+                                    p95_mean =  apply( bias_array_n6_1.5[,3,] , 1 , mean ),
+                                    p95_sd =  apply( bias_array_n6_1.5[,3,] , 1 , sd ))
+      
+      bias_array_n3_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { bias_array_n3_1.5[,,i] <- as.matrix(bias.result( simulation_summary4[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      
+      bias_table_n3_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                 "naive_F" , "naive_B",
+                                                 "me_F" , "me_B"),
+                                    gm_mean =  apply( bias_array_n3_1.5[,1,] , 1 , mean ),
+                                    gm_sd =  apply( bias_array_n3_1.5[,1,] , 1 , sd ),
+                                    gsd_mean =  apply( bias_array_n3_1.5[,2,] , 1 , mean ),
+                                    gsd_sd =  apply( bias_array_n3_1.5[,2,] , 1 , sd ),
+                                    p95_mean =  apply( bias_array_n3_1.5[,3,] , 1 , mean ),
+                                    p95_sd =  apply( bias_array_n3_1.5[,3,] , 1 , sd ))
+      
+      
+###### precision ######
+      
+      precision_array_n6_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { precision_array_n6_2.5[,,i] <- as.matrix(precision.result( simulation_summary1[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      
+      precision_table_n6_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( precision_array_n6_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( precision_array_n6_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( precision_array_n6_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( precision_array_n6_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( precision_array_n6_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( precision_array_n6_2.5[,3,] , 1 , sd ))
+      
+      precision_array_n3_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { precision_array_n3_2.5[,,i] <- as.matrix(precision.result( simulation_summary2[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      
+      precision_table_n3_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( precision_array_n3_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( precision_array_n3_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( precision_array_n3_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( precision_array_n3_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( precision_array_n3_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( precision_array_n3_2.5[,3,] , 1 , sd ))
+      
+      precision_array_n6_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { precision_array_n6_1.5[,,i] <- as.matrix(precision.result( simulation_summary3[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      
+      precision_table_n6_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( precision_array_n6_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( precision_array_n6_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( precision_array_n6_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( precision_array_n6_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( precision_array_n6_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( precision_array_n6_1.5[,3,] , 1 , sd ))
+      
+      precision_array_n3_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { precision_array_n3_1.5[,,i] <- as.matrix(precision.result( simulation_summary4[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      
+      precision_table_n3_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( precision_array_n3_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( precision_array_n3_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( precision_array_n3_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( precision_array_n3_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( precision_array_n3_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( precision_array_n3_1.5[,3,] , 1 , sd ))
+  
+      
+###### rmse ######
+      
+      rmse_array_n6_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { rmse_array_n6_2.5[,,i] <- as.matrix(rmse.result( simulation_summary1[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      
+      rmse_table_n6_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( rmse_array_n6_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( rmse_array_n6_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( rmse_array_n6_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( rmse_array_n6_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( rmse_array_n6_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( rmse_array_n6_2.5[,3,] , 1 , sd ))
+      
+      rmse_array_n3_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { rmse_array_n3_2.5[,,i] <- as.matrix(rmse.result( simulation_summary2[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      
+      rmse_table_n3_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( rmse_array_n3_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( rmse_array_n3_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( rmse_array_n3_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( rmse_array_n3_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( rmse_array_n3_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( rmse_array_n3_2.5[,3,] , 1 , sd ))
+      
+      rmse_array_n6_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { rmse_array_n6_1.5[,,i] <- as.matrix(rmse.result( simulation_summary3[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      
+      rmse_table_n6_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( rmse_array_n6_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( rmse_array_n6_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( rmse_array_n6_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( rmse_array_n6_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( rmse_array_n6_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( rmse_array_n6_1.5[,3,] , 1 , sd ))
+      
+      rmse_array_n3_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { rmse_array_n3_1.5[,,i] <- as.matrix(rmse.result( simulation_summary4[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      
+      rmse_table_n3_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( rmse_array_n3_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( rmse_array_n3_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( rmse_array_n3_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( rmse_array_n3_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( rmse_array_n3_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( rmse_array_n3_1.5[,3,] , 1 , sd ))
+      
+###### export ######
+      
+  result <- list( coverage = coverage_table,
+                  bias = list( n6_2.5 = bias_table_n6_2.5 , n3_2.5 = bias_table_n3_2.5 , n6_1.5 = bias_table_n6_1.5 , n3_1.5 = bias_table_n3_1.5 ),
+                  precision = list( n6_2.5 = precision_table_n6_2.5 , n3_2.5 = precision_table_n3_2.5 , n6_1.5 = precision_table_n6_1.5 , n3_1.5 = precision_table_n3_1.5 ),
+                  rmse = list( n6_2.5 = rmse_table_n6_2.5 , n3_2.5 = rmse_table_n3_2.5 , n6_1.5 = rmse_table_n6_1.5 , n3_1.5 = rmse_table_n3_1.5 ) )
 
-compute_rmse = function(x, theta){
-  
-  mean.x = mean(x)
-  
-  N = length(x)
-  
-  if(is.null(N))
-    stop("x must be a vector of minimum length 1")
-  
-  rmse = sqrt((mean.x - theta) ^ 2 + sum((x - mean.x) ^ 2) / (N - 1))
-  return(rmse)
-}
-
-compute_relrmse = function(x, theta){
-  
-  mean.x = mean(x)
-  
-  N = length(x)
-  
-  if(is.null(N))
-    stop("x must be a vector of minimum length 1")
-  
-  rmse = sqrt((mean.x - theta) ^ 2 + sum((x - mean.x) ^ 2) / (N - 1))/theta
-  return(rmse)
-}
-
-
-compute_bias = function(x, theta){
-  
-  bias = mean(x) - theta 
-  
-  return(bias)
-}
-
-
-compute_relbias = function(x, theta){
-  
-  bias = 100 * (mean(x) - theta) / theta
-  
-  return(bias)
-}
-
-
-compute_relprecision = function(x, theta){
-  
-  sd.x = sd(x)
-  
-  rp = 100 * sd.x / theta
-  
-  return(rp)
-}
+      # Make sure the rstudioapi package is installed
+      if (!require(rstudioapi)) {
+        install.packages("rstudioapi")
+      }
+      
+      # Get the path to the active project
+      project_directory <- rstudioapi::getActiveProject()
+      
+      # Set the working directory to the project directory
+      setwd(project_directory)      
+      
+            
+      saveRDS(result , "created data/GUM measurement error.RDS")
+      
+      
