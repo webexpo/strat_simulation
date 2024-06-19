@@ -1,0 +1,164 @@
+---
+title: "GUM measurement error pilot"
+author: "Jérôme Lavoué"
+date: "2024-06-19"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+
+
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+library(readxl)
+library(ggplot2)
+library(flextable)
+
+results <- readRDS("../created data/GUM measurement error.RDS")
+
+example <- readRDS( "../created data/GUM measurement error_ex1.RDS")
+          
+
+```
+
+## INTRODUCTION
+
+This document summarizes a short  simulation effort aiming at illustrating 2 approaches to deal with measurement error in the statistical evaluation of measurement data. 
+
+True exposure levels to airborne chemicals are often assumed to reasonably follow the lognormal distribution. When performing risk assessment, best practive recommend collecting 6-12 samples from the workplace to estimate metrics such as the 95th percentile or exceedance fraction of the OEL. However, the true exposure the measurements are subject to error potentially introduced during the sampling and analysis phases of the measurement process.
+
+Sampling and analysis (S&A) errors are often assumed to be normally distributed with mean zero.
+
+Two landmark documents have studied the impact of measurement error on the statistical evaluation of exposure data. [Grzebyk and sandino](https://www.inrs.fr/media.html?refINRS=ND%202231) in France and [Nicas, Simmons and Spear](https://www.tandfonline.com/doi/abs/10.1080/15298669191365199) in the US used slightly different approximations to demonstrate that S&A error below a CV of 30% has a negligible impact on the final estimate of the exposure metric for typical workplace GSD.
+
+Both teams had to use simplifying assumptions to make their conclusions. In recent decades advances in computing power have let to the rapid spread of Bayesian methods in industrial hygiene and other fields. Bayesian methods are very flexible, and indeed can be easily used to incorporate S&A error in the interpretation of exposure levels.
+
+An Bayesian S&A error model has been developed by our team at University of Montreal during the [Webexpo project](https://www.irsst.qc.ca/en/publications-tools/publication/i/101066/n/webexpo). 
+
+In parallel, the [supplement 1 to the ISO Guide to the expression of uncertainty in measurement (GUM)](https://www.iso.org/standard/50462.html) provides a framework to propagate measurement error in the final estimate of a statistical parameter using Monte Carlo simulation. 
+
+This document will compare the performance of the Bayesian model to the GUM model for industrial hygiene data interpretation in the context of a simple simulation study.
+
+## Webexpo the Bayesian S&A error model
+
+The model is described in details in the scientific reports linked above.
+
+In essence: 
+
+true_concentration is what really happens in the workplace, it is assumed to be lognormal with unknown geometric mean (GM) and geometric standard deviation (GSD).
+
+Mathematically :  
+
+* ln(true_concentration) ~ Normal( ln(GM ) , ln(GSD) )
+
+observed_concentration is what comes out of the laboratory. For a particular value of true_concentration, the observed_concentration is assumed to be equal to the true value plus an error term, which is traditionally assumed to be normally distributed with mean 0 and a known coefficient of variation (CV). 
+
+Mathematically : 
+
+* observed_concentration = true_concentration + error
+
+* error ~ Normal(0,CV)
+                
+As an example, for an expanded uncertainty of 50%, the CV would be ~25%.
+
+During the analysis of a sample with this model, one would supply the observed values as well as the assumed CV, and the Bayesian engine would return posterior samples for all metrics of interest. The posterior samples represent the estimated uncertainty distribution of the parameter of interest. It is typical to use the median of the posterior sample as the point estimate, and, e.g., the 70% quantile of the posterior sample as a 70% upper confidence limit.
+
+## GUM approach
+
+This is the approach described by email by Robert Emond in an email from June 6th, 202 as understood (possibly misunderstood) by Jérôme Lavoué
+
+The steps to estimate parameters and or upper limits is as follows: 
+
+    
+* sample from a normal distribution around the observed values
+* calculate a metric with the new dataset
+* repeat a lot of times - result is a lot of values of the metric
+* report the average value of the metric / check that the variability across repeats is reasonable
+    
+
+For the practical implementation of the GUM approach, I used the frequentist estimation methods for the 95th percentile as presented in . To be able to obtain the 70% UCL I used tables in Zwillinger, D.; Kokoska, S. (2000) Standard Probability and Statistics Tables and Formulae. Chapman & Hall / CRC, Boca Raton, FL
+Pp 176 (section 7.3 Tolerance factors for the normal distribution)
+    
+## Example using both approaches
+
+The vector of true concentrations is : `r signif(example$true_data,2)`
+
+It was generated from a lognormal distribution with 95th percentile=100 and GSD=2.5
+
+The vector of observed concentration was created by adding normal random noise to the true concentrations. The observed concentrations would be what is accessible to the industrial hygienist. We selected a value for S&E error of 25%, which correspond to an expanded uncertainty of 50%.
+
+The vector of observed concentrations is : `r signif(example$observed_data,2)`
+
+Table 1 below shows the results of the determination of 4 metrics : gm, gsd, 95th percentile (p95) and the 70% upper confidence limit on the 95th percentile (P95_ucl). These were calculated using both a Bayesian and Frequentist framework for three conditions : 
+
+* Ideal condition : the analysis was performed on the true concentrations, i.e, if there was no measurement error at all
+* Naive condition : the analysis was performed on the observed concentrations, but without any provision for measurement error in the estimation process. This represents what is done by most tools today.
+* ME condition :  the analysis was performed on the observed concentrations, this time with provision for measurement error: The Bayesian measurement error model for the Bayesian analysis and the GUM approach for the Frequentist analysis.
+
+```{r table 1, warning=FALSE}
+
+
+T1 <- example$results[-1,]
+
+ft <- flextable(T1)
+
+ft <- autofit(ft)
+
+ft <- align( ft, j = 2:5, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 1 : Applying 2 measurement error approaches to one sample", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:5), digits = 1)
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = 1 ,
+                value = as_paragraph("Ideal : analysis performed on true concentrations with standard approach, Naive : analysis performed on observed concentrations with standard approach, me : analysis performed on observed concentrations with measurement error approach (Bayesian or GUM)"),
+                ref_symbols = "a", part = "header")
+
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = 1 ,
+                value = as_paragraph("_b : Bayesian method, _f : frequentist method"),
+                ref_symbols = "b", part = "header")
+
+
+ft
+
+```
+
+Observations from T1 : 
+
+* GM seems little impacted
+* The naive approach clearly shows an overestimation of environmental variability (expected as we observed environmental variability as well as S&E noise )
+* For GSD, the frequentist approach considerably increase the estimate compared to naive approach (expected since normal noise is added to the observations in the Monte Carlo procedure)
+* For GSD, the Bayesian approach decreases the estimate compared to naive approach (expected since the Bayesian model takes the S&E noise into account when trying to estimate the variability of the true concentrations)
+
+* Overall the Bayesian ME approach seems to get results closer to the ideal results compared to the GUM approach, but not always much closer.    
+    
+
+
+## limited simulation study
+    
+    
+The previous example illustrate the general behavious of both measurement error approaches, but doesn't really provide useful information as to their performance / interest.
+    
+    
+    
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
