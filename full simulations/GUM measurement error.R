@@ -78,7 +78,7 @@
     
     # frequentit estimation
     
-    source("F:/github/Webexpo/strat_simulation/parameter estimation/frequentist/percentile.R")
+    source("parameter estimation/frequentist/percentile.R")
     
 ##### Functions #####
  
@@ -299,6 +299,98 @@
     
   # the raw simulation files are located on dropbox : Dropbox\GITHUB\WEBEXPO\sampling_strats\GUM measurement error 2024   
   
+  ###### Example 1 ######  
+    
+    
+    ## parameters
+    
+    expanded_uncertainty <- 0.50
+    
+    coverage_factor <- qnorm(0.975)
+    
+    me.cv.range.factor <- 1 #( <1, if one wants to input uncertain uncertainty in the ME analysis)
+    
+    me.cv <- me.cv.range.factor*expanded_uncertainty/coverage_factor
+    
+    sample_size <- 6
+    
+    true_p95 <- 100
+    
+    true_gsd <- 2.5
+    
+    oel <- 300
+    
+    true_gm <- exp( log(true_p95) - qnorm(0.95)*log(true_gsd) )
+    
+    ## data generated
+    
+    true_data <- c(15.446956, 121.058372,  39.942332,   9.226556, 197.908315,  22.717817 )   
+    
+    observed_data <- c(12.793548, 155.902654,  40.918517,   3.873618, 219.697256,  29.277506 )
+    
+    ## Bayesian analysis
+    
+    ideal_analysis_b <- myfunction.naive( true_data , oel)
+    
+    ideal_analysis_f <- myfunction.freq( true_data )
+    
+    naive_analysis_b <- myfunction.naive( observed_data , oel)
+    
+    naive_analysis_f <- myfunction.freq( observed_data )
+    
+    me_analysis_b <- myfunction.me( observed_data , me.range = c(me.cv.range.factor*expanded_uncertainty/coverage_factor,
+                                                               expanded_uncertainty/(coverage_factor*me.cv.range.factor)) ,oel)
+    
+    me_analysis_f <- myfunction.gum( observed_data , 10000 , expanded_uncertainty/coverage_factor)
+    
+    ##numerical results - P95 estimates
+    
+    exemple1_table <- data.frame( type = c("true","ideal_b","ideal_f","naive_b","naive_f","me_b","me_f"),
+                                  
+                                  gm = c( true_gm,
+                                          median(ideal_analysis_b$gm_chain),
+                                          ideal_analysis_f$gm,
+                                          median(naive_analysis_b$gm_chain),
+                                          naive_analysis_f$gm,
+                                          median(me_analysis_b$gm_chain),
+                                          me_analysis_f$gm),
+                                  
+                                  gsd = c( true_gsd,
+                                           median(ideal_analysis_b$gsd_chain),
+                                           ideal_analysis_f$gsd,
+                                           median(naive_analysis_b$gsd_chain),
+                                           naive_analysis_f$gsd,
+                                           median(me_analysis_b$gsd_chain),
+                                           me_analysis_f$gsd),
+                                  
+                                  
+                                  
+                                  p95 = c( true_p95,
+                                           quantile(ideal_analysis_b$p95_chain,0.5),
+                                           ideal_analysis_f$p95,
+                                           quantile(naive_analysis_b$p95_chain,0.5),
+                                           naive_analysis_f$p95,
+                                           quantile(me_analysis_b$p95_chain,0.5),
+                                           me_analysis_f$p95),
+                                  
+                                  p95_ucl = c( NA,
+                                               quantile(ideal_analysis_b$p95_chain,0.7),
+                                               ideal_analysis_f$p95ucl70,
+                                               quantile(naive_analysis_b$p95_chain,0.7),
+                                               naive_analysis_f$p95ucl70,
+                                               quantile(me_analysis_b$p95_chain,0.7),
+                                               me_analysis_f$p95ucl70)
+                                  
+    )
+    
+    
+    exemple1.object <- list( true_data = true_data,
+                             observed_data = observed_data,
+                             results = exemple1_table)
+    
+    saveRDS( exemple1.object, "created data/GUM measurement error_ex1.RDS")
+    
+      
   ###### simulation 1 ##### 
     
     ## impact on estimation of gm, gsd, p95, and the p95 70% UCL
