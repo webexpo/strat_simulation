@@ -134,7 +134,7 @@
       
     }
     
-    #' smal function for using monte carlo simulation as described by Scheffers et al.
+    #' small function for using monte carlo simulation as described by Scheffers et al.
     #'
     #' @param mysample sample to be analysed
     #' @param me.cv standard measurement error as CV
@@ -181,6 +181,45 @@
       return(result)
       
     }
+    
+    
+    #' small function for frequentist estimation of GM, GSD and P95 
+    #'
+    #' @param mysample sample to be analysed
+    #'
+    #' @return GM, GSD and P95
+    #'
+    
+    myfunction.freq <- function( mysample  ) {
+      
+      # mysample <- c("28.9","19.40","<8.22","149.9","26.42","56.1")
+      # n.simul <- 10000
+      
+      # ROS
+      
+      mysample.ros <- fun.NdExpo.lognorm( mysample )$data$xfin
+      
+      observed_data <- pmax( 0.1 , rnorm( length(mysample.ros) , mysample.ros , mysample.ros*me.cv ) ) #truncation at 0.1
+        
+        gm.ros <- exp(mean(log(mysample.ros)))
+        
+        gsd.ros <- exp(sd(log(mysample.ros)))
+        
+        p95.ros <- fun.perc(mysample.ros,alpha=0.05,perc=0.95)$est
+        
+        p95ucl70.ros <- fun.perc(mysample.ros,alpha=0.30,perc=0.95)$uc
+        
+      result <- list( gm = gm.ros,
+                      gsd = gsd.ros,
+                      p95 = p95.ros,
+                      p95ucl70 = p95ucl70.ros )
+      
+      return(result)
+      
+    }
+    
+    
+    
     
     #' function repeatedly estimating P95 and its 70% UTL for ideal, naive and measurement error analysis
     #'
@@ -1115,199 +1154,3 @@
     saveRDS( simulation_summary, "created data/aioh2023-r2_3.RDS")    
     
     
-    
-    
-      
-    
-  ###### relative bias for P95
-    
-    
-    
-  ##### distance between naive , ME, and perfect 70% UCL  
-    
-    
-    
-    
-  ###### visuals 1 : estimates ####
-        
-        mcmc.data <- data.frame( p95 = c( simulation_summary$ideal_p95_ucl,
-                                          simulation_summary$naive_p95_ucl,
-                                          simulation_summary$me_p95_ucl),
-                                 
-                                 type = c( rep("p95_ideal", mylength), rep("p95_naive", mylength) , rep("p95_me", mylength)))
-        
-        mcmc.data$index <- sample( x = 1:length(mcmc.data[,1]) , size = n_simul*3 , replace = FALSE)
-        
-        
-        p <- ggplot(data = mcmc.data, aes(x=index,y=p95,color = type) ) 
-        
-        p <- p + geom_point(alpha = 0.3, size = 3  )
-        
-        p <- p + theme_calc()
-        
-        
-        p <- p +  theme(axis.text.x=element_text(size=14),axis.title.x=element_text(size=16,vjust=+0.55))+
-          theme(axis.text.y=element_text(size=14),axis.title.y=element_text(size=16,vjust=+0.55))+
-          labs(x=expression ( x=""), y=expression ( x="Observed values for P95"))
-        
-        p <- p + scale_y_continuous(expand = c(0, 0) , 
-                                    limits = c(1, quantile(mcmc.data$p95,0.8)),
-                                    labels = scales::number_format(accuracy = 0.1,
-                                                                   decimal.mark = ',') )
-        p <- p + scale_x_continuous(expand = c(0, 20) , 
-                                    limits = c(0, n_simul*3) )
-        
-        p <- p + theme( plot.background = element_rect(color = NA) )
-        
-        
-        p <- p + geom_hline(yintercept=quantile(simulation_summary$ideal_p95,0.5) , color = "red" , linetype="dashed",size = 1.5)
-        p <- p + geom_hline(yintercept=quantile(simulation_summary$naive_p95,0.5) , color = "blue" , linetype="dashed",size = 1.5)
-        p <- p + geom_hline(yintercept=quantile(simulation_summary$me_p95,0.5) , color = "green" , linetype="dashed",size = 1.5)
-        
-        
-        p  
-        
-        
-        ###### visuals 2 : ucl ####
-        
-        mcmc.data <- data.frame( p95 = c( simulation_summary$ideal_p95_ucl,
-                                          simulation_summary$naive_p95_ucl,
-                                          simulation_summary$me_p95_ucl),
-                                 
-                                 type = c( rep("p95_ideal", mylength), rep("p95_naive", mylength) , rep("p95_me", mylength)))
-        
-        mcmc.data$index <- sample( x = 1:length(mcmc.data[,1]) , size = n_simul*3 , replace = FALSE)
-        
-        
-        p <- ggplot(data = mcmc.data, aes(x=index,y=p95,color = type) ) 
-        
-        p <- p + geom_point(alpha = 0.3, size = 3  )
-        
-        p <- p + theme_calc()
-        
-        
-        p <- p +  theme(axis.text.x=element_text(size=14),axis.title.x=element_text(size=16,vjust=+0.55))+
-          theme(axis.text.y=element_text(size=14),axis.title.y=element_text(size=16,vjust=+0.55))+
-          labs(x=expression ( x=""), y=expression ( x="Observed values for P95"))
-        
-        p <- p + scale_y_continuous(expand = c(0, 0) , 
-                                    limits = c(1, quantile(mcmc.data$p95,0.8)),
-                                    labels = scales::number_format(accuracy = 0.1,
-                                                                   decimal.mark = ',') )
-        p <- p + scale_x_continuous(expand = c(0, 20) , 
-                                    limits = c(0, n_simul*3) )
-        
-        p <- p + theme( plot.background = element_rect(color = NA) )
-        
-        
-        p <- p + geom_hline(yintercept=quantile(simulation_summary$ideal_p95_ucl,0.5) , color = "red" , linetype="dashed",size = 1.5)
-        p <- p + geom_hline(yintercept=quantile(simulation_summary$naive_p95_ucl,0.5) , color = "blue" , linetype="dashed",size = 1.5)
-        p <- p + geom_hline(yintercept=quantile(simulation_summary$me_p95_ucl,0.5) , color = "green" , linetype="dashed",size = 1.5)
-        
-
-        
-fivenum( simulation_summary$ideal_p95)                
-fivenum( simulation_summary$naive_p95)
-fivenum( simulation_summary$me_p95)
-
-
-fivenum( simulation_summary$ideal_p95_ucl)                
-fivenum( simulation_summary$naive_p95_ucl)
-fivenum( simulation_summary$me_p95_ucl)
-
-
-    ###### visuals 3 : EST + IC ####
-
-
-mydata1 <- data.frame( model = ordered(c("ideal","naive","ME"),
-                                       levels = rev(c("ideal","naive","ME"))),
-                       lcl = c( quantile(simulation_summary$ideal_p95,0.1),
-                                quantile(simulation_summary$naive_p95,0.1),
-                                quantile(simulation_summary$me_p95,0.1)),
-                       est = c( quantile(simulation_summary$ideal_p95,0.5),
-                                quantile(simulation_summary$naive_p95,0.5),
-                                quantile(simulation_summary$me_p95,0.5)),
-                       ucl = c( quantile(simulation_summary$ideal_p95,0.9),
-                                quantile(simulation_summary$naive_p95,0.9),
-                                quantile(simulation_summary$me_p95,0.9)))
-
-p <- ggplot(mydata1) 
-
-p <- p +  geom_segment(aes( x = model , xend = model , y = lcl , yend = ucl )) + coord_flip() + ylab("Concentration (ppm)")
-
-p <- p + geom_point( aes( x = model , y = est) , size = 2)
-
-p <- p + geom_hline( yintercept=100, color="red", linetype="dashed", size=1)
-
-p <- p + theme_solarized()
-
-p
-
-
-###### visuals 3 : 70% UCL + IC ####
-
-
-mydata1 <- data.frame( model = ordered(c("ideal","naive","ME"),
-                                       levels = rev(c("ideal","naive","ME"))),
-                       lcl = c( quantile(simulation_summary$ideal_p95_ucl,0.1),
-                                quantile(simulation_summary$naive_p95_ucl,0.1),
-                                quantile(simulation_summary$me_p95_ucl,0.1)),
-                       est = c( quantile(simulation_summary$ideal_p95_ucl,0.5),
-                                quantile(simulation_summary$naive_p95_ucl,0.5),
-                                quantile(simulation_summary$me_p95_ucl,0.5)),
-                       ucl = c( quantile(simulation_summary$ideal_p95_ucl,0.9),
-                                quantile(simulation_summary$naive_p95_ucl,0.9),
-                                quantile(simulation_summary$me_p95_ucl,0.9)))
-
-p <- ggplot(mydata1) 
-
-p <- p +  geom_segment(aes( x = model , xend = model , y = lcl , yend = ucl )) + coord_flip() + ylab("Concentration (ppm)")
-
-p <- p + geom_point( aes( x = model , y = est) , size = 2)
-
-p <- p + theme_solarized()
-
-p
-
-
-###### visuals 4 : gm + boxplot ####
-
-
-mcmc.data <- data.frame( p95_ucl = c( simulation_summary$ideal_p95_ucl,
-                                  simulation_summary$naive_p95_ucl,
-                                  simulation_summary$me_p95_ucl),
-                         p95 = c( simulation_summary$ideal_p95,
-                                      simulation_summary$naive_p95,
-                                      simulation_summary$me_p95),
-                         gm = c( simulation_summary$ideal_gm,
-                                  simulation_summary$naive_gm,
-                                  simulation_summary$me_gm),
-                         gsd = c( simulation_summary$ideal_gsd,
-                                 simulation_summary$naive_gsd,
-                                 simulation_summary$me_gsd),
-                         type = c( rep("p95_ideal", n_simul), rep("p95_naive", n_simul) , rep("p95_me", n_simul)))
-f <- function(x) {
-  r <- quantile(x, probs = c(0.1, 0.25, 0.5, 0.75, 0.9))
-  names(r) <- c("ymin", "lower", "middle", "upper", "ymax")
-  r
-}
-
-
-
-p <- ggplot( mcmc.data, aes(x=type, y=p95_ucl)) 
-
-p <- p +  stat_summary(fun.data = f, geom="boxplot",color="blue",size=2)
-
-p <- p + geom_point(position=position_jitter(width=0.3), alpha=0.05, size = 2)
-
-p <- p +  scale_y_log10(limits=c(75,300))
-
-p <- p + theme_calc()
-
-
-p <- p +  theme(axis.text.x=element_text(size=14),axis.title.x=element_text(size=16,vjust=+0.55))+
-  theme(axis.text.y=element_text(size=14),axis.title.y=element_text(size=16,vjust=+0.55))+
-  labs(x=expression ( x=""), y=expression ( x="Estimated 70% UCLs for for P95"))
-
-p
-
