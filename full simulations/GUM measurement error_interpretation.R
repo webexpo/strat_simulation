@@ -13,9 +13,13 @@
 
 true_p95 <- 100
 
-true_gsd <- 2.5
+true_gsd_2.5 <- 2.5
 
-true_gm <- exp( log(true_p95) - qnorm(0.95)*log(true_gsd) )
+true_gm_2.5 <- exp( log(true_p95) - qnorm(0.95)*log(true_gsd_2.5) )
+
+true_gsd_1.5 <- 1.5
+
+true_gm_1.5 <- exp( log(true_p95) - qnorm(0.95)*log(true_gsd_1.5) )
 
 
 ## simulation parameters
@@ -28,9 +32,23 @@ sample_size <- c(6,3,6,3)
 
 gsd <- c(2.5,2.5,1.5,1.5)
 
+# Make sure the rstudioapi package is installed
+if (!require(rstudioapi)) {
+  install.packages("rstudioapi")
+}
+
+# Get the path to the active project
+project_directory <- rstudioapi::getActiveProject()
+
+# Set the working directory to the project directory
+setwd(project_directory) 
+
 source("other/support_functions.R")
 
 setwd("C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/GUM measurement error 2024")
+setwd("F:/Dropbox/GITHUB/WEBEXPO/sampling_strats/GUM measurement error 2024")
+
+
 
 simulation_summary1 <- list ( sa = readRDS("aioh2023-S2_1.RDS"),
                               sb = readRDS("aioh2023-S2_1b.RDS"),
@@ -239,7 +257,7 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
   
        bias_array_n6_2.5 <- array( dim=c(6,3,5) )
   
-      for (i in 1:5) { bias_array_n6_2.5[,,i] <- as.matrix(bias.result( simulation_summary1[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      for (i in 1:5) { bias_array_n6_2.5[,,i] <- as.matrix(bias.result( simulation_summary1[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
   
        
       bias_table_n6_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
@@ -254,7 +272,7 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
       
       bias_array_n3_2.5 <- array( dim=c(6,3,5) )
       
-      for (i in 1:5) { bias_array_n3_2.5[,,i] <- as.matrix(bias.result( simulation_summary2[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      for (i in 1:5) { bias_array_n3_2.5[,,i] <- as.matrix(bias.result( simulation_summary2[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
       
       bias_table_n3_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
                                                  "naive_F" , "naive_B",
@@ -268,7 +286,7 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
   
       bias_array_n6_1.5 <- array( dim=c(6,3,5) )
       
-      for (i in 1:5) { bias_array_n6_1.5[,,i] <- as.matrix(bias.result( simulation_summary3[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      for (i in 1:5) { bias_array_n6_1.5[,,i] <- as.matrix(bias.result( simulation_summary3[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
       
       bias_table_n6_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
                                                  "naive_F" , "naive_B",
@@ -282,7 +300,7 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
       
       bias_array_n3_1.5 <- array( dim=c(6,3,5) )
       
-      for (i in 1:5) { bias_array_n3_1.5[,,i] <- as.matrix(bias.result( simulation_summary4[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      for (i in 1:5) { bias_array_n3_1.5[,,i] <- as.matrix(bias.result( simulation_summary4[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
       
       bias_table_n3_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
                                                  "naive_F" , "naive_B",
@@ -299,7 +317,7 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
       
       precision_array_n6_2.5 <- array( dim=c(6,3,5) )
       
-      for (i in 1:5) { precision_array_n6_2.5[,,i] <- as.matrix(precision.result( simulation_summary1[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      for (i in 1:5) { precision_array_n6_2.5[,,i] <- as.matrix(precision.result( simulation_summary1[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
       
       precision_table_n6_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
                                                      "naive_F" , "naive_B",
@@ -313,7 +331,7 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
       
       precision_array_n3_2.5 <- array( dim=c(6,3,5) )
       
-      for (i in 1:5) { precision_array_n3_2.5[,,i] <- as.matrix(precision.result( simulation_summary2[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      for (i in 1:5) { precision_array_n3_2.5[,,i] <- as.matrix(precision.result( simulation_summary2[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
       
       precision_table_n3_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
                                                      "naive_F" , "naive_B",
@@ -327,7 +345,7 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
       
       precision_array_n6_1.5 <- array( dim=c(6,3,5) )
       
-      for (i in 1:5) { precision_array_n6_1.5[,,i] <- as.matrix(precision.result( simulation_summary3[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      for (i in 1:5) { precision_array_n6_1.5[,,i] <- as.matrix(precision.result( simulation_summary3[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
       
       precision_table_n6_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
                                                      "naive_F" , "naive_B",
@@ -341,7 +359,7 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
       
       precision_array_n3_1.5 <- array( dim=c(6,3,5) )
       
-      for (i in 1:5) { precision_array_n3_1.5[,,i] <- as.matrix(precision.result( simulation_summary4[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      for (i in 1:5) { precision_array_n3_1.5[,,i] <- as.matrix(precision.result( simulation_summary4[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
       
       precision_table_n3_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
                                                      "naive_F" , "naive_B",
@@ -358,7 +376,7 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
       
       rmse_array_n6_2.5 <- array( dim=c(6,3,5) )
       
-      for (i in 1:5) { rmse_array_n6_2.5[,,i] <- as.matrix(rmse.result( simulation_summary1[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      for (i in 1:5) { rmse_array_n6_2.5[,,i] <- as.matrix(rmse.result( simulation_summary1[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
       
       rmse_table_n6_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
                                                      "naive_F" , "naive_B",
@@ -372,7 +390,7 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
       
       rmse_array_n3_2.5 <- array( dim=c(6,3,5) )
       
-      for (i in 1:5) { rmse_array_n3_2.5[,,i] <- as.matrix(rmse.result( simulation_summary2[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      for (i in 1:5) { rmse_array_n3_2.5[,,i] <- as.matrix(rmse.result( simulation_summary2[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
       
       rmse_table_n3_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
                                                      "naive_F" , "naive_B",
@@ -386,7 +404,7 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
       
       rmse_array_n6_1.5 <- array( dim=c(6,3,5) )
       
-      for (i in 1:5) { rmse_array_n6_1.5[,,i] <- as.matrix(rmse.result( simulation_summary3[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      for (i in 1:5) { rmse_array_n6_1.5[,,i] <- as.matrix(rmse.result( simulation_summary3[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
       
       rmse_table_n6_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
                                                      "naive_F" , "naive_B",
@@ -400,7 +418,7 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
       
       rmse_array_n3_1.5 <- array( dim=c(6,3,5) )
       
-      for (i in 1:5) { rmse_array_n3_1.5[,,i] <- as.matrix(rmse.result( simulation_summary4[[i]] , true_p95 , true_gsd , true_gm )[,2:4]) }
+      for (i in 1:5) { rmse_array_n3_1.5[,,i] <- as.matrix(rmse.result( simulation_summary4[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
       
       rmse_table_n3_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
                                                      "naive_F" , "naive_B",

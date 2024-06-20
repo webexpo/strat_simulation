@@ -67,7 +67,7 @@
           if(is.null(N))
             stop("x must be a vector of minimum length 1")
           
-          rmse = sqrt((mean.x - theta) ^ 2 + sum((x - mean.x) ^ 2) / (N - 1))/theta
+          rmse = 100*sqrt((mean.x - theta) ^ 2 + sum((x - mean.x) ^ 2) / (N - 1))/theta
           return(rmse)
         }
         

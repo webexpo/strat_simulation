@@ -23,7 +23,7 @@ example <- readRDS( "../created data/GUM measurement error_ex1.RDS")
 
 ```
 
-## INTRODUCTION
+## Introduction
 
 This document summarizes a short  simulation effort aiming at illustrating 2 approaches to deal with measurement error in the statistical evaluation of measurement data. 
 
@@ -41,7 +41,7 @@ In parallel, the [supplement 1 to the ISO Guide to the expression of uncertainty
 
 This document will compare the performance of the Bayesian model to the GUM model for industrial hygiene data interpretation in the context of a simple simulation study.
 
-## Webexpo the Bayesian S&A error model
+## Webexpo Bayesian S&A error model
 
 The model is described in details in the scientific reports linked above.
 
@@ -144,21 +144,379 @@ Observations from T1 :
 ## limited simulation study
     
     
-The previous example illustrate the general behavious of both measurement error approaches, but doesn't really provide useful information as to their performance / interest.
+The previous example illustrate the general behaviour of both measurement error approaches, but doesn't really provide useful information as to their performance / interest.
+
+TO get a little bit more insight we performed a simulation study for 4 scenarios of sample size and true variability : GSD = 1.5 or 2.5 , n=3 or 6. We ketp the true 95th percentile at 100. For each scenario we generated 1000 datasets of true and observed concentrations using an expanded S&E uncertainty CV of 50%. For each simulated dataset we calculated the same metrics as shown above.
+
+To summarize the results across the 10 000 we calculated, for gm, gsd and P95 the bias, precision and rmse of the estimates. For the 70% UCL on the 95th percentile we calculated the coverage of that UCL i.e. the proportion of time the calculated UCL was indeed greater than the true P95 of 100.
+
+The stability of the simulation was assessed by looking at the variability of the results across the 5 repeats of te entire simulation effort. To limit the amount of information presented, we only show the mean results across the 5 repetitions as the standard deviation across the 5 repetitions were very small. They are however available in the raw data.
+
+Overall this took approximate 20h of computing time on a modern desktop computer.
+
+### results
+
+#### geometric mean
+
+Table 2 below presents the results for the estimation of the geometric mean. All metrics are relative to the true value of the parameter. 
+
+
+```{r table 2, warning=FALSE}
+
+
+T2 <- results$bias$n6_2.5[,1:2]
+
+
+#BIAS
+T2 <- cbind(T2, results$bias$n3_2.5[,2],
+                results$bias$n6_1.5[,2],
+                results$bias$n3_1.5[,2])
+
+#PRECISION
+T2 <- cbind(T2, results$precision$n6_2.5[,2],
+                results$precision$n3_2.5[,2],
+                results$precision$n6_1.5[,2],
+                results$precision$n3_1.5[,2])
+
+#RMSE
+T2 <- cbind(T2, results$rmse$n6_2.5[,2],
+                results$rmse$n3_2.5[,2],
+                results$rmse$n6_1.5[,2],
+                results$rmse$n3_1.5[,2])
+
+
+colnames(T2) <- c("Approach","bias_n6_2.5","bias_n3_2.5","bias_n6_1.5","bias_n3_1.5",
+                  "precision_n6_2.5","precision_n3_2.5","precision_n6_1.5","precision_n3_1.5",
+                  "rmse_n6_2.5","rmse_n3_2.5","rmse_n6_1.5","rmse_n3_1.5")
+
+ft <- flextable(T2)
+
+ft <- autofit(ft)
+
+
+## FIRST LINES
+
+ft <- set_header_labels( ft, 
+                            values = list(Approach = "Approach",
+                                          bias_n6_2.5 = "n=6",
+                                          bias_n3_2.5 = "n=3",
+                                          bias_n6_1.5 = "n=6",
+                                          bias_n3_1.5 = "n=3",
+                                          precision_n6_2.5 = "n=6",
+                                          precision_n3_2.5 = "n=3",
+                                          precision_n6_1.5 = "n=6",
+                                          precision_n3_1.5 = "n=3",
+                                          rmse_n6_2.5 = "n=6",
+                                          rmse_n3_2.5 = "n=3",
+                                          rmse_n6_1.5 = "n=6",
+                                          rmse_n3_1.5 = "n=3"))
+
+                                          
+#gsd                                          
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(rep(c("GSD=2.5","GSD=1.5"),c(2,2)),3)  ))
+
+ft <- merge_at( ft , i = 1, j = c(2:3), part = "header")
+ft <- merge_at( ft , i = 1, j = c(4:5), part = "header")
+ft <- merge_at( ft , i = 1, j = c(6:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:9), part = "header")
+ft <- merge_at( ft , i = 1, j = c(10:11), part = "header")
+ft <- merge_at( ft , i = 1, j = c(12:13), part = "header")
+
+# metric
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(c("Bias","Precision","RMSE"),c(4,4,4))))
+
     
+ft <- merge_at( ft , i = 1, j = c(2:5), part = "header")
+ft <- merge_at( ft , i = 1, j = c(6:9), part = "header")
+ft <- merge_at( ft , i = 1, j = c(10:13), part = "header")
     
+        
+##  rest
+
+
+ft <- align( ft, j = 2:13, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 2 : Performance metrics for GM", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:13), digits = 1)
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = c(2,6,10) ,
+                value = as_paragraph("all metrics are relative to the true value of the parameter and expressed in %"),
+                ref_symbols = "a", part = "header")
+
+
+ft <- vline(ft, i = NULL , j= c(1,5,9), border = NULL, part = "body")
     
 
-```{r cars}
-summary(cars)
+ft
+
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
+#### geometric standard deviation
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+Table 3 below presents the results for the estimation of the geometric standard deviation. All metrics are relative to the true value of the parameter. 
+
+
+```{r table 3, warning=FALSE}
+
+
+T3 <- results$bias$n6_2.5[,c(1,4)]
+
+
+#BIAS
+T3 <- cbind(T3, results$bias$n3_2.5[,4],
+                results$bias$n6_1.5[,4],
+                results$bias$n3_1.5[,4])
+
+#PRECISION
+T3 <- cbind(T3, results$precision$n6_2.5[,4],
+                results$precision$n3_2.5[,4],
+                results$precision$n6_1.5[,4],
+                results$precision$n3_1.5[,4])
+
+#RMSE
+T3 <- cbind(T3, results$rmse$n6_2.5[,4],
+                results$rmse$n3_2.5[,4],
+                results$rmse$n6_1.5[,4],
+                results$rmse$n3_1.5[,4])
+
+
+colnames(T3) <- c("Approach","bias_n6_2.5","bias_n3_2.5","bias_n6_1.5","bias_n3_1.5",
+                  "precision_n6_2.5","precision_n3_2.5","precision_n6_1.5","precision_n3_1.5",
+                  "rmse_n6_2.5","rmse_n3_2.5","rmse_n6_1.5","rmse_n3_1.5")
+
+ft <- flextable(T3)
+
+ft <- autofit(ft)
+
+
+## FIRST LINES
+
+ft <- set_header_labels( ft, 
+                            values = list(Approach = "Approach",
+                                          bias_n6_2.5 = "n=6",
+                                          bias_n3_2.5 = "n=3",
+                                          bias_n6_1.5 = "n=6",
+                                          bias_n3_1.5 = "n=3",
+                                          precision_n6_2.5 = "n=6",
+                                          precision_n3_2.5 = "n=3",
+                                          precision_n6_1.5 = "n=6",
+                                          precision_n3_1.5 = "n=3",
+                                          rmse_n6_2.5 = "n=6",
+                                          rmse_n3_2.5 = "n=3",
+                                          rmse_n6_1.5 = "n=6",
+                                          rmse_n3_1.5 = "n=3"))
+
+                                          
+#gsd                                          
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(rep(c("GSD=2.5","GSD=1.5"),c(2,2)),3)  ))
+
+ft <- merge_at( ft , i = 1, j = c(2:3), part = "header")
+ft <- merge_at( ft , i = 1, j = c(4:5), part = "header")
+ft <- merge_at( ft , i = 1, j = c(6:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:9), part = "header")
+ft <- merge_at( ft , i = 1, j = c(10:11), part = "header")
+ft <- merge_at( ft , i = 1, j = c(12:13), part = "header")
+
+# metric
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(c("Bias","Precision","RMSE"),c(4,4,4))))
+
+    
+ft <- merge_at( ft , i = 1, j = c(2:5), part = "header")
+ft <- merge_at( ft , i = 1, j = c(6:9), part = "header")
+ft <- merge_at( ft , i = 1, j = c(10:13), part = "header")
+    
+        
+##  rest
+
+
+ft <- align( ft, j = 2:13, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 3 : Performance metrics for GSD", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:13), digits = 1)
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = c(2,6,10) ,
+                value = as_paragraph("all metrics are relative to the true value of the parameter and expressed in %"),
+                ref_symbols = "a", part = "header")
+
+
+ft <- vline(ft, i = NULL , j= c(1,5,9), border = NULL, part = "body")
+    
+
+ft
+
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+#### 95th percentile
+
+Table 4 below presents the results for the estimation of the geometric standard deviation. All metrics are relative to the true value of the parameter. 
+
+
+```{r table 4, warning=FALSE}
+
+
+T4 <- results$bias$n6_2.5[,c(1,6)]
+
+
+#BIAS
+T4 <- cbind(T4, results$bias$n3_2.5[,6],
+                results$bias$n6_1.5[,6],
+                results$bias$n3_1.5[,6])
+
+#PRECISION
+T4 <- cbind(T4, results$precision$n6_2.5[,6],
+                results$precision$n3_2.5[,6],
+                results$precision$n6_1.5[,6],
+                results$precision$n3_1.5[,6])
+
+#RMSE
+T4 <- cbind(T4, results$rmse$n6_2.5[,6],
+                results$rmse$n3_2.5[,6],
+                results$rmse$n6_1.5[,6],
+                results$rmse$n3_1.5[,6])
+
+
+colnames(T4) <- c("Approach","bias_n6_2.5","bias_n3_2.5","bias_n6_1.5","bias_n3_1.5",
+                  "precision_n6_2.5","precision_n3_2.5","precision_n6_1.5","precision_n3_1.5",
+                  "rmse_n6_2.5","rmse_n3_2.5","rmse_n6_1.5","rmse_n3_1.5")
+
+ft <- flextable(T4)
+
+ft <- autofit(ft)
+
+
+## FIRST LINES
+
+ft <- set_header_labels( ft, 
+                            values = list(Approach = "Approach",
+                                          bias_n6_2.5 = "n=6",
+                                          bias_n3_2.5 = "n=3",
+                                          bias_n6_1.5 = "n=6",
+                                          bias_n3_1.5 = "n=3",
+                                          precision_n6_2.5 = "n=6",
+                                          precision_n3_2.5 = "n=3",
+                                          precision_n6_1.5 = "n=6",
+                                          precision_n3_1.5 = "n=3",
+                                          rmse_n6_2.5 = "n=6",
+                                          rmse_n3_2.5 = "n=3",
+                                          rmse_n6_1.5 = "n=6",
+                                          rmse_n3_1.5 = "n=3"))
+
+                                          
+#gsd                                          
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(rep(c("GSD=2.5","GSD=1.5"),c(2,2)),3)  ))
+
+ft <- merge_at( ft , i = 1, j = c(2:3), part = "header")
+ft <- merge_at( ft , i = 1, j = c(4:5), part = "header")
+ft <- merge_at( ft , i = 1, j = c(6:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:9), part = "header")
+ft <- merge_at( ft , i = 1, j = c(10:11), part = "header")
+ft <- merge_at( ft , i = 1, j = c(12:13), part = "header")
+
+# metric
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(c("Bias","Precision","RMSE"),c(4,4,4))))
+
+    
+ft <- merge_at( ft , i = 1, j = c(2:5), part = "header")
+ft <- merge_at( ft , i = 1, j = c(6:9), part = "header")
+ft <- merge_at( ft , i = 1, j = c(10:13), part = "header")
+    
+        
+##  rest
+
+
+ft <- align( ft, j = 2:13, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 4 : Performance metrics for the 95th percentile", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:13), digits = 1)
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = c(2,6,10) ,
+                value = as_paragraph("all metrics are relative to the true value of the parameter and expressed in %"),
+                ref_symbols = "a", part = "header")
+
+
+ft <- vline(ft, i = NULL , j= c(1,5,9), border = NULL, part = "body")
+    
+
+ft
+
+```
+
+
+
+
+#### 95th percentile UCL
+
+Table 5 below presents the results for the coverage of the calculated 70%UCL : ideally it should be superioror equal to 70%: the 70% UCL should be above the true value at least 70% of the time. 
+
+
+```{r table 5, warning=FALSE}
+
+
+T4 <- results$coverage[,c(1,2,4,6,8)]
+
+
+
+
+colnames(T4) <- c("Approach","n6_2.5","n3_2.5","n6_1.5","n3_1.5")
+
+ft <- flextable(T4)
+
+ft <- autofit(ft)
+
+
+## FIRST LINES
+
+ft <- set_header_labels( ft, 
+                            values = list(Approach = "Approach",
+                                          n6_2.5 = "n=6",
+                                          n3_2.5 = "n=3",
+                                          n6_1.5 = "n=6",
+                                          n3_1.5 = "n=3"))
+
+                                          
+#gsd                                          
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(c("GSD=2.5","GSD=1.5"),c(2,2))  ))
+
+ft <- merge_at( ft , i = 1, j = c(2:3), part = "header")
+ft <- merge_at( ft , i = 1, j = c(4:5), part = "header")
+
+
+
+##  rest
+
+
+ft <- align( ft, j = 2:5, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 5 : Coverage the 95th percentile 70% UCL (%)", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:5), digits = 0)
+
+ft <- vline(ft, i = NULL , j= c(1,3), border = NULL, part = "body")
+    
+
+ft
+
+```
+
+
+
