@@ -97,3 +97,42 @@
           return(rp)
         }
         
+        
+        # function for median error
+        
+        compute_median_error = function(x, theta){
+          
+          med.x = median(x)
+          
+          me = median( x - theta )
+          
+          return(me)
+        }
+        
+        # function for the mean absolute error
+        
+        compute_relmae = function(x, theta){
+          
+          mae = 100*mean(abs(x - theta))/theta
+          
+          return(mae)
+        }
+        
+        # function for the median absolute deviation
+        
+        compute_mad = function(x, theta){
+          
+          mad = median(abs(x - mean(x)))
+          
+          return(mad)
+        }
+        
+        #function for RMSLE
+        
+        compute_rmsle = function(x, theta){
+          
+          rmsle = sqrt(mean((log(x + 1) - log(theta + 1))^2))
+          
+          return(rmsle)
+        }
+        

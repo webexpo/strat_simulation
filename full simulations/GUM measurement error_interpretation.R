@@ -28,9 +28,9 @@ expanded_uncertainty <- 0.50
 
 coverage_factor <- qnorm(0.975)
 
-sample_size <- c(6,3,6,3)
+sample_size <- c(6,3,6,3,9,9)
 
-gsd <- c(2.5,2.5,1.5,1.5)
+gsd <- c(2.5,2.5,1.5,1.5,2.5,1.5)
 
 # Make sure the rstudioapi package is installed
 if (!require(rstudioapi)) {
@@ -45,8 +45,9 @@ setwd(project_directory)
 
 source("other/support_functions.R")
 
-setwd("C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/GUM measurement error 2024")
-setwd("F:/Dropbox/GITHUB/WEBEXPO/sampling_strats/GUM measurement error 2024")
+#setwd("C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/GUM measurement error 2024")
+
+#setwd("F:/Dropbox/GITHUB/WEBEXPO/sampling_strats/GUM measurement error 2024")
 
 
 
@@ -78,6 +79,19 @@ simulation_summary4 <- list ( sa = readRDS("aioh2023-S2_4.RDS"),
                               se = readRDS("aioh2023-S2_4e.RDS")
                            )
 
+simulation_summary5 <- list ( sa = readRDS("aioh2023-S2_5a.RDS"),
+                              sb = readRDS("aioh2023-S2_5b.RDS"),
+                              sc = readRDS("aioh2023-S2_5c.RDS"),
+                              sd = readRDS("aioh2023-S2_5d.RDS"),
+                              se = readRDS("aioh2023-S2_5e.RDS")
+)
+
+simulation_summary6 <- list ( sa = readRDS("aioh2023-S2_6a.RDS"),
+                              sb = readRDS("aioh2023-S2_6b.RDS"),
+                              sc = readRDS("aioh2023-S2_6c.RDS"),
+                              sd = readRDS("aioh2023-S2_6d.RDS"),
+                              se = readRDS("aioh2023-S2_6e.RDS")
+)
 
 
 #### FUNCTIONS ####
@@ -159,6 +173,80 @@ precision.result <- function( simulation_summary , true_p95 , true_gsd , true_gm
 }
 
 
+## median absolute deviation results function
+
+mad.result <- function( simulation_summary , true_p95 , true_gsd , true_gm ) { 
+  
+  
+  mad_table <- data.frame( method = c("ideal_F" , "ideal_B" ,
+                                           "naive_F" , "naive_B",
+                                           "me_F" , "me_B"),
+                                gm = numeric(6),
+                                gsd = numeric(6),
+                                p95 = numeric(6))
+  
+  mad_table$gm[1] <- compute_mad( simulation_summary$ideal_gm_freq , true_gm ) 
+  mad_table$gm[2] <- compute_mad( simulation_summary$ideal_gm , true_gm )
+  mad_table$gm[3] <- compute_mad( simulation_summary$naive_gm_freq , true_gm )
+  mad_table$gm[4] <- compute_mad( simulation_summary$naive_gm , true_gm )
+  mad_table$gm[5] <- compute_mad( simulation_summary$gum_gm , true_gm )
+  mad_table$gm[6] <- compute_mad( simulation_summary$me_gm , true_gm )
+  
+  mad_table$gsd[1] <- compute_mad( simulation_summary$ideal_gsd_freq , true_gsd )
+  mad_table$gsd[2] <- compute_mad( simulation_summary$ideal_gsd , true_gsd )
+  mad_table$gsd[3] <- compute_mad( simulation_summary$naive_gsd_freq , true_gsd )
+  mad_table$gsd[4] <- compute_mad( simulation_summary$naive_gsd , true_gsd )
+  mad_table$gsd[5] <- compute_mad( simulation_summary$gum_gsd , true_gsd )
+  mad_table$gsd[6] <- compute_mad( simulation_summary$me_gsd , true_gsd )
+  
+  mad_table$p95[1] <- compute_mad( simulation_summary$ideal_p95_freq , true_p95 )
+  mad_table$p95[2] <- compute_mad( simulation_summary$ideal_p95 , true_p95 )
+  mad_table$p95[3] <- compute_mad( simulation_summary$naive_p95_freq , true_p95 )
+  mad_table$p95[4] <- compute_mad( simulation_summary$naive_p95 , true_p95 )
+  mad_table$p95[5] <- compute_mad( simulation_summary$gum_p95 , true_p95 )
+  mad_table$p95[6] <- compute_mad( simulation_summary$me_p95 , true_p95 )
+  
+  return(mad_table)
+  
+}
+
+## root mean squared log error results function
+
+rmsle.result <- function( simulation_summary , true_p95 , true_gsd , true_gm ) { 
+  
+  
+  rmsle_table <- data.frame( method = c("ideal_F" , "ideal_B" ,
+                                      "naive_F" , "naive_B",
+                                      "me_F" , "me_B"),
+                           gm = numeric(6),
+                           gsd = numeric(6),
+                           p95 = numeric(6))
+  
+  rmsle_table$gm[1] <- compute_rmsle( simulation_summary$ideal_gm_freq , true_gm ) 
+  rmsle_table$gm[2] <- compute_rmsle( simulation_summary$ideal_gm , true_gm )
+  rmsle_table$gm[3] <- compute_rmsle( simulation_summary$naive_gm_freq , true_gm )
+  rmsle_table$gm[4] <- compute_rmsle( simulation_summary$naive_gm , true_gm )
+  rmsle_table$gm[5] <- compute_rmsle( simulation_summary$gum_gm , true_gm )
+  rmsle_table$gm[6] <- compute_rmsle( simulation_summary$me_gm , true_gm )
+  
+  rmsle_table$gsd[1] <- compute_rmsle( simulation_summary$ideal_gsd_freq , true_gsd )
+  rmsle_table$gsd[2] <- compute_rmsle( simulation_summary$ideal_gsd , true_gsd )
+  rmsle_table$gsd[3] <- compute_rmsle( simulation_summary$naive_gsd_freq , true_gsd )
+  rmsle_table$gsd[4] <- compute_rmsle( simulation_summary$naive_gsd , true_gsd )
+  rmsle_table$gsd[5] <- compute_rmsle( simulation_summary$gum_gsd , true_gsd )
+  rmsle_table$gsd[6] <- compute_rmsle( simulation_summary$me_gsd , true_gsd )
+  
+  rmsle_table$p95[1] <- compute_rmsle( simulation_summary$ideal_p95_freq , true_p95 )
+  rmsle_table$p95[2] <- compute_rmsle( simulation_summary$ideal_p95 , true_p95 )
+  rmsle_table$p95[3] <- compute_rmsle( simulation_summary$naive_p95_freq , true_p95 )
+  rmsle_table$p95[4] <- compute_rmsle( simulation_summary$naive_p95 , true_p95 )
+  rmsle_table$p95[5] <- compute_rmsle( simulation_summary$gum_p95 , true_p95 )
+  rmsle_table$p95[6] <- compute_rmsle( simulation_summary$me_p95 , true_p95 )
+  
+  return(rmsle_table)
+  
+}
+
 ## relative bias results function
 
 bias.result <- function( simulation_summary , true_p95 , true_gsd , true_gm ) { 
@@ -196,6 +284,42 @@ bias.result <- function( simulation_summary , true_p95 , true_gsd , true_gm ) {
   
 }
 
+## median relative median bias results function
+
+mederror.result <- function( simulation_summary , true_p95 , true_gsd , true_gm ) { 
+  
+  
+  mederror_table <- data.frame( method = c("ideal_F" , "ideal_B" ,
+                                       "naive_F" , "naive_B",
+                                       "me_F" , "me_B"),
+                            gm = numeric(6),
+                            gsd = numeric(6),
+                            p95 = numeric(6))
+  
+  mederror_table$gm[1] <- compute_median_error( simulation_summary$ideal_gm_freq , true_gm ) 
+  mederror_table$gm[2] <- compute_median_error( simulation_summary$ideal_gm , true_gm )
+  mederror_table$gm[3] <- compute_median_error( simulation_summary$naive_gm_freq , true_gm )
+  mederror_table$gm[4] <- compute_median_error( simulation_summary$naive_gm , true_gm )
+  mederror_table$gm[5] <- compute_median_error( simulation_summary$gum_gm , true_gm )
+  mederror_table$gm[6] <- compute_median_error( simulation_summary$me_gm , true_gm )
+  
+  mederror_table$gsd[1] <- compute_median_error( simulation_summary$ideal_gsd_freq , true_gsd )
+  mederror_table$gsd[2] <- compute_median_error( simulation_summary$ideal_gsd , true_gsd )
+  mederror_table$gsd[3] <- compute_median_error( simulation_summary$naive_gsd_freq , true_gsd )
+  mederror_table$gsd[4] <- compute_median_error( simulation_summary$naive_gsd , true_gsd )
+  mederror_table$gsd[5] <- compute_median_error( simulation_summary$gum_gsd , true_gsd )
+  mederror_table$gsd[6] <- compute_median_error( simulation_summary$me_gsd , true_gsd )
+  
+  mederror_table$p95[1] <- compute_median_error( simulation_summary$ideal_p95_freq , true_p95 )
+  mederror_table$p95[2] <- compute_median_error( simulation_summary$ideal_p95 , true_p95 )
+  mederror_table$p95[3] <- compute_median_error( simulation_summary$naive_p95_freq , true_p95 )
+  mederror_table$p95[4] <- compute_median_error( simulation_summary$naive_p95 , true_p95 )
+  mederror_table$p95[5] <- compute_median_error( simulation_summary$gum_p95 , true_p95 )
+  mederror_table$p95[6] <- compute_median_error( simulation_summary$me_p95 , true_p95 )
+  
+  return(mederror_table)
+  
+}
 
 
 ## coverage results function
@@ -239,7 +363,15 @@ coverage_matrix_n3_1.5 <- matrix( nrow = 6 , ncol = 5)
 
 for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summary4[[i]] , true_p95 )$p95 }
   
-  
+coverage_matrix_n9_2.5 <- matrix( nrow = 6 , ncol = 5)
+
+for (i in 1:5) { coverage_matrix_n9_2.5[,i] <- coverage.result( simulation_summary5[[i]] , true_p95 )$p95 }
+
+coverage_matrix_n9_1.5 <- matrix( nrow = 6 , ncol = 5)
+
+for (i in 1:5) { coverage_matrix_n9_1.5[,i] <- coverage.result( simulation_summary6[[i]] , true_p95 )$p95 }
+
+
   
   coverage_table <- data.frame( approach = c("ideal_F" , "ideal_B" ,
                                            "naive_F" , "naive_B",
@@ -251,7 +383,11 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
                               n6_1.5_mean =  apply( coverage_matrix_n6_1.5 , 1 , mean ),
                               n6_1.5_sd =  apply( coverage_matrix_n6_1.5 , 1 , sd ),
                               n3_1.5_mean =  apply( coverage_matrix_n3_1.5 , 1 , mean ),
-                              n3_1.5_sd =  apply( coverage_matrix_n3_1.5 , 1 , sd ))
+                              n3_1.5_sd =  apply( coverage_matrix_n3_1.5 , 1 , sd ),
+                              n9_2.5_mean =  apply( coverage_matrix_n9_2.5 , 1 , mean ),
+                              n9_2.5_sd =  apply( coverage_matrix_n9_2.5 , 1 , sd ),
+                              n9_1.5_mean =  apply( coverage_matrix_n9_1.5 , 1 , mean ),
+                              n9_1.5_sd =  apply( coverage_matrix_n9_1.5 , 1 , sd ))
 
 ###### bias ######                                
   
@@ -313,6 +449,37 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
                                     p95_sd =  apply( bias_array_n3_1.5[,3,] , 1 , sd ))
       
       
+      
+      bias_array_n9_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { bias_array_n9_2.5[,,i] <- as.matrix(bias.result( simulation_summary5[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
+      
+      
+      bias_table_n9_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                    "naive_F" , "naive_B",
+                                                    "me_F" , "me_B"),
+                                       gm_mean =  apply( bias_array_n9_2.5[,1,] , 1 , mean ),
+                                       gm_sd =  apply( bias_array_n9_2.5[,1,] , 1 , sd ),
+                                       gsd_mean =  apply( bias_array_n9_2.5[,2,] , 1 , mean ),
+                                       gsd_sd =  apply( bias_array_n9_2.5[,2,] , 1 , sd ),
+                                       p95_mean =  apply( bias_array_n9_2.5[,3,] , 1 , mean ),
+                                       p95_sd =  apply( bias_array_n9_2.5[,3,] , 1 , sd ))
+      
+      bias_array_n9_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { bias_array_n9_1.5[,,i] <- as.matrix(bias.result( simulation_summary6[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
+      
+      bias_table_n9_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                    "naive_F" , "naive_B",
+                                                    "me_F" , "me_B"),
+                                       gm_mean =  apply( bias_array_n9_1.5[,1,] , 1 , mean ),
+                                       gm_sd =  apply( bias_array_n9_1.5[,1,] , 1 , sd ),
+                                       gsd_mean =  apply( bias_array_n9_1.5[,2,] , 1 , mean ),
+                                       gsd_sd =  apply( bias_array_n9_1.5[,2,] , 1 , sd ),
+                                       p95_mean =  apply( bias_array_n9_1.5[,3,] , 1 , mean ),
+                                       p95_sd =  apply( bias_array_n9_1.5[,3,] , 1 , sd ))
+      
+      
 ###### precision ######
       
       precision_array_n6_2.5 <- array( dim=c(6,3,5) )
@@ -371,7 +538,36 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
                                         p95_mean =  apply( precision_array_n3_1.5[,3,] , 1 , mean ),
                                         p95_sd =  apply( precision_array_n3_1.5[,3,] , 1 , sd ))
   
+     
+      precision_array_n9_2.5 <- array( dim=c(6,3,5) )
       
+      for (i in 1:5) { precision_array_n9_2.5[,,i] <- as.matrix(precision.result( simulation_summary5[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
+      
+      precision_table_n9_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( precision_array_n9_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( precision_array_n9_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( precision_array_n9_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( precision_array_n9_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( precision_array_n9_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( precision_array_n9_2.5[,3,] , 1 , sd ))
+      
+      precision_array_n9_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { precision_array_n9_1.5[,,i] <- as.matrix(precision.result( simulation_summary6[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
+      
+      precision_table_n9_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( precision_array_n9_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( precision_array_n9_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( precision_array_n9_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( precision_array_n9_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( precision_array_n9_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( precision_array_n9_1.5[,3,] , 1 , sd ))
+      
+       
 ###### rmse ######
       
       rmse_array_n6_2.5 <- array( dim=c(6,3,5) )
@@ -430,12 +626,304 @@ for (i in 1:5) { coverage_matrix_n3_1.5[,i] <- coverage.result( simulation_summa
                                         p95_mean =  apply( rmse_array_n3_1.5[,3,] , 1 , mean ),
                                         p95_sd =  apply( rmse_array_n3_1.5[,3,] , 1 , sd ))
       
+      rmse_array_n9_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { rmse_array_n9_2.5[,,i] <- as.matrix(rmse.result( simulation_summary5[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
+      
+      rmse_table_n9_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( rmse_array_n9_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( rmse_array_n9_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( rmse_array_n9_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( rmse_array_n9_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( rmse_array_n9_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( rmse_array_n9_2.5[,3,] , 1 , sd ))
+      
+      rmse_array_n9_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { rmse_array_n9_1.5[,,i] <- as.matrix(rmse.result( simulation_summary6[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
+      
+      rmse_table_n9_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( rmse_array_n9_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( rmse_array_n9_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( rmse_array_n9_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( rmse_array_n9_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( rmse_array_n9_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( rmse_array_n9_1.5[,3,] , 1 , sd ))
+      
+###### median error ######
+      
+      me_array_n6_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { me_array_n6_2.5[,,i] <- as.matrix(mederror.result( simulation_summary1[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
+      
+      me_table_n6_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( me_array_n6_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( me_array_n6_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( me_array_n6_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( me_array_n6_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( me_array_n6_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( me_array_n6_2.5[,3,] , 1 , sd ))
+      
+      me_array_n3_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { me_array_n3_2.5[,,i] <- as.matrix(mederror.result( simulation_summary2[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
+      
+      me_table_n3_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( me_array_n3_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( me_array_n3_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( me_array_n3_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( me_array_n3_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( me_array_n3_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( me_array_n3_2.5[,3,] , 1 , sd ))
+      
+      me_array_n6_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { me_array_n6_1.5[,,i] <- as.matrix(mederror.result( simulation_summary3[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
+      
+      me_table_n6_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( me_array_n6_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( me_array_n6_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( me_array_n6_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( me_array_n6_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( me_array_n6_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( me_array_n6_1.5[,3,] , 1 , sd ))
+      
+      me_array_n3_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { me_array_n3_1.5[,,i] <- as.matrix(mederror.result( simulation_summary4[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
+      
+      me_table_n3_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( me_array_n3_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( me_array_n3_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( me_array_n3_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( me_array_n3_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( me_array_n3_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( me_array_n3_1.5[,3,] , 1 , sd ))
+      
+      me_array_n9_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { me_array_n9_2.5[,,i] <- as.matrix(mederror.result( simulation_summary5[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
+      
+      me_table_n9_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( me_array_n9_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( me_array_n9_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( me_array_n9_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( me_array_n9_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( me_array_n9_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( me_array_n9_2.5[,3,] , 1 , sd ))
+      
+      me_array_n9_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { me_array_n9_1.5[,,i] <- as.matrix(mederror.result( simulation_summary6[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
+      
+      me_table_n9_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( me_array_n9_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( me_array_n9_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( me_array_n9_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( me_array_n9_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( me_array_n9_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( me_array_n9_1.5[,3,] , 1 , sd ))
+      
+      
+###### median absolute deviation
+      
+      mad_array_n6_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { mad_array_n6_2.5[,,i] <- as.matrix(mad.result( simulation_summary1[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
+      
+      mad_table_n6_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( mad_array_n6_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( mad_array_n6_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( mad_array_n6_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( mad_array_n6_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( mad_array_n6_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( mad_array_n6_2.5[,3,] , 1 , sd ))
+      
+      mad_array_n3_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { mad_array_n3_2.5[,,i] <- as.matrix(mad.result( simulation_summary2[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
+      
+      mad_table_n3_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( mad_array_n3_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( mad_array_n3_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( mad_array_n3_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( mad_array_n3_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( mad_array_n3_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( mad_array_n3_2.5[,3,] , 1 , sd ))
+                                      
+      mad_array_n6_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { mad_array_n6_1.5[,,i] <- as.matrix(mad.result( simulation_summary3[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
+      
+      mad_table_n6_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( mad_array_n6_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( mad_array_n6_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( mad_array_n6_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( mad_array_n6_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( mad_array_n6_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( mad_array_n6_1.5[,3,] , 1 , sd ))
+      
+      mad_array_n3_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { mad_array_n3_1.5[,,i] <- as.matrix(mad.result( simulation_summary4[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
+      
+      mad_table_n3_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( mad_array_n3_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( mad_array_n3_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( mad_array_n3_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( mad_array_n3_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( mad_array_n3_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( mad_array_n3_1.5[,3,] , 1 , sd ))
+      
+      mad_array_n9_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { mad_array_n9_2.5[,,i] <- as.matrix(mad.result( simulation_summary5[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
+      
+      mad_table_n9_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( mad_array_n9_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( mad_array_n9_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( mad_array_n9_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( mad_array_n9_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( mad_array_n9_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( mad_array_n9_2.5[,3,] , 1 , sd ))
+      
+      mad_array_n9_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { mad_array_n9_1.5[,,i] <- as.matrix(mad.result( simulation_summary6[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
+      
+      mad_table_n9_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( mad_array_n9_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( mad_array_n9_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( mad_array_n9_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( mad_array_n9_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( mad_array_n9_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( mad_array_n9_1.5[,3,] , 1 , sd ))
+      
+###### rmsle ######
+      
+      rmsle_array_n6_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { rmsle_array_n6_2.5[,,i] <- as.matrix(rmsle.result( simulation_summary1[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
+      
+      rmsle_table_n6_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( rmsle_array_n6_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( rmsle_array_n6_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( rmsle_array_n6_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( rmsle_array_n6_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( rmsle_array_n6_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( rmsle_array_n6_2.5[,3,] , 1 , sd ))
+      
+      rmsle_array_n3_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { rmsle_array_n3_2.5[,,i] <- as.matrix(rmsle.result( simulation_summary2[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
+      
+      rmsle_table_n3_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( rmsle_array_n3_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( rmsle_array_n3_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( rmsle_array_n3_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( rmsle_array_n3_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( rmsle_array_n3_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( rmsle_array_n3_2.5[,3,] , 1 , sd ))
+      
+      rmsle_array_n6_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { rmsle_array_n6_1.5[,,i] <- as.matrix(rmsle.result( simulation_summary3[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
+      
+      rmsle_table_n6_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( rmsle_array_n6_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( rmsle_array_n6_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( rmsle_array_n6_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( rmsle_array_n6_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( rmsle_array_n6_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( rmsle_array_n6_1.5[,3,] , 1 , sd ))
+      
+      rmsle_array_n3_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { rmsle_array_n3_1.5[,,i] <- as.matrix(rmsle.result( simulation_summary4[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
+      
+      rmsle_table_n3_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( rmsle_array_n3_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( rmsle_array_n3_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( rmsle_array_n3_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( rmsle_array_n3_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( rmsle_array_n3_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( rmsle_array_n3_1.5[,3,] , 1 , sd ))
+      
+      rmsle_array_n9_2.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { rmsle_array_n9_2.5[,,i] <- as.matrix(rmsle.result( simulation_summary5[[i]] , true_p95 , true_gsd_2.5 , true_gm_2.5 )[,2:4]) }
+      
+      rmsle_table_n9_2.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( rmsle_array_n9_2.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( rmsle_array_n9_2.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( rmsle_array_n9_2.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( rmsle_array_n9_2.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( rmsle_array_n9_2.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( rmsle_array_n9_2.5[,3,] , 1 , sd ))
+      
+      rmsle_array_n9_1.5 <- array( dim=c(6,3,5) )
+      
+      for (i in 1:5) { rmsle_array_n9_1.5[,,i] <- as.matrix(rmsle.result( simulation_summary6[[i]] , true_p95 , true_gsd_1.5 , true_gm_1.5 )[,2:4]) }
+      
+      rmsle_table_n9_1.5 <- data.frame( approach = c("ideal_F" , "ideal_B" ,
+                                                     "naive_F" , "naive_B",
+                                                     "me_F" , "me_B"),
+                                        gm_mean =  apply( rmsle_array_n9_1.5[,1,] , 1 , mean ),
+                                        gm_sd =  apply( rmsle_array_n9_1.5[,1,] , 1 , sd ),
+                                        gsd_mean =  apply( rmsle_array_n9_1.5[,2,] , 1 , mean ),
+                                        gsd_sd =  apply( rmsle_array_n9_1.5[,2,] , 1 , sd ),
+                                        p95_mean =  apply( rmsle_array_n9_1.5[,3,] , 1 , mean ),
+                                        p95_sd =  apply( rmsle_array_n9_1.5[,3,] , 1 , sd ))
+      
+      
+
 ###### export ######
       
   result <- list( coverage = coverage_table,
-                  bias = list( n6_2.5 = bias_table_n6_2.5 , n3_2.5 = bias_table_n3_2.5 , n6_1.5 = bias_table_n6_1.5 , n3_1.5 = bias_table_n3_1.5 ),
-                  precision = list( n6_2.5 = precision_table_n6_2.5 , n3_2.5 = precision_table_n3_2.5 , n6_1.5 = precision_table_n6_1.5 , n3_1.5 = precision_table_n3_1.5 ),
-                  rmse = list( n6_2.5 = rmse_table_n6_2.5 , n3_2.5 = rmse_table_n3_2.5 , n6_1.5 = rmse_table_n6_1.5 , n3_1.5 = rmse_table_n3_1.5 ) )
+                  bias = list( n6_2.5 = bias_table_n6_2.5 , n3_2.5 = bias_table_n3_2.5 , n6_1.5 = bias_table_n6_1.5 , n3_1.5 = bias_table_n3_1.5 , n9_2.5 = bias_table_n9_2.5 , n9_1.5 = bias_table_n9_1.5 ),
+                  precision = list( n6_2.5 = precision_table_n6_2.5 , n3_2.5 = precision_table_n3_2.5 , n6_1.5 = precision_table_n6_1.5 , n3_1.5 = precision_table_n3_1.5 , n9_2.5 = precision_table_n9_2.5 , n9_1.5 = precision_table_n9_1.5),
+                  rmse = list( n6_2.5 = rmse_table_n6_2.5 , n3_2.5 = rmse_table_n3_2.5 , n6_1.5 = rmse_table_n6_1.5 , n3_1.5 = rmse_table_n3_1.5 , n9_2.5 = rmse_table_n9_2.5 , n9_1.5 = rmse_table_n9_1.5 ),
+                  me = list( n6_2.5 = me_table_n6_2.5 , n3_2.5 = me_table_n3_2.5 , n6_1.5 = me_table_n6_1.5 , n3_1.5 = me_table_n3_1.5 , n9_2.5 = me_table_n9_2.5 , n9_1.5 = me_table_n9_1.5 ),
+                  mad = list( n6_2.5 = mad_table_n6_2.5 , n3_2.5 = mad_table_n3_2.5 , n6_1.5 = mad_table_n6_1.5 , n3_1.5 = mad_table_n3_1.5 , n9_2.5 = mad_table_n9_2.5 , n9_1.5 = mad_table_n9_1.5 ),
+                  rmsle = list( n6_2.5 = rmsle_table_n6_2.5 , n3_2.5 = rmsle_table_n3_2.5 , n6_1.5 = rmsle_table_n6_1.5 , n3_1.5 = rmsle_table_n3_1.5 , n9_2.5 = rmsle_table_n9_2.5 , n9_1.5 = rmsle_table_n9_1.5 ))
 
       # Make sure the rstudioapi package is installed
       if (!require(rstudioapi)) {

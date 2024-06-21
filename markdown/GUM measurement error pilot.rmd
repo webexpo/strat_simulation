@@ -73,14 +73,14 @@ The steps to estimate parameters and or upper limits is as follows:
 
     
 * sample from a normal distribution around the observed values
-* calculate a metric with the new dataset
+* calculate a metric with the new dataset (GM, GSD, 95th percentile, UTL95,70)
 * repeat a lot of times - result is a lot of values of the metric
-* report the average value of the metric / check that the variability across repeats is reasonable
+* report the average value of the metric 
     
 
 For the practical implementation of the GUM approach, I used the frequentist estimation methods for the 95th percentile as presented in . To be able to obtain the 70% UCL I used tables in Zwillinger, D.; Kokoska, S. (2000) Standard Probability and Statistics Tables and Formulae. Chapman & Hall / CRC, Boca Raton, FL
 Pp 176 (section 7.3 Tolerance factors for the normal distribution)
-    
+
 ## Example using both approaches
 
 The vector of true concentrations is : `r signif(example$true_data,2)`
@@ -97,7 +97,11 @@ Table 1 below shows the results of the determination of 4 metrics : gm, gsd, 95t
 * Naive condition : the analysis was performed on the observed concentrations, but without any provision for measurement error in the estimation process. This represents what is done by most tools today.
 * ME condition :  the analysis was performed on the observed concentrations, this time with provision for measurement error: The Bayesian measurement error model for the Bayesian analysis and the GUM approach for the Frequentist analysis.
 
-```{r table 1, warning=FALSE}
+<br>
+
+\newpage
+
+```{r table 1, warning=FALSE, echo=FALSE}
 
 
 T1 <- example$results[-1,]
@@ -126,9 +130,24 @@ ft <- footnote( ft ,
                 ref_symbols = "b", part = "header")
 
 
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
+
+
+myrelativewidth <- c(1.3,1,1,1,1)
+
+mytotalwidth <- 5
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
+
 ft
 
 ```
+
+<br>
 
 Observations from T1 : 
 
@@ -139,57 +158,57 @@ Observations from T1 :
 
 * Overall the Bayesian ME approach seems to get results closer to the ideal results compared to the GUM approach, but not always much closer.    
     
+\newpage
 
-
-## limited simulation study
+## Limited simulation study
     
     
-The previous example illustrate the general behaviour of both measurement error approaches, but doesn't really provide useful information as to their performance / interest.
+The previous example illustrate the general behavior of both measurement error approaches, but doesn't really provide useful information as to their performance across many analyses.
 
-TO get a little bit more insight we performed a simulation study for 4 scenarios of sample size and true variability : GSD = 1.5 or 2.5 , n=3 or 6. We ketp the true 95th percentile at 100. For each scenario we generated 1000 datasets of true and observed concentrations using an expanded S&E uncertainty CV of 50%. For each simulated dataset we calculated the same metrics as shown above.
+TO get a little bit more insight we performed a simulation study for 6 scenarios of sample size and true variability : GSD = 1.5 or 2.5 , n=3 or 6 or 9. We kept the true 95th percentile at 100. For each scenario we generated 1000 datasets of true and observed concentrations using an expanded S&E uncertainty CV of 50%. For each simulated dataset we calculated the same metrics as shown above.
 
 To summarize the results across the 10 000 we calculated, for gm, gsd and P95 the bias, precision and rmse of the estimates. For the 70% UCL on the 95th percentile we calculated the coverage of that UCL i.e. the proportion of time the calculated UCL was indeed greater than the true P95 of 100.
 
-The stability of the simulation was assessed by looking at the variability of the results across the 5 repeats of te entire simulation effort. To limit the amount of information presented, we only show the mean results across the 5 repetitions as the standard deviation across the 5 repetitions were very small. They are however available in the raw data.
+The stability of the simulation was assessed by looking at the variability of the results across the 5 repeats of te entire simulation effort. To limit the amount of information presented, we only show the mean results across the 5 repetitions as the standard deviation across the 5 repetitions were very small (<1%). They are however available in the raw data.
 
 Overall this took approximate 20h of computing time on a modern desktop computer.
+
+\newpage
 
 ### results
 
 #### geometric mean
 
-Table 2 below presents the results for the estimation of the geometric mean. All metrics are relative to the true value of the parameter. 
+Table 2a and b below presents the results for the estimation of the geometric mean for GSDs of 2.5 and 1.5. All metrics are relative to the true value of the parameter. 
+
+<br>
+
+```{r table 2a, warning=FALSE, echo=FALSE}
 
 
-```{r table 2, warning=FALSE}
-
-
-T2 <- results$bias$n6_2.5[,1:2]
+T2a <- results$bias$n3_2.5[,1:2]
 
 
 #BIAS
-T2 <- cbind(T2, results$bias$n3_2.5[,2],
-                results$bias$n6_1.5[,2],
-                results$bias$n3_1.5[,2])
+T2a <- cbind(T2a, results$bias$n6_2.5[,2],
+                results$bias$n9_2.5[,2])
 
 #PRECISION
-T2 <- cbind(T2, results$precision$n6_2.5[,2],
-                results$precision$n3_2.5[,2],
-                results$precision$n6_1.5[,2],
-                results$precision$n3_1.5[,2])
+T2a <- cbind(T2a, results$precision$n3_2.5[,2],
+                results$precision$n6_2.5[,2],
+                results$precision$n9_2.5[,2])
 
 #RMSE
-T2 <- cbind(T2, results$rmse$n6_2.5[,2],
-                results$rmse$n3_2.5[,2],
-                results$rmse$n6_1.5[,2],
-                results$rmse$n3_1.5[,2])
+T2a <- cbind(T2a, results$rmse$n3_2.5[,2],
+                results$rmse$n6_2.5[,2],
+                results$rmse$n9_2.5[,2])
 
 
-colnames(T2) <- c("Approach","bias_n6_2.5","bias_n3_2.5","bias_n6_1.5","bias_n3_1.5",
-                  "precision_n6_2.5","precision_n3_2.5","precision_n6_1.5","precision_n3_1.5",
-                  "rmse_n6_2.5","rmse_n3_2.5","rmse_n6_1.5","rmse_n3_1.5")
+colnames(T2a) <- c("Approach","bias_n3_2.5","bias_n6_2.5","bias_n9_2.5",
+                  "precision_n3_2.5","precision_n6_2.5","precision_n9_2.5",
+                  "rmse_n3_2.5","rmse_n6_2.5","rmse_n9_2.5")
 
-ft <- flextable(T2)
+ft <- flextable(T2a)
 
 ft <- autofit(ft)
 
@@ -198,99 +217,377 @@ ft <- autofit(ft)
 
 ft <- set_header_labels( ft, 
                             values = list(Approach = "Approach",
-                                          bias_n6_2.5 = "n=6",
                                           bias_n3_2.5 = "n=3",
-                                          bias_n6_1.5 = "n=6",
-                                          bias_n3_1.5 = "n=3",
-                                          precision_n6_2.5 = "n=6",
+                                          bias_n6_2.5 = "n=6",
+                                          bias_n9_2.5 = "n=9",
                                           precision_n3_2.5 = "n=3",
-                                          precision_n6_1.5 = "n=6",
-                                          precision_n3_1.5 = "n=3",
-                                          rmse_n6_2.5 = "n=6",
+                                          precision_n6_2.5 = "n=6",
+                                          precision_n9_2.5 = "n=9",
                                           rmse_n3_2.5 = "n=3",
-                                          rmse_n6_1.5 = "n=6",
-                                          rmse_n3_1.5 = "n=3"))
+                                          rmse_n6_2.5 = "n=6",
+                                          rmse_n9_2.5 = "n=9"))
 
                                           
-#gsd                                          
-ft <- add_header_row( ft , top = TRUE, 
-                          values = c("", rep(rep(c("GSD=2.5","GSD=1.5"),c(2,2)),3)  ))
-
-ft <- merge_at( ft , i = 1, j = c(2:3), part = "header")
-ft <- merge_at( ft , i = 1, j = c(4:5), part = "header")
-ft <- merge_at( ft , i = 1, j = c(6:7), part = "header")
-ft <- merge_at( ft , i = 1, j = c(8:9), part = "header")
-ft <- merge_at( ft , i = 1, j = c(10:11), part = "header")
-ft <- merge_at( ft , i = 1, j = c(12:13), part = "header")
-
 # metric
 ft <- add_header_row( ft , top = TRUE, 
-                          values = c("", rep(c("Bias","Precision","RMSE"),c(4,4,4))))
+                          values = c("", rep(c("Bias","Precision","RMSE"),c(3,3,3))))
 
     
-ft <- merge_at( ft , i = 1, j = c(2:5), part = "header")
-ft <- merge_at( ft , i = 1, j = c(6:9), part = "header")
-ft <- merge_at( ft , i = 1, j = c(10:13), part = "header")
+ft <- merge_at( ft , i = 1, j = c(2:4), part = "header")
+ft <- merge_at( ft , i = 1, j = c(5:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
     
         
 ##  rest
 
 
-ft <- align( ft, j = 2:13, align = "center", part = "all" )
+ft <- align( ft, j = 2:10, align = "center", part = "all" )
 
-ft <- set_caption(ft, "Table 2 : Performance metrics for GM", style = "strong")
+ft <- set_caption(ft, "Table 2a : Performance metrics for GM - GSD = 2.5", style = "strong")
 
-ft <- colformat_double(ft, j = c(2:13), digits = 1)
+ft <- colformat_double(ft, j = c(2:10), digits = 1)
 
 ft <- footnote( ft ,
                 i = 1 ,
-                j = c(2,6,10) ,
+                j = c(2,5,8) ,
                 value = as_paragraph("all metrics are relative to the true value of the parameter and expressed in %"),
                 ref_symbols = "a", part = "header")
 
 
-ft <- vline(ft, i = NULL , j= c(1,5,9), border = NULL, part = "body")
+ft <- vline(ft, i = NULL , j= c(1,4,7), border = NULL, part = "body")
+
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
+
+myrelativewidth <- c(1.3,rep(1,9))
+
+mytotalwidth <- 7
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
     
 
 ft
 
 ```
 
+<br>
+
+```{r table 2b, warning=FALSE, echo=FALSE}
+
+
+T2b <- results$bias$n3_1.5[,1:2]
+
+
+#BIAS
+T2b <- cbind(T2b, results$bias$n6_1.5[,2],
+                results$bias$n9_1.5[,2])
+
+#PRECISION
+T2b <- cbind(T2b, results$precision$n3_1.5[,2],
+                results$precision$n6_1.5[,2],
+                results$precision$n9_1.5[,2])
+
+#RMSE
+T2b <- cbind(T2b, results$rmse$n3_1.5[,2],
+                results$rmse$n6_1.5[,2],
+                results$rmse$n9_1.5[,2])
+
+
+colnames(T2b) <- c("Approach","bias_n3_1.5","bias_n6_1.5","bias_n9_1.5",
+                  "precision_n3_1.5","precision_n6_1.5","precision_n9_1.5",
+                  "rmse_n3_1.5","rmse_n6_1.5","rmse_n9_1.5")
+
+ft <- flextable(T2b)
+
+ft <- autofit(ft)
+
+
+## FIRST LINES
+
+ft <- set_header_labels( ft, 
+                            values = list(Approach = "Approach",
+                                          bias_n3_1.5 = "n=3",
+                                          bias_n6_1.5 = "n=6",
+                                          bias_n9_1.5 = "n=9",
+                                          precision_n3_1.5 = "n=3",
+                                          precision_n6_1.5 = "n=6",
+                                          precision_n9_1.5 = "n=9",
+                                          rmse_n3_1.5 = "n=3",
+                                          rmse_n6_1.5 = "n=6",
+                                          rmse_n9_1.5 = "n=9"))
+
+                                          
+# metric
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(c("Bias","Precision","RMSE"),c(3,3,3))))
+
+    
+ft <- merge_at( ft , i = 1, j = c(2:4), part = "header")
+ft <- merge_at( ft , i = 1, j = c(5:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
+    
+        
+##  rest
+
+
+ft <- align( ft, j = 2:10, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 2b : Performance metrics for GM - GSD = 1.5", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:10), digits = 1)
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = c(2,5,8) ,
+                value = as_paragraph("all metrics are relative to the true value of the parameter and expressed in %"),
+                ref_symbols = "a", part = "header")
+
+
+ft <- vline(ft, i = NULL , j= c(1,4,7), border = NULL, part = "body")
+
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
+    
+myrelativewidth <- c(1.3,rep(1,9))
+
+mytotalwidth <- 7
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
+
+ft
+
+```
+
+<br>
+
+Table 2a and 2.b reveal little influence of the studied methods and parameters on the estimation of GM. The maybe surprising bias values are influence by the skewed distribution of most estimated parameters in this simulation study. The idea is to compare the naive and ME approaches to the ideal approach. 
+
+Table 2c and d below presents the same results as above but using different performance metrics : median difference, median absolute deviation, and rmsle. 
+
+
+```{r table 2c, warning=FALSE, echo=FALSE}
+
+
+T2c <- results$me$n3_2.5[,1:2]
+
+
+#me
+T2c <- cbind(T2c, results$me$n6_2.5[,2],
+                results$me$n9_2.5[,2])
+
+#PRECISION
+T2c <- cbind(T2c, results$mad$n3_2.5[,2],
+                results$mad$n6_2.5[,2],
+                results$mad$n9_2.5[,2])
+
+#RMSE
+T2c <- cbind(T2c, results$rmsle$n3_2.5[,2],
+                results$rmsle$n6_2.5[,2],
+                results$rmsle$n9_2.5[,2])
+
+
+colnames(T2c) <- c("Approach","me_n3_2.5","me_n6_2.5","me_n9_2.5",
+                  "mad_n3_2.5","mad_n6_2.5","mad_n9_2.5",
+                  "rmsle_n3_2.5","rmsle_n6_2.5","rmsle_n9_2.5")
+
+ft <- flextable(T2c)
+
+ft <- autofit(ft)
+
+
+## FIRST LINES
+
+ft <- set_header_labels( ft, 
+                            values = list(Approach = "Approach",
+                                          me_n3_2.5 = "n=3",
+                                          me_n6_2.5 = "n=6",
+                                          me_n9_2.5 = "n=9",
+                                          mad_n3_2.5 = "n=3",
+                                          mad_n6_2.5 = "n=6",
+                                          mad_n9_2.5 = "n=9",
+                                          rmsle_n3_2.5 = "n=3",
+                                          rmsle_n6_2.5 = "n=6",
+                                          rmsle_n9_2.5 = "n=9"))
+
+                                          
+# metric
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(c("Median error","MAD","RMSLE"),c(3,3,3))))
+
+    
+ft <- merge_at( ft , i = 1, j = c(2:4), part = "header")
+ft <- merge_at( ft , i = 1, j = c(5:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
+    
+        
+##  rest
+
+
+ft <- align( ft, j = 2:10, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 2c : Alternative performance metrics for GM - GSD = 2.5", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:10), digits = 2)
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = c(2) ,
+                value = as_paragraph("True value of GM is 22.15"),
+                ref_symbols = "a", part = "header")
+
+
+ft <- vline(ft, i = NULL , j= c(1,4,7), border = NULL, part = "body")
+
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
+    
+    
+myrelativewidth <- c(1.3,rep(1,9))
+
+mytotalwidth <- 7
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
+
+ft
+
+```
+
+<br>
+
+```{r table 2d, warning=FALSE, echo=FALSE}
+
+
+T2d <- results$me$n3_1.5[,1:2]
+
+
+#me
+T2d <- cbind(T2d, results$me$n6_1.5[,2],
+                results$me$n9_1.5[,2])
+
+#PRECISION
+T2d <- cbind(T2d, results$mad$n3_1.5[,2],
+                results$mad$n6_1.5[,2],
+                results$mad$n9_1.5[,2])
+
+#RMSE
+T2d <- cbind(T2d, results$rmsle$n3_1.5[,2],
+                results$rmsle$n6_1.5[,2],
+                results$rmsle$n9_1.5[,2])
+
+
+colnames(T2d) <- c("Approach","me_n3_1.5","me_n6_1.5","me_n9_1.5",
+                  "mad_n3_1.5","mad_n6_1.5","mad_n9_1.5",
+                  "rmsle_n3_1.5","rmsle_n6_1.5","rmsle_n9_1.5")
+
+ft <- flextable(T2d)
+
+ft <- autofit(ft)
+
+
+## FIRST LINES
+
+ft <- set_header_labels( ft, 
+                            values = list(Approach = "Approach",
+                                          me_n3_1.5 = "n=3",
+                                          me_n6_1.5 = "n=6",
+                                          me_n9_1.5 = "n=9",
+                                          mad_n3_1.5 = "n=3",
+                                          mad_n6_1.5 = "n=6",
+                                          mad_n9_1.5 = "n=9",
+                                          rmsle_n3_1.5 = "n=3",
+                                          rmsle_n6_1.5 = "n=6",
+                                          rmsle_n9_1.5 = "n=9"))
+
+                                          
+# metric
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(c("Median error","MAD","RMSLE"),c(3,3,3))))
+
+    
+ft <- merge_at( ft , i = 1, j = c(2:4), part = "header")
+ft <- merge_at( ft , i = 1, j = c(5:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
+    
+        
+##  rest
+
+
+ft <- align( ft, j = 2:10, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 2c : Alternative performance metrics for GM - GSD = 1.5", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:10), digits = 2)
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = c(2) ,
+                value = as_paragraph("True value of GM is 51.3"),
+                ref_symbols = "a", part = "header")
+
+
+ft <- vline(ft, i = NULL , j= c(1,4,7), border = NULL, part = "body")
+
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
+    
+    
+myrelativewidth <- c(1.3,rep(1,9))
+
+mytotalwidth <- 7
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
+
+ft
+
+```
+
+<br>
+
+\newpage
 
 #### geometric standard deviation
 
-Table 3 below presents the results for the estimation of the geometric standard deviation. All metrics are relative to the true value of the parameter. 
+Table 3a and b below presents the results for the estimation of the geometric standard deviation for true GSD = 2.5 and 1.5. All metrics are relative to the true value of the parameter. 
 
 
-```{r table 3, warning=FALSE}
+```{r table 3a, warning=FALSE, echo=FALSE}
 
 
-T3 <- results$bias$n6_2.5[,c(1,4)]
+T3a <- results$bias$n3_2.5[,c(1,4)]
 
 
 #BIAS
-T3 <- cbind(T3, results$bias$n3_2.5[,4],
-                results$bias$n6_1.5[,4],
-                results$bias$n3_1.5[,4])
+T3a <- cbind(T3a, results$bias$n6_2.5[,4],
+                results$bias$n9_2.5[,4])
 
 #PRECISION
-T3 <- cbind(T3, results$precision$n6_2.5[,4],
-                results$precision$n3_2.5[,4],
-                results$precision$n6_1.5[,4],
-                results$precision$n3_1.5[,4])
+T3a <- cbind(T3a, results$precision$n3_2.5[,4],
+                results$precision$n6_2.5[,4],
+                results$precision$n9_2.5[,4])
 
 #RMSE
-T3 <- cbind(T3, results$rmse$n6_2.5[,4],
-                results$rmse$n3_2.5[,4],
-                results$rmse$n6_1.5[,4],
-                results$rmse$n3_1.5[,4])
+T3a <- cbind(T3a, results$rmse$n3_2.5[,4],
+                results$rmse$n6_2.5[,4],
+                results$rmse$n9_2.5[,4])
 
 
-colnames(T3) <- c("Approach","bias_n6_2.5","bias_n3_2.5","bias_n6_1.5","bias_n3_1.5",
-                  "precision_n6_2.5","precision_n3_2.5","precision_n6_1.5","precision_n3_1.5",
-                  "rmse_n6_2.5","rmse_n3_2.5","rmse_n6_1.5","rmse_n3_1.5")
+colnames(T3a) <- c("Approach","bias_n3_2.5","bias_n6_2.5","bias_n9_2.5",
+                  "precision_n3_2.5","precision_n6_2.5","precision_n9_2.5",
+                  "rmse_n3_2.5","rmse_n6_2.5","rmse_n9_2.5")
 
-ft <- flextable(T3)
+ft <- flextable(T3a)
 
 ft <- autofit(ft)
 
@@ -299,101 +596,380 @@ ft <- autofit(ft)
 
 ft <- set_header_labels( ft, 
                             values = list(Approach = "Approach",
-                                          bias_n6_2.5 = "n=6",
                                           bias_n3_2.5 = "n=3",
-                                          bias_n6_1.5 = "n=6",
-                                          bias_n3_1.5 = "n=3",
-                                          precision_n6_2.5 = "n=6",
+                                          bias_n6_2.5 = "n=6",
+                                          bias_n9_2.5 = "n=9",
                                           precision_n3_2.5 = "n=3",
-                                          precision_n6_1.5 = "n=6",
-                                          precision_n3_1.5 = "n=3",
-                                          rmse_n6_2.5 = "n=6",
+                                          precision_n6_2.5 = "n=6",
+                                          precision_n9_2.5 = "n=9",
                                           rmse_n3_2.5 = "n=3",
-                                          rmse_n6_1.5 = "n=6",
-                                          rmse_n3_1.5 = "n=3"))
+                                          rmse_n6_2.5 = "n=6",
+                                          rmse_n9_2.5 = "n=9"))
 
                                           
-#gsd                                          
-ft <- add_header_row( ft , top = TRUE, 
-                          values = c("", rep(rep(c("GSD=2.5","GSD=1.5"),c(2,2)),3)  ))
-
-ft <- merge_at( ft , i = 1, j = c(2:3), part = "header")
-ft <- merge_at( ft , i = 1, j = c(4:5), part = "header")
-ft <- merge_at( ft , i = 1, j = c(6:7), part = "header")
-ft <- merge_at( ft , i = 1, j = c(8:9), part = "header")
-ft <- merge_at( ft , i = 1, j = c(10:11), part = "header")
-ft <- merge_at( ft , i = 1, j = c(12:13), part = "header")
-
 # metric
 ft <- add_header_row( ft , top = TRUE, 
-                          values = c("", rep(c("Bias","Precision","RMSE"),c(4,4,4))))
+                          values = c("", rep(c("Bias","Precision","RMSE"),c(3,3,3))))
 
     
-ft <- merge_at( ft , i = 1, j = c(2:5), part = "header")
-ft <- merge_at( ft , i = 1, j = c(6:9), part = "header")
-ft <- merge_at( ft , i = 1, j = c(10:13), part = "header")
+ft <- merge_at( ft , i = 1, j = c(2:4), part = "header")
+ft <- merge_at( ft , i = 1, j = c(5:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
     
         
 ##  rest
 
 
-ft <- align( ft, j = 2:13, align = "center", part = "all" )
+ft <- align( ft, j = 2:10, align = "center", part = "all" )
 
-ft <- set_caption(ft, "Table 3 : Performance metrics for GSD", style = "strong")
+ft <- set_caption(ft, "Table 3a : Performance metrics for GM - GSD =2.5", style = "strong")
 
-ft <- colformat_double(ft, j = c(2:13), digits = 1)
+ft <- colformat_double(ft, j = c(2:10), digits = 1)
 
 ft <- footnote( ft ,
                 i = 1 ,
-                j = c(2,6,10) ,
+                j = c(2,5,8) ,
                 value = as_paragraph("all metrics are relative to the true value of the parameter and expressed in %"),
                 ref_symbols = "a", part = "header")
 
 
-ft <- vline(ft, i = NULL , j= c(1,5,9), border = NULL, part = "body")
+ft <- vline(ft, i = NULL , j= c(1,4,7), border = NULL, part = "body")
+
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
     
+    
+myrelativewidth <- c(1.3,rep(1,9))
+
+mytotalwidth <- 7
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
 
 ft
 
+
 ```
 
+<br>
+
+```{r table 3b, warning=FALSE, echo=FALSE}
 
 
+T3b <- results$bias$n3_1.5[,c(1,4)]
+
+
+#BIAS
+T3b <- cbind(T3b, results$bias$n6_1.5[,4],
+                results$bias$n9_1.5[,4])
+
+#PRECISION
+T3b <- cbind(T3b, results$precision$n3_1.5[,4],
+                results$precision$n6_1.5[,4],
+                results$precision$n9_1.5[,4])
+
+#RMSE
+T3b <- cbind(T3b, results$rmse$n3_1.5[,4],
+                results$rmse$n6_1.5[,4],
+                results$rmse$n9_1.5[,4])
+
+
+colnames(T3b) <- c("Approach","bias_n3_1.5","bias_n6_1.5","bias_n9_1.5",
+                  "precision_n3_1.5","precision_n6_1.5","precision_n9_1.5",
+                  "rmse_n3_1.5","rmse_n6_1.5","rmse_n9_1.5")
+
+ft <- flextable(T3b)
+
+ft <- autofit(ft)
+
+
+## FIRST LINES
+
+ft <- set_header_labels( ft, 
+                            values = list(Approach = "Approach",
+                                          bias_n3_1.5 = "n=3",
+                                          bias_n6_1.5 = "n=6",
+                                          bias_n9_1.5 = "n=9",
+                                          precision_n3_1.5 = "n=3",
+                                          precision_n6_1.5 = "n=6",
+                                          precision_n9_1.5 = "n=9",
+                                          rmse_n3_1.5 = "n=3",
+                                          rmse_n6_1.5 = "n=6",
+                                          rmse_n9_1.5 = "n=9"))
+
+                                          
+# metric
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(c("Bias","Precision","RMSE"),c(3,3,3))))
+
+    
+ft <- merge_at( ft , i = 1, j = c(2:4), part = "header")
+ft <- merge_at( ft , i = 1, j = c(5:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
+    
+        
+##  rest
+
+
+ft <- align( ft, j = 2:10, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 3a : Performance metrics for GM - GSD =1.5", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:10), digits = 1)
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = c(2,5,8) ,
+                value = as_paragraph("all metrics are relative to the true value of the parameter and expressed in %"),
+                ref_symbols = "a", part = "header")
+
+
+ft <- vline(ft, i = NULL , j= c(1,4,7), border = NULL, part = "body")
+
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
+    
+    
+myrelativewidth <- c(1.3,rep(1,9))
+
+mytotalwidth <- 7
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
+
+ft
+
+
+```
+
+<br>
+
+Table 3c and d below presents the same results as above but using different performance metrics : median difference, median absolute deviation, and rmsle. 
+
+
+```{r table 3c, warning=FALSE, echo=FALSE}
+
+
+T3c <- results$me$n3_2.5[,c(1,4)]
+
+
+#me
+T3c <- cbind(T3c, results$me$n6_2.5[,4],
+                results$me$n9_2.5[,4])
+
+#mad
+T3c <- cbind(T3c, results$mad$n3_2.5[,4],
+                results$mad$n6_2.5[,4],
+                results$mad$n9_2.5[,4])
+
+#rmsle
+T3c <- cbind(T3c, results$rmsle$n3_2.5[,4],
+                results$rmsle$n6_2.5[,4],
+                results$rmsle$n9_2.5[,4])
+
+
+colnames(T3c) <- c("Approach","me_n3_2.5","me_n6_2.5","me_n9_2.5",
+                  "mad_n3_2.5","mad_n6_2.5","mad_n9_2.5",
+                  "rmsle_n3_2.5","rmsle_n6_2.5","rmsle_n9_2.5")
+
+ft <- flextable(T3c)
+
+ft <- autofit(ft)
+
+
+## FIRST LINES
+
+ft <- set_header_labels( ft, 
+                            values = list(Approach = "Approach",
+                                          me_n3_2.5 = "n=3",
+                                          me_n6_2.5 = "n=6",
+                                          me_n9_2.5 = "n=9",
+                                          mad_n3_2.5 = "n=3",
+                                          mad_n6_2.5 = "n=6",
+                                          mad_n9_2.5 = "n=9",
+                                          rmsle_n3_2.5 = "n=3",
+                                          rmsle_n6_2.5 = "n=6",
+                                          rmsle_n9_2.5 = "n=9"))
+
+                                          
+# metric
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(c("Median error","MAD","RMSLE"),c(3,3,3))))
+
+    
+ft <- merge_at( ft , i = 1, j = c(2:4), part = "header")
+ft <- merge_at( ft , i = 1, j = c(5:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
+    
+        
+##  rest
+
+
+ft <- align( ft, j = 2:10, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 3c : Alternative performance metrics for GM - GSD =2.5", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:10), digits = 2)
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = c(2) ,
+                value = as_paragraph("True value is 2.5"),
+                ref_symbols = "a", part = "header")
+
+
+ft <- vline(ft, i = NULL , j= c(1,4,7), border = NULL, part = "body")
+
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
+    
+    
+myrelativewidth <- c(1.3,rep(1,9))
+
+mytotalwidth <- 7
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
+
+ft
+
+
+```
+
+<br>
+
+```{r table 3d, warning=FALSE, echo=FALSE}
+
+
+T3d <- results$me$n3_1.5[,c(1,4)]
+
+
+#me
+T3d <- cbind(T3d, results$me$n6_1.5[,4],
+                results$me$n9_1.5[,4])
+
+#mad
+T3d <- cbind(T3d, results$mad$n3_1.5[,4],
+                results$mad$n6_1.5[,4],
+                results$mad$n9_1.5[,4])
+
+#rmsle
+T3d <- cbind(T3d, results$rmsle$n3_1.5[,4],
+                results$rmsle$n6_1.5[,4],
+                results$rmsle$n9_1.5[,4])
+
+
+colnames(T3d) <- c("Approach","me_n3_1.5","me_n6_1.5","me_n9_1.5",
+                  "mad_n3_1.5","mad_n6_1.5","mad_n9_1.5",
+                  "rmsle_n3_1.5","rmsle_n6_1.5","rmsle_n9_1.5")
+
+ft <- flextable(T3d)
+
+ft <- autofit(ft)
+
+
+## FIRST LINES
+
+ft <- set_header_labels( ft, 
+                            values = list(Approach = "Approach",
+                                          me_n3_1.5 = "n=3",
+                                          me_n6_1.5 = "n=6",
+                                          me_n9_1.5 = "n=9",
+                                          mad_n3_1.5 = "n=3",
+                                          mad_n6_1.5 = "n=6",
+                                          mad_n9_1.5 = "n=9",
+                                          rmsle_n3_1.5 = "n=3",
+                                          rmsle_n6_1.5 = "n=6",
+                                          rmsle_n9_1.5 = "n=9"))
+
+                                          
+# metric
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(c("Median error","MAD","RMSLE"),c(3,3,3))))
+
+    
+ft <- merge_at( ft , i = 1, j = c(2:4), part = "header")
+ft <- merge_at( ft , i = 1, j = c(5:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
+    
+        
+##  rest
+
+
+ft <- align( ft, j = 2:10, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 3d : Alternative performance metrics for GM - GSD =1.5", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:10), digits = 2)
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = c(2) ,
+                value = as_paragraph("True value is 1.5"),
+                ref_symbols = "a", part = "header")
+
+
+ft <- vline(ft, i = NULL , j= c(1,4,7), border = NULL, part = "body")
+
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
+    
+    
+myrelativewidth <- c(1.3,rep(1,9))
+
+mytotalwidth <- 7
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
+
+ft
+
+
+```
+
+<br>
+
+\newpage
 
 #### 95th percentile
 
-Table 4 below presents the results for the estimation of the geometric standard deviation. All metrics are relative to the true value of the parameter. 
+Table 4a and b below presents the results for the estimation of the 95th percentile for true GSD = 2.5 and 1.5. All metrics are relative to the true value of the parameter. 
 
 
-```{r table 4, warning=FALSE}
+```{r table 4a, warning=FALSE, echo=FALSE}
 
 
-T4 <- results$bias$n6_2.5[,c(1,6)]
+T4a <- results$bias$n3_2.5[,c(1,6)]
 
 
 #BIAS
-T4 <- cbind(T4, results$bias$n3_2.5[,6],
-                results$bias$n6_1.5[,6],
-                results$bias$n3_1.5[,6])
+T4a <- cbind(T4a, results$bias$n6_2.5[,6],
+                results$bias$n9_2.5[,6])
 
 #PRECISION
-T4 <- cbind(T4, results$precision$n6_2.5[,6],
-                results$precision$n3_2.5[,6],
-                results$precision$n6_1.5[,6],
-                results$precision$n3_1.5[,6])
+T4a <- cbind(T4a, results$precision$n3_2.5[,6],
+                results$precision$n6_2.5[,6],
+                results$precision$n9_2.5[,6])
 
 #RMSE
-T4 <- cbind(T4, results$rmse$n6_2.5[,6],
-                results$rmse$n3_2.5[,6],
-                results$rmse$n6_1.5[,6],
-                results$rmse$n3_1.5[,6])
+T4a <- cbind(T4a, results$rmse$n3_2.5[,6],
+                results$rmse$n6_2.5[,6],
+                results$rmse$n9_2.5[,6])
 
 
-colnames(T4) <- c("Approach","bias_n6_2.5","bias_n3_2.5","bias_n6_1.5","bias_n3_1.5",
-                  "precision_n6_2.5","precision_n3_2.5","precision_n6_1.5","precision_n3_1.5",
-                  "rmse_n6_2.5","rmse_n3_2.5","rmse_n6_1.5","rmse_n3_1.5")
+colnames(T4a) <- c("Approach","bias_n3_2.5","bias_n6_2.5","bias_n9_2.5",
+                  "precision_n3_2.5","precision_n6_2.5","precision_n9_2.5",
+                  "rmse_n3_2.5","rmse_n6_2.5","rmse_n9_2.5")
 
-ft <- flextable(T4)
+ft <- flextable(T4a)
 
 ft <- autofit(ft)
 
@@ -402,83 +978,372 @@ ft <- autofit(ft)
 
 ft <- set_header_labels( ft, 
                             values = list(Approach = "Approach",
-                                          bias_n6_2.5 = "n=6",
                                           bias_n3_2.5 = "n=3",
-                                          bias_n6_1.5 = "n=6",
-                                          bias_n3_1.5 = "n=3",
-                                          precision_n6_2.5 = "n=6",
+                                          bias_n6_2.5 = "n=6",
+                                          bias_n9_2.5 = "n=9",
                                           precision_n3_2.5 = "n=3",
-                                          precision_n6_1.5 = "n=6",
-                                          precision_n3_1.5 = "n=3",
-                                          rmse_n6_2.5 = "n=6",
+                                          precision_n6_2.5 = "n=6",
+                                          precision_n9_2.5 = "n=9",
                                           rmse_n3_2.5 = "n=3",
-                                          rmse_n6_1.5 = "n=6",
-                                          rmse_n3_1.5 = "n=3"))
+                                          rmse_n6_2.5 = "n=6",
+                                          rmse_n9_2.5 = "n=9"))
 
                                           
-#gsd                                          
-ft <- add_header_row( ft , top = TRUE, 
-                          values = c("", rep(rep(c("GSD=2.5","GSD=1.5"),c(2,2)),3)  ))
-
-ft <- merge_at( ft , i = 1, j = c(2:3), part = "header")
-ft <- merge_at( ft , i = 1, j = c(4:5), part = "header")
-ft <- merge_at( ft , i = 1, j = c(6:7), part = "header")
-ft <- merge_at( ft , i = 1, j = c(8:9), part = "header")
-ft <- merge_at( ft , i = 1, j = c(10:11), part = "header")
-ft <- merge_at( ft , i = 1, j = c(12:13), part = "header")
-
 # metric
 ft <- add_header_row( ft , top = TRUE, 
-                          values = c("", rep(c("Bias","Precision","RMSE"),c(4,4,4))))
+                          values = c("", rep(c("Bias","Precision","RMSE"),c(3,3,3))))
 
     
-ft <- merge_at( ft , i = 1, j = c(2:5), part = "header")
-ft <- merge_at( ft , i = 1, j = c(6:9), part = "header")
-ft <- merge_at( ft , i = 1, j = c(10:13), part = "header")
+ft <- merge_at( ft , i = 1, j = c(2:4), part = "header")
+ft <- merge_at( ft , i = 1, j = c(5:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
     
         
 ##  rest
 
 
-ft <- align( ft, j = 2:13, align = "center", part = "all" )
+ft <- align( ft, j = 2:10, align = "center", part = "all" )
 
-ft <- set_caption(ft, "Table 4 : Performance metrics for the 95th percentile", style = "strong")
+ft <- set_caption(ft, "Table 4a : Performance metrics for 95th percentile - GSD =2.5", style = "strong")
 
-ft <- colformat_double(ft, j = c(2:13), digits = 1)
+ft <- colformat_double(ft, j = c(2:10), digits = 1)
 
 ft <- footnote( ft ,
                 i = 1 ,
-                j = c(2,6,10) ,
+                j = c(2,5,8) ,
                 value = as_paragraph("all metrics are relative to the true value of the parameter and expressed in %"),
                 ref_symbols = "a", part = "header")
 
 
-ft <- vline(ft, i = NULL , j= c(1,5,9), border = NULL, part = "body")
+ft <- vline(ft, i = NULL , j= c(1,4,7), border = NULL, part = "body")
+
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
     
+    
+myrelativewidth <- c(1.3,rep(1,9))
+
+mytotalwidth <- 7
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
 
 ft
 
+
+
 ```
 
+<br>
+
+```{r table 4b, warning=FALSE, echo=FALSE}
 
 
+T4b <- results$bias$n3_1.5[,c(1,6)]
+
+
+#BIAS
+T4b <- cbind(T4b, results$bias$n6_1.5[,6],
+                results$bias$n9_1.5[,6])
+
+#PRECISION
+T4b <- cbind(T4b, results$precision$n3_1.5[,6],
+                results$precision$n6_1.5[,6],
+                results$precision$n9_1.5[,6])
+
+#RMSE
+T4b <- cbind(T4b, results$rmse$n3_1.5[,6],
+                results$rmse$n6_1.5[,6],
+                results$rmse$n9_1.5[,6])
+
+
+colnames(T4b) <- c("Approach","bias_n3_1.5","bias_n6_1.5","bias_n9_1.5",
+                  "precision_n3_1.5","precision_n6_1.5","precision_n9_1.5",
+                  "rmse_n3_1.5","rmse_n6_1.5","rmse_n9_1.5")
+
+ft <- flextable(T4b)
+
+ft <- autofit(ft)
+
+
+## FIRST LINES
+
+ft <- set_header_labels( ft, 
+                            values = list(Approach = "Approach",
+                                          bias_n3_1.5 = "n=3",
+                                          bias_n6_1.5 = "n=6",
+                                          bias_n9_1.5 = "n=9",
+                                          precision_n3_1.5 = "n=3",
+                                          precision_n6_1.5 = "n=6",
+                                          precision_n9_1.5 = "n=9",
+                                          rmse_n3_1.5 = "n=3",
+                                          rmse_n6_1.5 = "n=6",
+                                          rmse_n9_1.5 = "n=9"))
+
+                                          
+# metric
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(c("Bias","Precision","RMSE"),c(3,3,3))))
+
+    
+ft <- merge_at( ft , i = 1, j = c(2:4), part = "header")
+ft <- merge_at( ft , i = 1, j = c(5:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
+    
+        
+##  rest
+
+
+ft <- align( ft, j = 2:10, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 4b : Performance metrics for 95th percentile - GSD =1.5", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:10), digits = 1)
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = c(2,5,8) ,
+                value = as_paragraph("all metrics are relative to the true value of the parameter and expressed in %"),
+                ref_symbols = "a", part = "header")
+
+
+ft <- vline(ft, i = NULL , j= c(1,4,7), border = NULL, part = "body")
+
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
+    
+    
+myrelativewidth <- c(1.3,rep(1,9))
+
+mytotalwidth <- 7
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
+
+ft
+
+
+
+```
+
+<br>
+
+Table 4c and d below presents the same results as above but using different performance metrics : median difference, median absolute deviation, and rmsle. 
+
+```{r table 4c, warning=FALSE, echo=FALSE}
+
+
+T4c <- results$me$n3_2.5[,c(1,6)]
+
+
+#me
+T4c <- cbind(T4c, results$me$n6_2.5[,6],
+                results$me$n9_2.5[,6])
+
+#mad
+T4c <- cbind(T4c, results$mad$n3_2.5[,6],
+                results$mad$n6_2.5[,6],
+                results$mad$n9_2.5[,6])
+
+#rmsle
+T4c <- cbind(T4c, results$rmsle$n3_2.5[,6],
+                results$rmsle$n6_2.5[,6],
+                results$rmsle$n9_2.5[,6])
+
+
+colnames(T4c) <- c("Approach","me_n3_2.5","me_n6_2.5","me_n9_2.5",
+                  "mad_n3_2.5","mad_n6_2.5","mad_n9_2.5",
+                  "rmsle_n3_2.5","rmsle_n6_2.5","rmsle_n9_2.5")
+
+ft <- flextable(T4c)
+
+ft <- autofit(ft)
+
+
+## FIRST LINES
+
+ft <- set_header_labels( ft, 
+                            values = list(Approach = "Approach",
+                                          me_n3_2.5 = "n=3",
+                                          me_n6_2.5 = "n=6",
+                                          me_n9_2.5 = "n=9",
+                                          mad_n3_2.5 = "n=3",
+                                          mad_n6_2.5 = "n=6",
+                                          mad_n9_2.5 = "n=9",
+                                          rmsle_n3_2.5 = "n=3",
+                                          rmsle_n6_2.5 = "n=6",
+                                          rmsle_n9_2.5 = "n=9"))
+
+                                          
+# metric
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(c("Median error","MAD","RMSLE"),c(3,3,3))))
+
+    
+ft <- merge_at( ft , i = 1, j = c(2:4), part = "header")
+ft <- merge_at( ft , i = 1, j = c(5:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
+    
+        
+##  rest
+
+
+ft <- align( ft, j = 2:10, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 4c : Alternative performance metrics for 95th percentile - GSD =2.5", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:7), digits = 0)
+ft <- colformat_double(ft, j = c(8:10), digits = 2)
+
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = c(2) ,
+                value = as_paragraph("True value is 100"),
+                ref_symbols = "a", part = "header")
+
+
+ft <- vline(ft, i = NULL , j= c(1,4,7), border = NULL, part = "body")
+
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
+    
+    
+myrelativewidth <- c(1.3,rep(1,9))
+
+mytotalwidth <- 7
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
+
+ft
+
+
+
+```
+
+<br>
+
+```{r table 4d, warning=FALSE, echo=FALSE}
+
+
+T4d <- results$me$n3_1.5[,c(1,6)]
+
+
+#me
+T4d <- cbind(T4d, results$me$n6_1.5[,6],
+                results$me$n9_1.5[,6])
+
+#mad
+T4d <- cbind(T4d, results$mad$n3_1.5[,6],
+                results$mad$n6_1.5[,6],
+                results$mad$n9_1.5[,6])
+
+#rmsle
+T4d <- cbind(T4d, results$rmsle$n3_1.5[,6],
+                results$rmsle$n6_1.5[,6],
+                results$rmsle$n9_1.5[,6])
+
+
+colnames(T4d) <- c("Approach","me_n3_1.5","me_n6_1.5","me_n9_1.5",
+                  "mad_n3_1.5","mad_n6_1.5","mad_n9_1.5",
+                  "rmsle_n3_1.5","rmsle_n6_1.5","rmsle_n9_1.5")
+
+ft <- flextable(T4d)
+
+ft <- autofit(ft)
+
+
+## FIRST LINES
+
+ft <- set_header_labels( ft, 
+                            values = list(Approach = "Approach",
+                                          me_n3_1.5 = "n=3",
+                                          me_n6_1.5 = "n=6",
+                                          me_n9_1.5 = "n=9",
+                                          mad_n3_1.5 = "n=3",
+                                          mad_n6_1.5 = "n=6",
+                                          mad_n9_1.5 = "n=9",
+                                          rmsle_n3_1.5 = "n=3",
+                                          rmsle_n6_1.5 = "n=6",
+                                          rmsle_n9_1.5 = "n=9"))
+
+                                          
+# metric
+ft <- add_header_row( ft , top = TRUE, 
+                          values = c("", rep(c("Median error","MAD","RMSLE"),c(3,3,3))))
+
+    
+ft <- merge_at( ft , i = 1, j = c(2:4), part = "header")
+ft <- merge_at( ft , i = 1, j = c(5:7), part = "header")
+ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
+    
+        
+##  rest
+
+
+ft <- align( ft, j = 2:10, align = "center", part = "all" )
+
+ft <- set_caption(ft, "Table 4d : Alternative performance metrics for 95th percentile - GSD = 1.5", style = "strong")
+
+ft <- colformat_double(ft, j = c(2:7), digits = 0)
+ft <- colformat_double(ft, j = c(8:10), digits = 2)
+
+
+ft <- footnote( ft ,
+                i = 1 ,
+                j = c(2) ,
+                value = as_paragraph("True value is 100"),
+                ref_symbols = "a", part = "header")
+
+
+ft <- vline(ft, i = NULL , j= c(1,4,7), border = NULL, part = "body")
+
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
+    
+    
+myrelativewidth <- c(1.3,rep(1,9))
+
+mytotalwidth <- 7
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
+
+ft
+
+
+
+```
+
+<br>
+
+\newpage
 
 #### 95th percentile UCL
 
 Table 5 below presents the results for the coverage of the calculated 70%UCL : ideally it should be superioror equal to 70%: the 70% UCL should be above the true value at least 70% of the time. 
 
 
-```{r table 5, warning=FALSE}
+```{r table 5, warning=FALSE, echo=FALSE}
 
 
-T4 <- results$coverage[,c(1,2,4,6,8)]
+T5 <- results$coverage[,c(1,4,2,10,8,6,12)]
 
 
 
 
-colnames(T4) <- c("Approach","n6_2.5","n3_2.5","n6_1.5","n3_1.5")
+colnames(T5) <- c("Approach","n3_2.5","n6_2.5","n9_2.5","n3_1.5","n6_1.5","n9_1.5")
 
-ft <- flextable(T4)
+ft <- flextable(T5)
 
 ft <- autofit(ft)
 
@@ -487,32 +1352,47 @@ ft <- autofit(ft)
 
 ft <- set_header_labels( ft, 
                             values = list(Approach = "Approach",
-                                          n6_2.5 = "n=6",
                                           n3_2.5 = "n=3",
+                                          n6_2.5 = "n=6",
+                                          n9_2.5 = "n=9",
+                                          n3_1.5 = "n=3",
                                           n6_1.5 = "n=6",
-                                          n3_1.5 = "n=3"))
+                                          n9_1.5 = "n=9"
+                                          ))
 
                                           
 #gsd                                          
 ft <- add_header_row( ft , top = TRUE, 
-                          values = c("", rep(c("GSD=2.5","GSD=1.5"),c(2,2))  ))
+                          values = c("", rep(c("GSD=2.5","GSD=1.5"),c(3,3))  ))
 
-ft <- merge_at( ft , i = 1, j = c(2:3), part = "header")
-ft <- merge_at( ft , i = 1, j = c(4:5), part = "header")
+ft <- merge_at( ft , i = 1, j = c(2:4), part = "header")
+ft <- merge_at( ft , i = 1, j = c(5:7), part = "header")
 
 
 
 ##  rest
 
 
-ft <- align( ft, j = 2:5, align = "center", part = "all" )
+ft <- align( ft, j = 2:7, align = "center", part = "all" )
 
 ft <- set_caption(ft, "Table 5 : Coverage the 95th percentile 70% UCL (%)", style = "strong")
 
-ft <- colformat_double(ft, j = c(2:5), digits = 0)
+ft <- colformat_double(ft, j = c(2:7), digits = 0)
 
-ft <- vline(ft, i = NULL , j= c(1,3), border = NULL, part = "body")
+ft <- vline(ft, i = NULL , j= c(1,4), border = NULL, part = "body")
+  
+ft <- hline(ft, i = c(2,4) , j= NULL, border = NULL, part = "body")
+  
     
+myrelativewidth <- c(1.3,rep(1,6))
+
+mytotalwidth <- 5.5
+
+
+ft <- width(ft, width= myrelativewidth*mytotalwidth/sum(myrelativewidth), unit = "in")
+
+ft <- fontsize(ft, size = 12 , part="all")
+
 
 ft
 

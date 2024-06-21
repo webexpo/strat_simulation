@@ -991,4 +991,290 @@
     
     #saveRDS( simulation_summary, "F:/Dropbox/temp/aioh2023-S2_4e.RDS")    
     
+###### simulation 5 ###### 
+    
+    ## impact on estimation of gm, gsd, p95, and the p95 70% UCL
+    
+    expanded_uncertainty <- 0.50
+    
+    coverage_factor <- qnorm(0.975)
+    
+    me.cv.range.factor <- 1 #( <1, if one wants to input uncertain uncertainty in the ME analysis)
+    
+    sample_size <- 9
+    
+    true_p95 <- 100
+    
+    true_gsd <- 2.5
+    
+    oel <- 300
+    
+    me.cv <- expanded_uncertainty/coverage_factor
+    
+    n_simul <- 10000 
+    
+    
+    
+    ##  parallel simulation (already performed and saved)
+    
+    # compteur de temps initialisé
+    start_time <- Sys.time()
+    
+    
+    #procédure parallele
+    
+    # creating the clusters ( use detectCores() to count the cores available, choose this number minus 2 or 4 below) 
+    
+    cl <- makeCluster(9)
+    
+    # libraries and scripts to be used in each cluster
+    
+    clusterEvalQ(cl, library(rjags))
+    
+    
+    # sending objects to clusters
+    clusterExport( cl , "jags.model.informedvar" , envir=environment())
+    clusterExport( cl , "webexpo.seg.datapreparation" , envir=environment())
+    clusterExport( cl , "Webexpo.seg.globalbayesian.jags" , envir=environment())
+    clusterExport( cl , "fun.jags.informedvar" , envir=environment())
+    clusterExport( cl , "myfunction.naive" , envir=environment())
+    clusterExport( cl , "myfunction.me" , envir=environment())
+    clusterExport( cl , "myfunction.me" , envir=environment())
+    clusterExport( cl , "myfunction.gum" , envir=environment())
+    clusterExport( cl , "myfunction.freq" , envir=environment())
+    
+    clusterExport( cl , "fun.NdExpo.lognorm" , envir=environment())
+    clusterExport( cl , "fun.perc" , envir=environment())
+    
+    clusterExport( cl , "sample_size" , envir=environment())
+    clusterExport( cl , "me.cv.range.factor" , envir=environment())
+    clusterExport( cl , "true_p95" , envir=environment())
+    clusterExport( cl , "true_gsd" , envir=environment())
+    clusterExport( cl , "oel" , envir=environment())
+    clusterExport( cl , "me.cv" , envir=environment())
+    
+    # calculations
+    
+    simulation_result_par <- parLapply(cl, X = as.list(1:n_simul) , fun = my.parallel.function) 
+    
+    # recommendation from the net: close the clusters
+    stopCluster(cl)
+    
+    
+    # estimation of computing time ( 9 min on my computer for 5000 iterations)
+    end_time <- Sys.time()
+    mytime <- end_time - start_time 
+    
+    
+    
+    ## interpretation of results 
+    
+    simulation_summary <- data.frame( ideal_p95 = numeric(n_simul),
+                                      ideal_p95_ucl = numeric(n_simul),
+                                      naive_p95 = numeric(n_simul),
+                                      naive_p95_ucl = numeric(n_simul),
+                                      me_p95 = numeric(n_simul),
+                                      me_p95_ucl = numeric(n_simul),
+                                      gum_p95 = numeric(n_simul),
+                                      gum_p95_ucl = numeric(n_simul),
+                                      ideal_p95_freq = numeric(n_simul),
+                                      ideal_p95_ucl_freq = numeric(n_simul),
+                                      naive_p95_freq = numeric(n_simul),
+                                      naive_p95_ucl_freq = numeric(n_simul),
+                                      
+                                      ideal_gm = numeric(n_simul),
+                                      naive_gm = numeric(n_simul),
+                                      me_gm = numeric(n_simul),
+                                      gum_gm = numeric(n_simul),
+                                      ideal_gm_freq = numeric(n_simul),
+                                      naive_gm_freq = numeric(n_simul),
+                                      
+                                      ideal_gsd = numeric(n_simul),
+                                      naive_gsd = numeric(n_simul),
+                                      me_gsd = numeric(n_simul),
+                                      gum_gsd = numeric(n_simul),
+                                      ideal_gsd_freq = numeric(n_simul),
+                                      naive_gsd_freq = numeric(n_simul))
+    for ( i in 1:n_simul) { 
+      
+      simulation_summary$ideal_p95[i] <- simulation_result_par[[i]][1]
+      simulation_summary$ideal_p95_ucl[i] <- simulation_result_par[[i]][2]
+      simulation_summary$naive_p95[i] <- simulation_result_par[[i]][3]
+      simulation_summary$naive_p95_ucl[i] <- simulation_result_par[[i]][4]
+      simulation_summary$me_p95[i] <- simulation_result_par[[i]][5]
+      simulation_summary$me_p95_ucl[i] <- simulation_result_par[[i]][6]
+      simulation_summary$gum_p95[i] <- simulation_result_par[[i]][7]
+      simulation_summary$gum_p95_ucl[i] <- simulation_result_par[[i]][8]
+      simulation_summary$ideal_p95_freq[i] <- simulation_result_par[[i]][9]
+      simulation_summary$ideal_p95_ucl_freq[i] <- simulation_result_par[[i]][10]
+      simulation_summary$naive_p95_freq[i] <- simulation_result_par[[i]][11]
+      simulation_summary$naive_p95_ucl_freq[i] <- simulation_result_par[[i]][12]
+      
+      
+      
+      simulation_summary$ideal_gm[i] = simulation_result_par[[i]][13]
+      simulation_summary$naive_gm[i] = simulation_result_par[[i]][14]
+      simulation_summary$me_gm[i] = simulation_result_par[[i]][15]
+      simulation_summary$gum_gm[i] = simulation_result_par[[i]][16]
+      simulation_summary$ideal_gm_freq[i] = simulation_result_par[[i]][17]
+      simulation_summary$naive_gm_freq[i] = simulation_result_par[[i]][18]
+      
+      
+      simulation_summary$ideal_gsd[i] = simulation_result_par[[i]][19]
+      simulation_summary$naive_gsd[i] = simulation_result_par[[i]][20]
+      simulation_summary$me_gsd[i] = simulation_result_par[[i]][21]
+      simulation_summary$gum_gsd[i] = simulation_result_par[[i]][22]
+      simulation_summary$ideal_gsd_freq[i] = simulation_result_par[[i]][23]
+      simulation_summary$naive_gsd_freq[i] = simulation_result_par[[i]][24]
+      
+    }
+    
+    
+    ## saving simulation results
+    
+    #saveRDS( simulation_summary, "F:/Dropbox/temp/aioh2023-S2_5e.RDS")    
+    
+###### simulation 6 ###### 
+    
+    ## impact on estimation of gm, gsd, p95, and the p95 70% UCL
+    
+    expanded_uncertainty <- 0.50
+    
+    coverage_factor <- qnorm(0.975)
+    
+    me.cv.range.factor <- 1 #( <1, if one wants to input uncertain uncertainty in the ME analysis)
+    
+    sample_size <- 9
+    
+    true_p95 <- 100
+    
+    true_gsd <- 1.5
+    
+    oel <- 300
+    
+    me.cv <- expanded_uncertainty/coverage_factor
+    
+    n_simul <- 10000 
+    
+    
+    
+    ##  parallel simulation (already performed and saved)
+    
+    # compteur de temps initialisé
+    start_time <- Sys.time()
+    
+    
+    #procédure parallele
+    
+    # creating the clusters ( use detectCores() to count the cores available, choose this number minus 2 or 4 below) 
+    
+    cl <- makeCluster(9)
+    
+    # libraries and scripts to be used in each cluster
+    
+    clusterEvalQ(cl, library(rjags))
+    
+    
+    # sending objects to clusters
+    clusterExport( cl , "jags.model.informedvar" , envir=environment())
+    clusterExport( cl , "webexpo.seg.datapreparation" , envir=environment())
+    clusterExport( cl , "Webexpo.seg.globalbayesian.jags" , envir=environment())
+    clusterExport( cl , "fun.jags.informedvar" , envir=environment())
+    clusterExport( cl , "myfunction.naive" , envir=environment())
+    clusterExport( cl , "myfunction.me" , envir=environment())
+    clusterExport( cl , "myfunction.me" , envir=environment())
+    clusterExport( cl , "myfunction.gum" , envir=environment())
+    clusterExport( cl , "myfunction.freq" , envir=environment())
+    
+    clusterExport( cl , "fun.NdExpo.lognorm" , envir=environment())
+    clusterExport( cl , "fun.perc" , envir=environment())
+    
+    clusterExport( cl , "sample_size" , envir=environment())
+    clusterExport( cl , "me.cv.range.factor" , envir=environment())
+    clusterExport( cl , "true_p95" , envir=environment())
+    clusterExport( cl , "true_gsd" , envir=environment())
+    clusterExport( cl , "oel" , envir=environment())
+    clusterExport( cl , "me.cv" , envir=environment())
+    
+    # calculations
+    
+    simulation_result_par <- parLapply(cl, X = as.list(1:n_simul) , fun = my.parallel.function) 
+    
+    # recommendation from the net: close the clusters
+    stopCluster(cl)
+    
+    
+    # estimation of computing time ( 9 min on my computer for 5000 iterations)
+    end_time <- Sys.time()
+    mytime <- end_time - start_time 
+    
+    
+    
+    ## interpretation of results 
+    
+    simulation_summary <- data.frame( ideal_p95 = numeric(n_simul),
+                                      ideal_p95_ucl = numeric(n_simul),
+                                      naive_p95 = numeric(n_simul),
+                                      naive_p95_ucl = numeric(n_simul),
+                                      me_p95 = numeric(n_simul),
+                                      me_p95_ucl = numeric(n_simul),
+                                      gum_p95 = numeric(n_simul),
+                                      gum_p95_ucl = numeric(n_simul),
+                                      ideal_p95_freq = numeric(n_simul),
+                                      ideal_p95_ucl_freq = numeric(n_simul),
+                                      naive_p95_freq = numeric(n_simul),
+                                      naive_p95_ucl_freq = numeric(n_simul),
+                                      
+                                      ideal_gm = numeric(n_simul),
+                                      naive_gm = numeric(n_simul),
+                                      me_gm = numeric(n_simul),
+                                      gum_gm = numeric(n_simul),
+                                      ideal_gm_freq = numeric(n_simul),
+                                      naive_gm_freq = numeric(n_simul),
+                                      
+                                      ideal_gsd = numeric(n_simul),
+                                      naive_gsd = numeric(n_simul),
+                                      me_gsd = numeric(n_simul),
+                                      gum_gsd = numeric(n_simul),
+                                      ideal_gsd_freq = numeric(n_simul),
+                                      naive_gsd_freq = numeric(n_simul))
+    for ( i in 1:n_simul) { 
+      
+      simulation_summary$ideal_p95[i] <- simulation_result_par[[i]][1]
+      simulation_summary$ideal_p95_ucl[i] <- simulation_result_par[[i]][2]
+      simulation_summary$naive_p95[i] <- simulation_result_par[[i]][3]
+      simulation_summary$naive_p95_ucl[i] <- simulation_result_par[[i]][4]
+      simulation_summary$me_p95[i] <- simulation_result_par[[i]][5]
+      simulation_summary$me_p95_ucl[i] <- simulation_result_par[[i]][6]
+      simulation_summary$gum_p95[i] <- simulation_result_par[[i]][7]
+      simulation_summary$gum_p95_ucl[i] <- simulation_result_par[[i]][8]
+      simulation_summary$ideal_p95_freq[i] <- simulation_result_par[[i]][9]
+      simulation_summary$ideal_p95_ucl_freq[i] <- simulation_result_par[[i]][10]
+      simulation_summary$naive_p95_freq[i] <- simulation_result_par[[i]][11]
+      simulation_summary$naive_p95_ucl_freq[i] <- simulation_result_par[[i]][12]
+      
+      
+      
+      simulation_summary$ideal_gm[i] = simulation_result_par[[i]][13]
+      simulation_summary$naive_gm[i] = simulation_result_par[[i]][14]
+      simulation_summary$me_gm[i] = simulation_result_par[[i]][15]
+      simulation_summary$gum_gm[i] = simulation_result_par[[i]][16]
+      simulation_summary$ideal_gm_freq[i] = simulation_result_par[[i]][17]
+      simulation_summary$naive_gm_freq[i] = simulation_result_par[[i]][18]
+      
+      
+      simulation_summary$ideal_gsd[i] = simulation_result_par[[i]][19]
+      simulation_summary$naive_gsd[i] = simulation_result_par[[i]][20]
+      simulation_summary$me_gsd[i] = simulation_result_par[[i]][21]
+      simulation_summary$gum_gsd[i] = simulation_result_par[[i]][22]
+      simulation_summary$ideal_gsd_freq[i] = simulation_result_par[[i]][23]
+      simulation_summary$naive_gsd_freq[i] = simulation_result_par[[i]][24]
+      
+    }
+    
+    
+    ## saving simulation results
+    
+    #saveRDS( simulation_summary, "F:/Dropbox/temp/aioh2023-S2_6e.RDS")    
+    
     
