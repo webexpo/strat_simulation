@@ -27,13 +27,13 @@ example <- readRDS( "../created data/GUM measurement error_ex1.RDS")
 
 This document summarizes a short  simulation effort aiming at illustrating 2 approaches to deal with measurement error in the statistical evaluation of measurement data. 
 
-True exposure levels to airborne chemicals are often assumed to reasonably follow the lognormal distribution. When performing risk assessment, best practive recommend collecting 6-12 samples from the workplace to estimate metrics such as the 95th percentile or exceedance fraction of the OEL. However, the true exposure the measurements are subject to error potentially introduced during the sampling and analysis phases of the measurement process.
+True exposure levels to airborne chemicals are often assumed to reasonably follow the lognormal distribution. When performing risk assessment, best practice recommends collecting 6-12 samples from the workplace to estimate metrics such as the 95th percentile or exceedance fraction of the OEL. The small sample sizes mentioned above added to the typically large day-to-day variability creates large uncertainty in this process. In addition, the measurements are themselves subject to error potentially introduced during the sampling and analysis phases of the measurement process.
 
-Sampling and analysis (S&A) errors are often assumed to be normally distributed with mean zero.
+Sampling and analysis (S&A) errors are often assumed to be normally distributed with mean zero, while environmental variability, as mentionned above, is best represented by a lognormal distribution. This combination of two different distribution has represented a challenge in studying the impact of S&A error on the final estimates of exposure metrics and their uncertainty.
 
 Two landmark documents have studied the impact of measurement error on the statistical evaluation of exposure data. [Grzebyk and sandino](https://www.inrs.fr/media.html?refINRS=ND%202231) in France and [Nicas, Simmons and Spear](https://www.tandfonline.com/doi/abs/10.1080/15298669191365199) in the US used slightly different approximations to demonstrate that S&A error below a CV of 30% has a negligible impact on the final estimate of the exposure metric for typical workplace GSD.
 
-Both teams had to use simplifying assumptions to make their conclusions. In recent decades advances in computing power have let to the rapid spread of Bayesian methods in industrial hygiene and other fields. Bayesian methods are very flexible, and indeed can be easily used to incorporate S&A error in the interpretation of exposure levels.
+Both teams had to use simplifying assumptions to make their conclusions, and they didn'T directly evaluate the impact on risk decisions. In recent decades advances in computing power have let to the rapid spread of Bayesian methods in industrial hygiene and other fields. Bayesian methods are very flexible, and indeed can be easily used to incorporate S&A error in the interpretation of exposure levels.
 
 An Bayesian S&A error model has been developed by our team at University of Montreal during the [Webexpo project](https://www.irsst.qc.ca/en/publications-tools/publication/i/101066/n/webexpo). 
 
@@ -63,7 +63,23 @@ Mathematically :
                 
 As an example, for an expanded uncertainty of 50%, the CV would be ~25%.
 
-During the analysis of a sample with this model, one would supply the observed values as well as the assumed CV, and the Bayesian engine would return posterior samples for all metrics of interest. The posterior samples represent the estimated uncertainty distribution of the parameter of interest. It is typical to use the median of the posterior sample as the point estimate, and, e.g., the 70% quantile of the posterior sample as a 70% upper confidence limit.
+During the analysis of a sample with this model, one would supply the observed values as well as the assumed CV, and the Bayesian engine would return posterior samples for all metrics of interest. The posterior sample represent the estimated uncertainty distribution of the parameter of interest. It is typical to use the median of the posterior sample as the point estimate, and, e.g., the 70% quantile of the posterior sample as a 70% upper confidence limit.
+
+as an insight of the underlying principle of the bayesian error model, let's imagine exposure data was normally distributed, with mean AM and a CV = CVenvironment.
+
+Then we would have : 
+
+* true_concentration ~ Normal( AM , CVenvironment )
+* observed_concentration = true_concentration + error
+* error ~ Normal(0,CV)
+
+With such a model, the combination is easy : observed_concentration ~ Normal( AM, sqrt(CV^2 + CVenvironment^2) )
+
+The observed concentrations follow a normal distribution with the same mean as the true concentrations, but they have a larger variance, the sum of the environmental and S&A variances.
+
+It is obvious in this simple example that the consequence of failing to account for S&A error would cause an overestimation of the true environmental variability, since the observed variability would also contain the noise caused by measurement error.
+
+A Bayesian error model in this case would estimate the true environmental variability knowing that some part of the observed variance comes from the S&A error.
 
 ## GUM approach
 
@@ -75,11 +91,12 @@ The steps to estimate parameters and or upper limits is as follows:
 * sample from a normal distribution around the observed values
 * calculate a metric with the new dataset (GM, GSD, 95th percentile, UTL95,70)
 * repeat a lot of times - result is a lot of values of the metric
-* report the average value of the metric 
+* report the average value of the metric across the many repetitions 
+    
+If we go back to the simplification mentioned above, it seems that this approach, through adding random noise to the observed data, would (in the case of the normal simplification), result in a quantity with mean the true exposure mean and variance the sum of the true environmental variance plus the S&E noise (the distribution of the observed concentrations ), plus another time the S&E noise ( addition of random noise to the observed concentration).     
     
 
-For the practical implementation of the GUM approach, I used the frequentist estimation methods for the 95th percentile as presented in . To be able to obtain the 70% UCL I used tables in Zwillinger, D.; Kokoska, S. (2000) Standard Probability and Statistics Tables and Formulae. Chapman & Hall / CRC, Boca Raton, FL
-Pp 176 (section 7.3 Tolerance factors for the normal distribution)
+For the practical implementation of the GUM approach, I used the frequentist estimation methods for the 95th percentile tolerance limit as presented in [Selvin et al](https://www.tandfonline.com/doi/abs/10.1080/15298668791384445). The k values to calculate a 70% upper confidence limit on the 95th percentile (UTL95,70) was determined with the R package named ["tolerance"](https://cran.r-project.org/web/packages/tolerance/index.html), which closely replicates the values found in the EN689 document.
 
 ## Example using both approaches
 
@@ -152,8 +169,8 @@ ft
 Observations from T1 : 
 
 * GM seems little impacted
-* The naive approach clearly shows an overestimation of environmental variability (expected as we observed environmental variability as well as S&E noise )
-* For GSD, the frequentist approach considerably increase the estimate compared to naive approach (expected since normal noise is added to the observations in the Monte Carlo procedure)
+* The naive approach clearly shows a larger variability (expected as we observed environmental variability as well as S&E noise )
+* For GSD, the GUM approach to measurement error further increases the estimate compared to naive approach (expected since normal noise is further added to the observations in the Monte Carlo procedure)
 * For GSD, the Bayesian approach decreases the estimate compared to naive approach (expected since the Bayesian model takes the S&E noise into account when trying to estimate the variability of the true concentrations)
 
 * Overall the Bayesian ME approach seems to get results closer to the ideal results compared to the GUM approach, but not always much closer.    
@@ -163,15 +180,15 @@ Observations from T1 :
 ## Limited simulation study
     
     
-The previous example illustrate the general behavior of both measurement error approaches, but doesn't really provide useful information as to their performance across many analyses.
+The previous example illustrate the general behavior of both measurement error approaches, but doesn't really provide useful information as to their overall performance. For example, sometimes, the random noise coming from the S&A error might actually decrease observed variability due to chance, and in that particular case, the GUM approach would yield variability estimates closer to the ideal values than the Bayesian approach. It is therefor important to observe the behaviour of the 2 approaches across a large number of random samples.
 
-TO get a little bit more insight we performed a simulation study for 6 scenarios of sample size and true variability : GSD = 1.5 or 2.5 , n=3 or 6 or 9. We kept the true 95th percentile at 100. For each scenario we generated 1000 datasets of true and observed concentrations using an expanded S&E uncertainty CV of 50%. For each simulated dataset we calculated the same metrics as shown above.
+To get a little bit more insight we performed a simulation study for 6 scenarios of sample size and true variability : GSD = 1.5 or 2.5 , n=3 or 6 or 9. We kept the true 95th percentile at 100. For each scenario we generated 10000 datasets of true and observed concentrations using an expanded S&E uncertainty CV of 50%. For each simulated dataset we calculated the same metrics as shown in the example above.
 
-To summarize the results across the 10 000 we calculated, for gm, gsd and P95 the bias, precision and rmse of the estimates. For the 70% UCL on the 95th percentile we calculated the coverage of that UCL i.e. the proportion of time the calculated UCL was indeed greater than the true P95 of 100.
+To summarize the results across the 10000 iterations we calculated, for gm, gsd and P95, the bias, precision and rmse of the estimates. For the 70% UCL on the 95th percentile we calculated the coverage of that UCL i.e. the proportion of time the calculated UCL was indeed greater than the true P95 out of the of 10000 iterations.
 
-The stability of the simulation was assessed by looking at the variability of the results across the 5 repeats of te entire simulation effort. To limit the amount of information presented, we only show the mean results across the 5 repetitions as the standard deviation across the 5 repetitions were very small (<1%). They are however available in the raw data.
+The stability of the simulation was assessed by looking at the variability of the results across 5 repeats of the entire simulation effort. To limit the amount of information presented in this document, we only show the mean results across the 5 repetitions as the standard deviations were always very small (<1%). They are however available in the raw data.
 
-Overall this took approximate 20h of computing time on a modern desktop computer.
+Overall this took approximate 30h of computing time on a modern desktop computer.
 
 \newpage
 
@@ -555,6 +572,13 @@ ft
 
 <br>
 
+*overall observations from T2a to T2d :*
+
+* It might seem counter intuitive to see some bias for GM, whichever the approach, but this is due to the skewed distribution of the estimated parameters in this simulation study. Table 2c and 2d show that the median error is very close to 0 for GM.
+
+* Estimation of GM seems little affected by the choice between the Bayesian and Frwquentist approach, using measurement error or not.
+
+
 \newpage
 
 #### geometric standard deviation
@@ -622,7 +646,7 @@ ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
 
 ft <- align( ft, j = 2:10, align = "center", part = "all" )
 
-ft <- set_caption(ft, "Table 3a : Performance metrics for GM - GSD =2.5", style = "strong")
+ft <- set_caption(ft, "Table 3a : Performance metrics for GSD - GSD =2.5", style = "strong")
 
 ft <- colformat_double(ft, j = c(2:10), digits = 1)
 
@@ -715,7 +739,7 @@ ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
 
 ft <- align( ft, j = 2:10, align = "center", part = "all" )
 
-ft <- set_caption(ft, "Table 3a : Performance metrics for GM - GSD =1.5", style = "strong")
+ft <- set_caption(ft, "Table 3a : Performance metrics for GSD - GSD =1.5", style = "strong")
 
 ft <- colformat_double(ft, j = c(2:10), digits = 1)
 
@@ -811,7 +835,7 @@ ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
 
 ft <- align( ft, j = 2:10, align = "center", part = "all" )
 
-ft <- set_caption(ft, "Table 3c : Alternative performance metrics for GM - GSD =2.5", style = "strong")
+ft <- set_caption(ft, "Table 3c : Alternative performance metrics for GSD - GSD =2.5", style = "strong")
 
 ft <- colformat_double(ft, j = c(2:10), digits = 2)
 
@@ -904,7 +928,7 @@ ft <- merge_at( ft , i = 1, j = c(8:10), part = "header")
 
 ft <- align( ft, j = 2:10, align = "center", part = "all" )
 
-ft <- set_caption(ft, "Table 3d : Alternative performance metrics for GM - GSD =1.5", style = "strong")
+ft <- set_caption(ft, "Table 3d : Alternative performance metrics for GSD - GSD =1.5", style = "strong")
 
 ft <- colformat_double(ft, j = c(2:10), digits = 2)
 
@@ -936,6 +960,22 @@ ft
 ```
 
 <br>
+
+*overall observations from T3a to T23 :*
+
+It might be useful to consider here separately tables T3a and T3c, which correspond to true environmental variability quite close to the center of the expostats prior for exposure variability : with such variability we expect expostats to perform better than the frequentist estimation of GSD. On the other hand, T3b and T3d correspond to a true environmental variability quite far from the center of the expostats prior  : with such variability we expect the frequentist estimation of GSD to perform better than expostats, as expostats will pull the estimates towards more reasonable values, especially for n=3, but even to some extent for n=6.
+
+overall picture for T3a and T3c
+
+* The Bayesian advantage for true GSDs close to 2.5 is obvious in the "ideal" lines of the tables, with better precision (traditional precision and MAD) and overall performance (RMSE and RMSLE)
+* The "inflation" effect expected in the naive vs ideal approach is there but fairly low ( 4% positive bias for naive compared to ideal approach for both the bayesian and frequentist approaches). Similarly the "double inflation" associated with the GUM approach is also visible ( +4% from naive to ME), and the bayesian approach to ME also shows the "deflation" towards the ideal value. The median error results, less affected by the skewed distribution of estimates, show a similar pattern in the evolution from ideal to naive to ME. However in absolute term, the medians, being shifted to lower values compared to bias, suggesrt here that the GUM approach would lead to a slight overestimation and the bayesian to a slight underestimation ( instead of larger overestimation and no bias). The bias and median error result might seem counterintuitive but they both suggest low influence of S&A error. The precision and overall metrics always favor the Bayesian approach
+
+overall picture for T3b and T3d
+
+* The Bayesian disadvantage for true GSDs close to 1.5 is obvious in the "ideal" lines of the tables, with a clear positive bias (also seen in median error), especially noticeable for n=3
+* With such low variability the S&A error is more noticeable, with the frequentist biases going from ~0 to 8% to 17% from the ideal to the naive to the GUM analysis. All in all, the bayesian ME approach, handicapped by its prior seems perform similarly to the GUM approach, with similar biases but an opposite effect of sample size ( the bayesian approach seems better for larger n, the GUM approach for lower n). The precision and overall metrics still favor the Bayesian ME approach compared to GUM, but the difference is smaller.
+
+
 
 \newpage
 

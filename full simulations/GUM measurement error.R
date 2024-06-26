@@ -17,6 +17,7 @@
     library(readxl)
     library(rjags)
     library(parallel)
+    library(tolerance)
     devtools::source_url("https://github.com/lhimp/scripts/raw/master/chemin.R")
 
 
@@ -81,10 +82,44 @@
     source("parameter estimation/frequentist/percentile.R")
     
 ##### Functions #####
- 
-    ### smal function for summary results for a simple uninformative model
+
+    #' smal function for generating MCMC results for an analysis assuming no error
+    #'
+    #' @param true_gsd 
+    #' @param true_gm 
+    #' @param sample_size 
+    #' @param n_sim number of simulations 
+    #' @return matrix of generated data, one column per iteration
+    #'
     
     
+    data.simulation <- function(   true_gsd = 2.5, 
+                                   true_gm = 30, 
+                                   n_sim = 50, 
+                                   sample_size = 9 ,
+                                   me.cv = 0.15) {
+      
+      ###### data generation
+      
+      
+      data_vector <- exp(rnorm( n = sample_size*n_sim , mean = log(true_gm) , sd = log(true_gsd) ) )           
+      
+      data_vector_me <- pmax( rep(0.1,sample_size*n_sim)  , rnorm( sample_size*n_sim , data_vector , data_vector*me.cv ) )
+      
+      #formatting pre treatment
+      
+      data_matrix <- matrix( data = data_vector , nrow = sample_size , ncol = n_sim)
+      
+      data_matrix_me <- matrix( data = data_vector_me , nrow = sample_size , ncol = n_sim)
+      
+      return(list(true = data_matrix, observed = data_matrix_me))
+      
+    }
+    
+    
+    
+     
+
     #' smal function for generating MCMC results for an analysis assuming no error
     #'
     #' @param mysample sample to be analysed
@@ -148,6 +183,10 @@
     
     myfunction.gum <- function( mysample , n.simul , me.cv ) {
       
+      # update june 25, correction of P95 UCL equation to mimick EN689, using the tolerance package
+      # as of this update the simulations wer enot run with it. So frequentist coverage needs correction 
+      
+      
       # mysample <- c("28.9","19.40","<8.22","149.9","26.42","56.1")
       # n.simul <- 10000
       
@@ -166,7 +205,7 @@
       
       p95.ros <- fun.perc(observed_data,alpha=0.05,perc=0.95)$est
       
-      p95ucl70.ros <- fun.perc(observed_data,alpha=0.30,perc=0.95)$uc
+      p95ucl70.ros <- fun.perc.en689(observed_data,alpha=0.30,perc=0.95)$uc
       
       return( c(gm.ros,gsd.ros,p95.ros,p95ucl70.ros) )
       
@@ -195,6 +234,9 @@
     
     myfunction.freq <- function( mysample  ) {
       
+      # update june 25, correction of P95 UCL equation to mimick EN689, using the tolerance package
+      # as of this update the simulations wer enot run with it. So frequentist coverage needs correction 
+      
       # mysample <- c("28.9","19.40","<8.22","149.9","26.42","56.1")
       # n.simul <- 10000
       
@@ -210,7 +252,7 @@
         
         p95.ros <- fun.perc(mysample.ros,alpha=0.05,perc=0.95)$est
         
-        p95ucl70.ros <- fun.perc(mysample.ros,alpha=0.30,perc=0.95)$uc
+        p95ucl70.ros <- fun.perc.en689(mysample.ros,alpha=0.30,perc=0.95)$uc
         
       result <- list( gm = gm.ros,
                       gsd = gsd.ros,
@@ -245,7 +287,7 @@
       
       true_data <- exp( rnorm( sample_size , log(true_gm) , log(true_gsd) ) )   
       
-      observed_data <- pmax( 0.1 , rnorm( sample_size , true_data , true_data*me.cv ) ) #truncation at 0.1
+      observed_data <- pmax( rep(0.1,sample_size) , rnorm( sample_size , true_data , true_data*me.cv ) ) #truncation at 0.1
       
       ## analysis
       
@@ -390,7 +432,90 @@
     
     saveRDS( exemple1.object, "created data/GUM measurement error_ex1.RDS")
     
-      
+
+###### Example 2 ######  
+    
+    ## example from Theo et al. : default example from expostats, with <5.5 replaced with 8.22 (unlike NDexpo)
+    
+    ## parameters
+    
+    me.cv <- 0.15
+    
+    sample_size <- 6
+    
+    true_data <- c(28.9, 19.4, 8.22, 149.9, 26.42, 56.1 )
+  
+    observed_data <- c(35.54, 20.73, 9.36, 136.83, 28.84, 47.27 )
+    
+    oel <-100
+    
+    ## Bayesian analysis
+    
+    ideal_analysis_b <- myfunction.naive( true_data , oel)
+    
+    ideal_analysis_f <- myfunction.freq( true_data )
+    
+    naive_analysis_b <- myfunction.naive( observed_data , oel)
+    
+    naive_analysis_f <- myfunction.freq( observed_data )
+    
+    me_analysis_b <- myfunction.me( observed_data , me.range = c(me.cv,me.cv) ,oel)
+    
+    me_analysis_f <- myfunction.gum( observed_data , 10000 , me.cv)
+    
+    ##numerical results - P95 estimates
+    
+    exemple2_table <- data.frame( type = c("true","ideal_b","ideal_f","naive_b","naive_f","me_b","me_f"),
+                                  
+                                  gm = c( true_gm,
+                                          median(ideal_analysis_b$gm_chain),
+                                          ideal_analysis_f$gm,
+                                          median(naive_analysis_b$gm_chain),
+                                          naive_analysis_f$gm,
+                                          median(me_analysis_b$gm_chain),
+                                          me_analysis_f$gm),
+                                  
+                                  gsd = c( true_gsd,
+                                           median(ideal_analysis_b$gsd_chain),
+                                           ideal_analysis_f$gsd,
+                                           median(naive_analysis_b$gsd_chain),
+                                           naive_analysis_f$gsd,
+                                           median(me_analysis_b$gsd_chain),
+                                           me_analysis_f$gsd),
+                                  
+                                  
+                                  
+                                  p95 = c( true_p95,
+                                           quantile(ideal_analysis_b$p95_chain,0.5),
+                                           ideal_analysis_f$p95,
+                                           quantile(naive_analysis_b$p95_chain,0.5),
+                                           naive_analysis_f$p95,
+                                           quantile(me_analysis_b$p95_chain,0.5),
+                                           me_analysis_f$p95),
+                                  
+                                  p95_ucl = c( NA,
+                                               quantile(ideal_analysis_b$p95_chain,0.7),
+                                               ideal_analysis_f$p95ucl70,
+                                               quantile(naive_analysis_b$p95_chain,0.7),
+                                               naive_analysis_f$p95ucl70,
+                                               quantile(me_analysis_b$p95_chain,0.7),
+                                               me_analysis_f$p95ucl70)
+                                  
+    )
+    
+    
+    exemple2.object <- list( true_data = true_data,
+                             observed_data = observed_data,
+                             results = exemple2_table)
+    
+    saveRDS( exemple2.object, "created data/GUM measurement error_ex2.RDS")
+    
+    
+    ## replication of the results provided by Theo :  GM, GSD and UTL95/70 replicated
+    
+    ## GUM UTL : apply the GUM procedure to the TRUE data, Theo's results replicated
+    
+          
   ###### simulation 1 ##### 
     
     ## impact on estimation of gm, gsd, p95, and the p95 70% UCL
@@ -1276,5 +1401,147 @@
     ## saving simulation results
     
     #saveRDS( simulation_summary, "F:/Dropbox/temp/aioh2023-S2_6e.RDS")    
+    
+###### simulation 7 : correction of the UTL95/70 calculation for coverage results ######  
+    
+    
+    # constants
+    
+    oel     <- 100L   # Default Occupational Exposure Limit (OEL).
+    n_sim   <-  10000L   # Number of simulations to use.
+    expanded_uncertainty <- 0.50
+    coverage_factor <- qnorm(0.975)
+    me.cv.range.factor <- 1 #( <1, if one wants to input uncertain uncertainty in the ME analysis)
+    me.cv <- expanded_uncertainty/coverage_factor
+    true_p95 <- 100
+    
+    # Scenarios.
+   
+         # A scenario is a unique combination of constants. We consider 3025 scenarios.
+         
+         scenarios <- data.frame( sample_size = c(6,3,6,3,9,9),
+                                  true_gsd = c(2.5,2.5,1.5,1.5,2.5,1.5))
+        
+        
+         scenarios$true_gm <- exp( log(true_p95) - qnorm(0.95)*log(scenarios$true_gsd) )
+     
+    # testing the various steps    
+           
+        # calls to functions in data_simulation.R   
+        
+        
+        simulated_data_list <- data.simulation( true_gm = scenarios$true_gm[1]  , 
+                                                     true_gsd = scenarios$true_gsd[1]  , 
+                                                     n_sim = n_sim , 
+                                                     sample_size = scenarios$sample_size[1] ) 
+        
+        
+    
+    
+        # Analysis of the generated samples 
+    
+        
+    
+         test <-  myfunction.gum( simulated_data_list$true[,1] , n.simul=10000 , me.cv=me.cv )$p95ucl70 > true_p95
+    
+    
+        # Looping across the n_sim iterations for one scenario and one method out of 3 : ideal naive me
+          
+          one_scenario_ideal <- apply( X = simulated_data_list$true ,
+                                      MARGIN = 2,
+                                      FUN = function(x){ myfunction.freq( x )$p95ucl70 > true_p95} ,
+                                      simplify = TRUE) 
+          
+          one_scenario_naive <- apply( X = simulated_data_list$observed ,
+                                       MARGIN = 2,
+                                       FUN = function(x){ myfunction.freq( x )$p95ucl70 > true_p95} ,
+                                       simplify = TRUE) 
+          
+          one_scenario_me <- apply( X = simulated_data_list$true ,
+                                       MARGIN = 2,
+                                       FUN = function(x){ myfunction.gum( x , n.simul=10000 , me.cv=me.cv )$p95ucl70 > true_p95} ,
+                                       simplify = TRUE) 
+                                        
+ 
+          mean(one_scenario_ideal)
+          mean(one_scenario_naive)
+          mean(one_scenario_me)
+          
+          
+
+     # function  for the lapply loop
+          
+          myfunction <- function( x ) {
+            
+            simulated_data_list <- data.simulation( true_gm = x$true_gm[1]  , 
+                                                         true_gsd = x$true_gsd[1]  , 
+                                                         n_sim = n_sim , 
+                                                         sample_size = x$sample_size[1] )
+            
+            one_scenario_ideal <- apply( X = simulated_data_list$true ,
+                                         MARGIN = 2,
+                                         FUN = function(x){ myfunction.freq( x )$p95ucl70 > true_p95} ,
+                                         simplify = TRUE) 
+            
+            one_scenario_naive <- apply( X = simulated_data_list$observed ,
+                                         MARGIN = 2,
+                                         FUN = function(x){ myfunction.freq( x )$p95ucl70 > true_p95} ,
+                                         simplify = TRUE) 
+            
+            one_scenario_me <- apply( X = simulated_data_list$true ,
+                                      MARGIN = 2,
+                                      FUN = function(x){ myfunction.gum( x , n.simul=10000 , me.cv=me.cv )$p95ucl70 > true_p95} ,
+                                      simplify = TRUE) 
+            
+            return( list( ideal = mean(one_scenario_ideal),
+                          naive = mean(one_scenario_naive),
+                          me = mean(one_scenario_me)) ) }      
+          
+          
+          
+    # calculation loop #3.2 hours
+    
+    full_scenario_list <- scenarios
+    
+    start_time <- Sys.time()
+    
+      list_of_scenarios <- vector(  mode = "list" , length = length(scenarios[,1]))
+      
+      for (j in 1:length(scenarios[,1])) list_of_scenarios[[j]] <-scenarios[j,]  
+      
+      
+      # creating the clusters  
+      cl <- makeCluster(6)
+      
+      # libraries and scripts
+      
+      # sending objects to clusters
+ 
+      clusterExport( cl , "myfunction.gum" , envir=environment())
+      clusterExport( cl , "myfunction.freq" , envir=environment())
+      clusterExport( cl , "fun.NdExpo.lognorm" , envir=environment())
+      clusterExport( cl , "fun.perc.en689" , envir=environment())
+      clusterExport( cl , "fun.perc" , envir=environment())
+      clusterExport( cl , "data.simulation" , envir=environment())
+      clusterExport( cl , "K.factor" , envir=environment())
+      
+      
+      clusterExport( cl , "true_p95" , envir=environment())
+      clusterExport( cl , "me.cv" , envir=environment())
+      clusterExport( cl , "n_sim" , envir=environment())
+      
+      
+      simulation_result <- parLapply(cl, X = list_of_scenarios , fun = myfunction) 
+      
+      # recommendation from the net
+      stopCluster(cl)
+    
+      
+    end_time <- Sys.time()
+    mytime <- end_time - start_time 
+    
+    
+    saveRDS( list(sim=simulation_result,
+                  param=scenarios), "created data/GUM measurement error_sim7.RDS")    
     
     
