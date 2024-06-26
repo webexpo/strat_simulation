@@ -20,6 +20,7 @@ results <- readRDS("../created data/GUM measurement error.RDS")
 
 example <- readRDS( "../created data/GUM measurement error_ex1.RDS")
           
+sim7 <- readRDS( "../created data/GUM measurement error_sim7.RDS")
 
 ```
 
@@ -93,7 +94,7 @@ The steps to estimate parameters and or upper limits is as follows:
 * repeat a lot of times - result is a lot of values of the metric
 * report the average value of the metric across the many repetitions 
     
-If we go back to the simplification mentioned above, it seems that this approach, through adding random noise to the observed data, would (in the case of the normal simplification), result in a quantity with mean the true exposure mean and variance the sum of the true environmental variance plus the S&E noise (the distribution of the observed concentrations ), plus another time the S&E noise ( addition of random noise to the observed concentration).     
+If we go back to the simplification mentioned above, it seems that this approach, through adding random noise to the observed data, would (in the case of the normal simplification), result in a quantity with mean the true exposure mean and variance the sum of the true environmental variance plus the S&E noise (the distribution of the observed concentrations ), plus another time the S&E noise ( addition of random noise to the observed concentration in the GUM approach).     
     
 
 For the practical implementation of the GUM approach, I used the frequentist estimation methods for the 95th percentile tolerance limit as presented in [Selvin et al](https://www.tandfonline.com/doi/abs/10.1080/15298668791384445). The k values to calculate a 70% upper confidence limit on the 95th percentile (UTL95,70) was determined with the R package named ["tolerance"](https://cran.r-project.org/web/packages/tolerance/index.html), which closely replicates the values found in the EN689 document.
@@ -173,14 +174,14 @@ Observations from T1 :
 * For GSD, the GUM approach to measurement error further increases the estimate compared to naive approach (expected since normal noise is further added to the observations in the Monte Carlo procedure)
 * For GSD, the Bayesian approach decreases the estimate compared to naive approach (expected since the Bayesian model takes the S&E noise into account when trying to estimate the variability of the true concentrations)
 
-* Overall the Bayesian ME approach seems to get results closer to the ideal results compared to the GUM approach, but not always much closer.    
+* Overall, for this particular example, the Bayesian ME approach seems to get results closer to the ideal results compared to the GUM approach, but not always much closer.    
     
 \newpage
 
 ## Limited simulation study
     
     
-The previous example illustrate the general behavior of both measurement error approaches, but doesn't really provide useful information as to their overall performance. For example, sometimes, the random noise coming from the S&A error might actually decrease observed variability due to chance, and in that particular case, the GUM approach would yield variability estimates closer to the ideal values than the Bayesian approach. It is therefor important to observe the behaviour of the 2 approaches across a large number of random samples.
+The previous example illustrate the general behavior of both measurement error approaches, but doesn't really provide useful information as to their overall performance. For example, sometimes, the random noise coming from the S&A error might actually decrease observed variability due to chance, and in that particular case, the GUM approach would yield variability estimates closer to the ideal values than the Bayesian approach. It is therefor important to observe the behavior of the 2 approaches across a large number of random samples.
 
 To get a little bit more insight we performed a simulation study for 6 scenarios of sample size and true variability : GSD = 1.5 or 2.5 , n=3 or 6 or 9. We kept the true 95th percentile at 100. For each scenario we generated 10000 datasets of true and observed concentrations using an expanded S&E uncertainty CV of 50%. For each simulated dataset we calculated the same metrics as shown in the example above.
 
@@ -197,6 +198,11 @@ Overall this took approximate 30h of computing time on a modern desktop computer
 #### geometric mean
 
 Table 2a and b below presents the results for the estimation of the geometric mean for GSDs of 2.5 and 1.5. All metrics are relative to the true value of the parameter. 
+
+In all tables in the following sections, the first 2 lines correspond to the either Bayesian (the Expostats Bayesian analysis) or traditional frequentist analysis of the true data. The next 2 lines correspond to the naive analysis of the observed data (i.e not implementing any measurement error approach), and the last 2 lines correspond to the analysis of the observed data with the measurement error approach (Bayesian or GUM).
+
+So, a focus on the first 2 lines would allow to compare Bayesian vs traditional frequentist analysis of the true data. Focus on lines 3/4 to 5/6 would compare the naive vs ME approach. And finally a focus on the last 2 lines would allow to compare the respective performance of the Bayesian vs. GUM approach to measurement error.
+
 
 <br>
 
@@ -383,9 +389,7 @@ ft
 
 <br>
 
-Table 2a and 2.b reveal little influence of the studied methods and parameters on the estimation of GM. The maybe surprising bias values are influence by the skewed distribution of most estimated parameters in this simulation study. The idea is to compare the naive and ME approaches to the ideal approach. 
-
-Table 2c and d below presents the same results as above but using different performance metrics : median difference, median absolute deviation, and rmsle. 
+Table 2c and d below presents the same results as above but using different performance metrics : median difference, median absolute deviation (MAD), and RMSLE (RMSE calculated in the log scale). MAD is a robust measure of the variability of  the estimates, while RMSLE is a measure of the overal accuracy of the estimates (combining bias and precision).
 
 
 ```{r table 2c, warning=FALSE, echo=FALSE}
@@ -576,7 +580,7 @@ ft
 
 * It might seem counter intuitive to see some bias for GM, whichever the approach, but this is due to the skewed distribution of the estimated parameters in this simulation study. Table 2c and 2d show that the median error is very close to 0 for GM.
 
-* Estimation of GM seems little affected by the choice between the Bayesian and Frwquentist approach, using measurement error or not.
+* Estimation of GM seems little affected by the choice between the Bayesian and Frequentist approach, using measurement error or not. Theonly discernible  difference is the GUM approach seem to slightly decrease the GM estimate compared to the naive approach whereas the the Bayesian ME approach does the opposite.
 
 
 \newpage
@@ -963,17 +967,20 @@ ft
 
 *overall observations from T3a to T23 :*
 
-It might be useful to consider here separately tables T3a and T3c, which correspond to true environmental variability quite close to the center of the expostats prior for exposure variability : with such variability we expect expostats to perform better than the frequentist estimation of GSD. On the other hand, T3b and T3d correspond to a true environmental variability quite far from the center of the expostats prior  : with such variability we expect the frequentist estimation of GSD to perform better than expostats, as expostats will pull the estimates towards more reasonable values, especially for n=3, but even to some extent for n=6.
+It might be useful to consider here separately tables T3a and T3c, which correspond to true environmental variability quite close to the center of the expostats prior for exposure variability : with such variability we expect expostats to perform better than the frequentist for the estimation of GSD. On the other hand, T3b and T3d correspond to a true environmental variability quite far from the center of the expostats prior  : with such variability we expect the frequentist estimation of GSD to perform better than expostats, as expostats will pull the estimates towards more "reasonable" values, especially for n=3, but even to some extent for n=6.
 
 overall picture for T3a and T3c
 
-* The Bayesian advantage for true GSDs close to 2.5 is obvious in the "ideal" lines of the tables, with better precision (traditional precision and MAD) and overall performance (RMSE and RMSLE)
-* The "inflation" effect expected in the naive vs ideal approach is there but fairly low ( 4% positive bias for naive compared to ideal approach for both the bayesian and frequentist approaches). Similarly the "double inflation" associated with the GUM approach is also visible ( +4% from naive to ME), and the bayesian approach to ME also shows the "deflation" towards the ideal value. The median error results, less affected by the skewed distribution of estimates, show a similar pattern in the evolution from ideal to naive to ME. However in absolute term, the medians, being shifted to lower values compared to bias, suggesrt here that the GUM approach would lead to a slight overestimation and the bayesian to a slight underestimation ( instead of larger overestimation and no bias). The bias and median error result might seem counterintuitive but they both suggest low influence of S&A error. The precision and overall metrics always favor the Bayesian approach
+* The Bayesian advantage for true GSDs close to 2.5 is obvious in the "ideal" lines of the tables, with better precision (traditional precision and MAD) and overall performance (RMSE and RMSLE).
+* The "inflation" of GSD effect expected in the naive vs ideal approach is there but fairly low ( 4% positive bias for naive compared to ideal approach for both the Bayesian and frequentist approaches). Similarly the "double inflation" associated with the GUM approach is also visible ( +4% from naive to ME), and the Bayesian approach to ME also shows the "deflation" towards the ideal value. The median error results, less affected by the skewed distribution of estimates, show a similar pattern in the evolution from ideal to naive to ME. However in absolute term, the medians, being shifted to lower values compared to bias, suggest here that the GUM approach would lead to a slight overestimation and the Bayesian to a slight underestimation ( instead of larger overestimation and no bias). The bias and median error result might seem counter intuitive but they both suggest low influence of S&A error. 
+* In terms of precision/MAD going from ideal to naive always decrease precision, but then when going to the ME approach, the precision is re-increased with the Bayesian approach but further decreased with the GUM approach.
+* Overall focusing on the last 2 lines of the tables, the RMSE/RMSLE results show that the Bayesian approach to ME is always better than the GUM approach.
+
 
 overall picture for T3b and T3d
 
-* The Bayesian disadvantage for true GSDs close to 1.5 is obvious in the "ideal" lines of the tables, with a clear positive bias (also seen in median error), especially noticeable for n=3
-* With such low variability the S&A error is more noticeable, with the frequentist biases going from ~0 to 8% to 17% from the ideal to the naive to the GUM analysis. All in all, the bayesian ME approach, handicapped by its prior seems perform similarly to the GUM approach, with similar biases but an opposite effect of sample size ( the bayesian approach seems better for larger n, the GUM approach for lower n). The precision and overall metrics still favor the Bayesian ME approach compared to GUM, but the difference is smaller.
+* The Bayesian disadvantage for true GSDs close to 1.5 is obvious in the "ideal" lines of the tables, with a clear positive bias (also seen in median error), especially noticeable for n=3.
+* With such low variability the S&A error is more noticeable, with the frequentist biases going from ~0 to 8% to 17% from the ideal to the naive to the GUM analysis. All in all, the bayesian ME approach, handicapped by its prior, seems perform similarly to the GUM approach, with similar biases but an opposite effect of sample size ( the bayesian approach seems better for larger n, the GUM approach for lower n). The precision and overall metrics still favor the Bayesian ME approach compared to GUM, but the difference is smaller.
 
 
 
@@ -1366,11 +1373,30 @@ ft
 
 <br>
 
+Similar to the case of GSD it seems useful here to seprate the results for true GSD = 2.5 and true GSD = 1.5.
+
+overall picture for T3a and T3c
+
+* focusing on the ideal case, the advantage of the expostat prior for variability appears here too, both in terms of bias and precision (and their robust equivalent).
+* the naive approach, as expected since associated with increased variability, leads to an overestimation of the 95th percentile (traditional bias), with the GUM approach leading to a further overestimation, and the Bayesian approach to getting closer to the ideal case. As in the case of GSD however, the the median errors, shifted to lower values compared to bias, suggest here that the GUM approach would lead to a slightly better situation compared to the Bayesian ME approach. Precision and overall metrics still favor the Bayesian ME approach compared to GUM for the ideal, naive and ME approaches, the most striking difference shown for n=3 (double RMSE for GUM compared to Bayesian).
+
+
+overall picture for T3b and T3d
+
+* The Bayesian disadvantage for true GSDs close to 1.5 is also obvious in the "ideal" lines of the tables, with a clear positive bias (also seen in median error), especially noticeable for n=3. Interestingly the overall metrics, while now favoring the Frequentist analysis, remain close.
+* The Ideal to Naive to ME evolution is again with overall metrics worsening for the GUM approach and worsening then improving for the Bayesian ME approach.
+* In terms of Bias, the baysian approach remains positively biased due to the expostats prior but its extent is mitigated by increased sample size. The frequentist estimates correspod to an increasing bias from ideal to naive to GUM, more accentuated at higher sample size.
+* focusing on the last 2 lines of the tables, the traditional metrics (precision/RMS) still favor the bayesian approach despite the bias, but MAD and RMSLE are closer.
+
+
+
+
+
 \newpage
 
 #### 95th percentile UCL
 
-Table 5 below presents the results for the coverage of the calculated 70%UCL : ideally it should be superioror equal to 70%: the 70% UCL should be above the true value at least 70% of the time. 
+Table 5 below presents the results for the coverage of the calculated 70%UCL : ideally it should be superior equal to 70%: the 70% UCL should be above the true value at least 70% of the time. 
 
 
 ```{r table 5, warning=FALSE, echo=FALSE}
@@ -1378,8 +1404,13 @@ Table 5 below presents the results for the coverage of the calculated 70%UCL : i
 
 T5 <- results$coverage[,c(1,4,2,10,8,6,12)]
 
+T5$n3_2.5_mean[c(1,3,5)] <- 100*c(sim7$sim[[2]]$ideal, sim7$sim[[2]]$naive, sim7$sim[[2]]$me)
+T5$n6_2.5_mean[c(1,3,5)] <- 100*c(sim7$sim[[1]]$ideal, sim7$sim[[1]]$naive, sim7$sim[[1]]$me)
+T5$n9_2.5_mean[c(1,3,5)] <- 100*c(sim7$sim[[5]]$ideal, sim7$sim[[5]]$naive, sim7$sim[[5]]$me)
 
-
+T5$n3_1.5_mean[c(1,3,5)] <- 100*c(sim7$sim[[4]]$ideal, sim7$sim[[4]]$naive, sim7$sim[[4]]$me)
+T5$n6_1.5_mean[c(1,3,5)] <- 100*c(sim7$sim[[3]]$ideal, sim7$sim[[3]]$naive, sim7$sim[[3]]$me)
+T5$n9_1.5_mean[c(1,3,5)] <- 100*c(sim7$sim[[6]]$ideal, sim7$sim[[6]]$naive, sim7$sim[[6]]$me)
 
 colnames(T5) <- c("Approach","n3_2.5","n6_2.5","n9_2.5","n3_1.5","n6_1.5","n9_1.5")
 
@@ -1437,6 +1468,33 @@ ft <- fontsize(ft, size = 12 , part="all")
 ft
 
 ```
+
+Observations : 
+
+* As a introduction, ideally, coverage should be 70% : with the current decision scheme comparing UTL95,70 to OEL, lower coverage would imply an impact on sensitivity to identify truly non compliant situations, but higher coverage would imply an impact on specificity, leading to failure to identify truly compliant situations.
+
+* In the case of GSD = 2.5, when the expostats prior is close to the true value, the coverage of the 70% UCL is close to the expected 70% for all sample sizes and approaches, albeit with coverage slightly above 70% for the frequentist approach and slightly below (up to 5% below for the Bayesian approach). Regarding the measurement error analysis, the difference between the Bayesian and GUM approach is starker (min coverage for Bayesian with n=3 of 65%, vs max coverage for GUM with n=3 of 78%). 
+
+* In the case of GSD = 1.5, when the expostats prior is far from the true value, the positive bias on variabiity estimation causes high coverage values, only partially compensated by sample size. In the case of the frequentist approach, coverage is ideal for the ideal sitation, and increased in the naive analysis (~5%), and further increases to reach similar values to the Bayesian approach in the GUM analysis. 
+
+
+#### Conclusions ####
+
+I started this analysis with a clear notion that theoretically there is an issue with the GUM approach, where the variability corresponding to S&E is counted twice.
+
+In practice the overall picture is less clear : 
+
+* indeed the Bayesian ME approach yield results closer to the ideal situation compared to the naive analysis
+* indeed the GUM approach is seen to add further variability compared to the naive approach
+* indeed in general, in terms of traditional estimation performance ( RMSE / RMSLE ) the Bayesian approach seems to perform better than the frequentest approach, even in the case of low variability where bias is high (compensated by better precision)
+* however current decision schemes for IH is focused on the position of upper confidence limits compared to OEL, and so coverage maybe better suited to evaluate the potential performance in terms of risk decision. In this case, the GUM approach seems to perform better than the Bayesian approach (albeit by a small margin) in the case of using 70% confidence and in the small parameter space studied.
+
+It seems important to get further insight by evalating performnce more directly in terms of sensitivity and specificity, across a spectrum of trues values of exceedance, which require a more complex simulation setup.
+
+
+in this case the GUM approach seems to perform better than the Bayesian approach, especially in the case of low variability.
+
+
 
 
 
