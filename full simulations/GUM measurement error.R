@@ -1544,4 +1544,44 @@
     saveRDS( list(sim=simulation_result,
                   param=scenarios), "created data/GUM measurement error_sim7.RDS")    
     
+#### debate with theo ####
     
+    ###### big sample size ######
+    
+    bigsample <- data.simulation(  true_gsd = 1.5, 
+                                   true_gm = 30, 
+                                   n_sim = 1, 
+                                   sample_size = 100000 ,
+                                   me.cv = 0.25)
+        
+    exp(sd(log(bigsample$true)))
+
+    exp(sd(log(bigsample$observed)))
+    
+    ###### many small samples #####
+    
+    manysample <- data.simulation(  true_gsd = 1.5, 
+                                   true_gm = 30, 
+                                   n_sim = 100000, 
+                                   sample_size = 10 ,
+                                   me.cv = 0.25)
+    
+    quantile(apply(manysample$true,2,function(x) exp(sd(log(x)))))
+    quantile(apply(manysample$observed,2,function(x) exp(sd(log(x)))))
+    
+     mean(apply(manysample$observed,2,function(x) exp(sd(log(x))))>
+            apply(manysample$true,2,function(x) exp(sd(log(x)))))   
+     
+     
+     manysample <- data.simulation(  true_gsd = 2.5, 
+                                     true_gm = 30, 
+                                     n_sim = 100000, 
+                                     sample_size = 3 ,
+                                     me.cv = 0.25)
+     
+     quantile(apply(manysample$true,2,function(x) exp(sd(log(x)))))
+     quantile(apply(manysample$observed,2,function(x) exp(sd(log(x)))))
+     
+     mean(apply(manysample$observed,2,function(x) exp(sd(log(x))))>
+            apply(manysample$true,2,function(x) exp(sd(log(x)))))   
+     
