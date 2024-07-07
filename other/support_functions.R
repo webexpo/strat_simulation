@@ -5,7 +5,19 @@
 
 ################### estimation of log(geometric mean) from GSD and exceedance fraction
 
-        mu.from.f <-function(f,sig,oel)
+
+#' Calculation of ln(GM) as a function of the exceedance fraction, ln(GSD) and the OEL
+#'
+#' @param f : exceedance fraction in proportion, NOT in percentage
+#' @param sig : log-transformed gsd 
+#' @param oel : occupational exposure limit 
+#'
+#' @return log-geometric mean
+#'
+
+
+
+       mu.from.f <-function(f,sig,oel)
           
           #f : exceedance fraction in proportion, NOT in percentage
           #sig : log-transformed gsd
@@ -22,7 +34,19 @@
         
         
  
-######## transfer between 95th perc and exceedance        
+######## transfer between 95th percentile and exceedance fraction
+       
+
+#' Calculation of 95th percentile as a function of the exceedance fraction, the GSD and the OEL
+#'
+#' @param frac : exceedance fraction in proportion, NOT in percentage
+#' @param gsd : log-transformed gsd 
+#' @param oel : occupational exposure limit 
+#'
+#' @return value of the 95th percentile
+#'
+       
+       
              
         p95fromF <- function( oel = 1 , gsd = 1.5 , frac = 0.05) {
           
@@ -31,6 +55,15 @@
           
           
         }
+        
+#' Calculation of exceedance fraction as a function of the 95th percentile, the GSD and the OEL
+#'
+#' @param p95 : 95th percentile
+#' @param gsd : log-transformed gsd 
+#' @param oel : occupational exposure limit 
+#'
+#' @return exceedance fraction in proportion, NOT in percentage
+#'
         
         
         Ffromp95 <- function( oel = 1 , gsd = 1.5 , p95 = 0.05) {
@@ -41,98 +74,5 @@
           
         }
         
-        Ffromp95(oel = 1 , gsd = 2.5 , p95 = 0.5)
-        
-        
-        
-        compute_rmse = function(x, theta){
-          
-          mean.x = mean(x)
-          
-          N = length(x)
-          
-          if(is.null(N))
-            stop("x must be a vector of minimum length 1")
-          
-          rmse = sqrt((mean.x - theta) ^ 2 + sum((x - mean.x) ^ 2) / (N - 1))
-          return(rmse)
-        }
-        
-        compute_relrmse = function(x, theta){
-          
-          mean.x = mean(x)
-          
-          N = length(x)
-          
-          if(is.null(N))
-            stop("x must be a vector of minimum length 1")
-          
-          rmse = 100*sqrt((mean.x - theta) ^ 2 + sum((x - mean.x) ^ 2) / (N - 1))/theta
-          return(rmse)
-        }
-        
-        
-        compute_bias = function(x, theta){
-          
-          bias = mean(x) - theta 
-          
-          return(bias)
-        }
-        
-        
-        compute_relbias = function(x, theta){
-          
-          bias = 100 * (mean(x) - theta) / theta
-          
-          return(bias)
-        }
-        
-        
-        compute_relprecision = function(x, theta){
-          
-          sd.x = sd(x)
-          
-          rp = 100 * sd.x / theta
-          
-          return(rp)
-        }
-        
-        
-        # function for median error
-        
-        compute_median_error = function(x, theta){
-          
-          med.x = median(x)
-          
-          me = median( x - theta )
-          
-          return(me)
-        }
-        
-        # function for the mean absolute error
-        
-        compute_relmae = function(x, theta){
-          
-          mae = 100*mean(abs(x - theta))/theta
-          
-          return(mae)
-        }
-        
-        # function for the median absolute deviation
-        
-        compute_mad = function(x, theta){
-          
-          mad = median(abs(x - mean(x)))
-          
-          return(mad)
-        }
-        
-        #function for RMSLE
-        
-        compute_rmsle = function(x, theta){
-          
-          rmsle = sqrt(mean((log(x + 1) - log(theta + 1))^2))
-          
-          return(rmsle)
-        }
-        
+     
+  
