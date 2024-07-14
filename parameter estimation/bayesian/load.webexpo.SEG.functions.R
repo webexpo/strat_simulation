@@ -70,3 +70,10 @@ chemin(
   githubCredentials = list(userName = "webexpo", repoName = "webexpo_r_lib")
 ) 
 
+# ROS
+
+chemin(
+  fileName = "function NDexpo_EN.R",
+  relPath = c("NDEXPO"),
+  githubCredentials = list(userName = "webexpo", repoName = "webexpo_r_lib")
+) 

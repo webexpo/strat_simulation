@@ -1,19 +1,18 @@
 #' Function for estimating ta percentile from a vector of lognormal exposure values
 #' 
-#' Based on Zwillinger, D.; Kokoska, S. (2000) Standard Probability and Statistics Tables and Formulae. Chapman & Hall / CRC, Boca Raton, FL
+#' estimation methods for the 95th percentile tolerance limit as presented in [Selvin et al](https://www.tandfonline.com/doi/abs/10.1080/15298668791384445)
+#' The k values to calculate a (100-100alpha)% upper confidence limit on the 95th percentile (UTL95,100-100alpha) was determined based on Zwillinger, D.; Kokoska, S. (2000) Standard Probability and Statistics Tables and Formulae. Chapman & Hall / CRC, Boca Raton, FL
 #' Pp 176
 #' 
 #' 
 #' @param x vector of values to be analysed ( at least 2 values)
-#' @param alpha alpha value associated with the probability for the confidence limit ( alpha=0.05 corresponds to a 95% upper confidence limit
-#' @param perc percentile of interest (in probability).
+#' @param alpha alpha value associated with the probability for the confidence limit ( alpha=0.05 corresponds to a 95% upper confidence limit)
+#' @param perc percentile of interest (as a proportion not %).
 #' @param logx if TRUE function assume lognormal distribution, normal if FALSE
-#' @param wpnt internal parameter, do not use.
-#' 
-#' @return est : percentile demande
-#' @return uc : limite de confiance superieure
-#' @return k : parametre interne de calcul
 
+#' @return est : percentile value
+#' @return uc : upper confidence limit
+#' @return k : k factor for the calculation of the upper confidence limit (see Selvin et al)
 
 
 fun.perc <-function(x,alpha=0.05,perc=0.95) {
@@ -42,12 +41,24 @@ fun.perc <-function(x,alpha=0.05,perc=0.95) {
 }
 
 
-###### function using the tolerance package
+#' Function for estimating ta percentile from a vector of lognormal exposure values
+#' 
+#' estimation methods for the 95th percentile tolerance limit as presented in [Selvin et al](https://www.tandfonline.com/doi/abs/10.1080/15298668791384445)
+#' The k values to calculate a (100-100alpha)% upper confidence limit on the 95th percentile (UTL95,100-100alpha) was determined with the R package named ["tolerance"](https://cran.r-project.org/web/packages/tolerance/index.html)
+#' 
+#' 
+#' @param x vector of values to be analysed ( at least 2 values)
+#' @param alpha alpha value associated with the probability for the confidence limit ( alpha=0.05 corresponds to a 95% upper confidence limit)
+#' @param perc percentile of interest (as a proportion not %).
+#' @param logx if TRUE function assume lognormal distribution, normal if FALSE
+
+#' @return est : percentile value
+#' @return uc : upper confidence limit
+#' @return k : k factor for the calculation of the upper confidence limit (see Selvin et al)
+
 
 fun.perc.en689 <-function(x,alpha=0.05,perc=0.95) {
-  
-  #x <- c(28.90,19.40,5.1,149.9,26.42,56.10)
-  
+
   muy <-mean(log(x))
   
   sigy <-sd(log(x))

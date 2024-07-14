@@ -34,7 +34,7 @@ Sampling and analysis (S&A) errors are often assumed to be normally distributed 
 
 Two landmark documents have studied the impact of measurement error on the statistical evaluation of exposure data. [Grzebyk and sandino](https://www.inrs.fr/media.html?refINRS=ND%202231) in France and [Nicas, Simmons and Spear](https://www.tandfonline.com/doi/abs/10.1080/15298669191365199) in the US used slightly different approximations to demonstrate that S&A error below a CV of 30% has a negligible impact on the final estimate of the exposure metric for typical workplace GSD.
 
-Both teams had to use simplifying assumptions to make their conclusions, and they didn'T directly evaluate the impact on risk decisions. In recent decades advances in computing power have let to the rapid spread of Bayesian methods in industrial hygiene and other fields. Bayesian methods are very flexible, and indeed can be easily used to incorporate S&A error in the interpretation of exposure levels.
+Both teams had to use simplifying assumptions to make their conclusions, and they didn't directly evaluate the impact on risk decisions. In recent decades advances in computing power have let to the rapid spread of Bayesian methods in industrial hygiene and other fields. Bayesian methods are very flexible, and indeed can be easily used to incorporate S&A error in the interpretation of exposure levels.
 
 An Bayesian S&A error model has been developed by our team at University of Montreal during the [Webexpo project](https://www.irsst.qc.ca/en/publications-tools/publication/i/101066/n/webexpo). 
 
