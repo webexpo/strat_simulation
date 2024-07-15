@@ -10,7 +10,7 @@
 #'
 
 
-compute_rmse = function(x, theta){
+compute.rmse = function(x, theta){
   
   mean.x = mean(x)
   
@@ -34,7 +34,7 @@ compute_rmse = function(x, theta){
 #'
 
 
-compute_relrmse = function(x, theta){
+compute.relrmse = function(x, theta){
   
   mean.x = mean(x)
   
@@ -58,7 +58,7 @@ compute_relrmse = function(x, theta){
 #'
 
 
-compute_bias = function(x, theta){
+compute.bias = function(x, theta){
   
   bias = mean(x) - theta 
   
@@ -76,7 +76,7 @@ compute_bias = function(x, theta){
 #'
 
 
-compute_normalized_bias = function(x, theta){
+compute.normalized.bias = function(x, theta){
   
   nbias = 100 * (mean(x) - theta) / theta
   
@@ -93,7 +93,7 @@ compute_normalized_bias = function(x, theta){
 #' @return bias
 #'
 
-compute_precision = function(x, theta){
+compute.precision = function(x, theta){
   
   error = x-theta
   
@@ -113,7 +113,7 @@ compute_precision = function(x, theta){
 #'
 
 
-compute_normalized_precision = function(x, theta){
+compute.normalized.precision = function(x, theta){
   
   error = x-theta
   
@@ -132,7 +132,7 @@ compute_normalized_precision = function(x, theta){
 #' @return Median error
 #'
 
-compute_median_error = function(x, theta){
+compute.median.error = function(x, theta){
   
   me = median( x - theta )
   
@@ -149,7 +149,7 @@ compute_median_error = function(x, theta){
 #' @return Median error
 #'
 
-compute_normalized_median_error = function(x, theta){
+compute.normalized.median_error = function(x, theta){
   
   me = median( x - theta )
 
@@ -170,7 +170,7 @@ compute_normalized_median_error = function(x, theta){
 #'
 
 
-compute_mad = function(x, theta){
+compute.mad = function(x, theta){
   
   mad = median(abs(x - median(x)))
   
@@ -188,7 +188,7 @@ compute_mad = function(x, theta){
 #' @return rmsle
 #'
 
-compute_rmsle = function(x, theta){
+compute.rmsle = function(x, theta){
   
   rmsle = sqrt(mean((log(x + 1) - log(theta + 1))^2))
   

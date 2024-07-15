@@ -15,7 +15,11 @@ real_gsds <- readRDS( "created data/real_gsd_values.RDS")
 
 source("full simulations/TD EXIL 2024 measurement error impact/scripts/sample_analysis.R")
 
+source("full simulations/TD EXIL 2024 measurement error impact/scripts/simulation_interpretation.R")
+
 source("other/support_functions.R")
+
+source("other/performance_metrics.R")
 
 source("parameter estimation/bayesian/load.webexpo.SEG.functions.R")
 
@@ -156,7 +160,7 @@ parallel.function <- function( simulated_data_object , me_cv , n_iterations_gum 
 
 true_gsd <- 2.5
 
-true_exceedance_perc <- 5  ## in percentage
+true_exceedance_perc <- 2.5  ## in percentage
 
 true_p95 <- 100
 
@@ -164,13 +168,13 @@ true_gm <- exp( log(true_p95) - qnorm(0.95)*log(true_gsd) )
 
 oel <- exp( qnorm(1 - true_exceedance_perc/100, mean = log(true_gm) , sd = log(true_gsd) ) )
 
-proportion_censored <- 0.3
+proportion_censored <- 0 # need to adress the issue of "all points censored", or ros log(GSD) == 0
 
 loq <- exp(qnorm(proportion_censored, mean = log(true_gm) , sd = log(true_gsd) ))
 
 sample_size <- 6
 
-n_sim <- 100
+n_sim <- 5000
 
 me_cv <- 0.25
 
@@ -228,8 +232,39 @@ test_parallel$time
 apply(test_parallel$array, c(1,2), mean)
         
         
-    
+###### testing performance functions ####      
         
+test_rmse <- rmse.result( results_one_scenario = test_parallel , 
+                          true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
+                          true_exceedance_perc = true_exceedance_perc )
+  
+
+test_precision <- precision.result( results_one_scenario = test_parallel , 
+                          true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
+                          true_exceedance_perc = true_exceedance_perc )
+
+test_bias <- bias.result( results_one_scenario = test_parallel , 
+                                    true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
+                                    true_exceedance_perc = true_exceedance_perc )
+
+test_median_error <- median.error.result( results_one_scenario = test_parallel , 
+                          true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
+                          true_exceedance_perc = true_exceedance_perc )
+
+test_rmsle <- rmsle.result( results_one_scenario = test_parallel , 
+                          true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
+                          true_exceedance_perc = true_exceedance_perc )
+
+test_mad <- mad.result( results_one_scenario = test_parallel , 
+                            true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
+                            true_exceedance_perc = true_exceedance_perc )
+
+test_coverage <- coverage.result( results_one_scenario = test_parallel ,
+                                  true_p95 = true_p95 , 
+                                  true_exceedance_perc = true_exceedance_perc )
 
 
-
+test_perc_mistake <- perc.mistake.result( results_one_scenario = test_parallel ,
+                                  true_p95 = true_p95 , 
+                                  true_exceedance_perc = true_exceedance_perc,
+                                  oel=oel)
