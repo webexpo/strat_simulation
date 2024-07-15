@@ -268,3 +268,21 @@ test_perc_mistake <- perc.mistake.result( results_one_scenario = test_parallel ,
                                   true_p95 = true_p95 , 
                                   true_exceedance_perc = true_exceedance_perc,
                                   oel=oel)
+
+###### testing repeatability ####
+
+test_repeatability <- vector("list", length = 5)
+
+for (i in 1:5) {
+  
+  test_repeatability[[i]] <- parallel.function( simulated_data_object = test_data_sim , me_cv = me_cv , 
+                                         n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
+                                         n_clusters = 10, oel = oel)
+  
+}
+
+test_repeatability[[1]]$time
+test_repeatability[[5]]$time
+
+saveRDS(test_repeatability, "full simulations/TD EXIL 2024 measurement error impact/data/test_repeatability1.RDS")
+
