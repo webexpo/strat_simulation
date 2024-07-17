@@ -275,14 +275,19 @@ test_repeatability <- vector("list", length = 5)
 
 for (i in 1:5) {
   
+  test_data_sim <- data.simulation.seg( true_gsd = true_gsd, 
+                                        true_gm = true_gm, 
+                                        n_sim = n_sim, 
+                                        sample_size = sample_size ,
+                                        me_cv_inf = me_cv,
+                                        me_cv_sup = me_cv,
+                                        censor_level = loq )
+  
   test_repeatability[[i]] <- parallel.function( simulated_data_object = test_data_sim , me_cv = me_cv , 
                                          n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
-                                         n_clusters = 10, oel = oel)
+                                         n_clusters = 8, oel = oel)
   
 }
-
-test_repeatability[[1]]$time
-test_repeatability[[5]]$time
 
 saveRDS(test_repeatability, "full simulations/TD EXIL 2024 measurement error impact/data/test_repeatability1.RDS")
 
