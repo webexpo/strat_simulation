@@ -91,23 +91,29 @@ frequentist.naive <- function( mysample , oel  ) {
   
   # parameter estimates
   
-  gm_est <- exp(mean(log(mysample.ros)))
+  # if variability is not estimable :  NA if there is only one unique value (e.g. all NDs imputed as LD/2)
   
-  gsd_est <- exp(sd(log(mysample.ros)))
+  if ( length(unique(mysample.ros)) == 1 ) return( c( gm_est = NA , gsd_est = NA , p95_est = NA , p95_70ucl = NA , p95_95ucl = NA , F_est = NA , F_70ucl = NA , F_95ucl = NA ))
   
-  p95_est <- fun.perc.en689(mysample.ros,alpha=0.05,perc=0.95)$est
-  
-  p95_70ucl <- fun.perc.en689(mysample.ros,alpha=0.30,perc=0.95)$uc
-  
-  p95_95ucl <- fun.perc.en689(mysample.ros,alpha=0.05,perc=0.95)$uc
-  
-  F_est <- fun.frac.dep( mysample.ros , gam = 0.95, L = 100 , logx = TRUE, wpnt = FALSE)$fe 
-  
-  F_70ucl <- fun.frac.dep( mysample.ros , gam = 0.70, L = 100 , logx = TRUE, wpnt = FALSE)$fe.UCL
-  
-  F_95ucl <- fun.frac.dep( mysample.ros , gam = 0.95, L = 100 , logx = TRUE, wpnt = FALSE)$fe.UCL
-  
-  results <- c( gm_est = gm_est,
+  else {    
+    
+    gm_est <- exp(mean(log(mysample.ros)))
+    
+    gsd_est <- exp(sd(log(mysample.ros)))
+    
+    p95_est <- fun.perc.en689(mysample.ros,alpha=0.05,perc=0.95)$est
+    
+    p95_70ucl <- fun.perc.en689(mysample.ros,alpha=0.30,perc=0.95)$uc
+    
+    p95_95ucl <- fun.perc.en689(mysample.ros,alpha=0.05,perc=0.95)$uc
+    
+    F_est <- fun.frac.dep( mysample.ros , gam = 0.95, L = 100 , logx = TRUE, wpnt = FALSE)$fe 
+    
+    F_70ucl <- fun.frac.dep( mysample.ros , gam = 0.70, L = 100 , logx = TRUE, wpnt = FALSE)$fe.UCL
+    
+    F_95ucl <- fun.frac.dep( mysample.ros , gam = 0.95, L = 100 , logx = TRUE, wpnt = FALSE)$fe.UCL
+    
+    results <- c( gm_est = gm_est,
                   gsd_est = gsd_est,
                   p95_est = p95_est,
                   p95_70ucl = p95_70ucl,
@@ -115,10 +121,10 @@ frequentist.naive <- function( mysample , oel  ) {
                   F_est = F_est,
                   F_70ucl = F_70ucl,
                   F_95ucl = F_95ucl)
-  
-  
-  
-  return(results)
+    
+    
+    
+    return(results) }
   
 }
 
@@ -145,51 +151,63 @@ frequentist.me <- function( mysample , oel , me_cv , n_iterations_gum = 10000 , 
   
   mysample.ros <- fun.NdExpo.lognorm( mysample )$data$xfin
   
+  # if variability is not estimable :  NA if there is only one unique value (e.g. all NDs imputed as LD/2)
   
-  # GUM simulation approach (replicating the sample, then adding random noise to each replicate)
+  if ( length(unique(mysample.ros)) == 1 ) {  
+    
+    results <- list( mean = c( gm_est = NA , gsd_est = NA , p95_est = NA , p95_70ucl = NA , p95_95ucl = NA , F_est = NA , F_70ucl = NA , F_95ucl = NA ),
+                     median = c( gm_est = NA , gsd_est = NA , p95_est = NA , p95_70ucl = NA , p95_95ucl = NA , F_est = NA , F_70ucl = NA , F_95ucl = NA ),
+                     quantile = c( gm_est = NA , gsd_est = NA , p95_est = NA , p95_70ucl = NA , p95_95ucl = NA , F_est = NA , F_70ucl = NA , F_95ucl = NA ) )    
+    
+    return(results) }
   
-  data_matrix <- as.matrix( replicate( n_iterations_gum , mysample.ros ))
-  
-  data_matrix_me <- apply( data_matrix, 2 , function(x) { pmax( rep(0.1,sample_size)  , rnorm( sample_size , x , x*me_cv ) )  }  )
-  
-  
-  # parameter estimates across iterations
-  
-  result_matrix <- apply( data_matrix_me , 2 , function(x) { 
+  else { 
     
     
-    gm_est <- exp(mean(log(x)))
+    # GUM simulation approach (replicating the sample, then adding random noise to each replicate)
     
-    gsd_est <- exp(sd(log(x)))
+    data_matrix <- as.matrix( replicate( n_iterations_gum , mysample.ros ))
     
-    p95_est <- fun.perc.en689(x,alpha=0.05,perc=0.95)$est
+    data_matrix_me <- apply( data_matrix, 2 , function(x) { pmax( rep(0.1,sample_size)  , rnorm( sample_size , x , x*me_cv ) )  }  )
     
-    p95_70ucl <- fun.perc.en689(x,alpha=0.30,perc=0.95)$uc
     
-    p95_95ucl <- fun.perc.en689(x,alpha=0.05,perc=0.95)$uc
+    # parameter estimates across iterations
     
-    F_est <- fun.frac.dep( x , gam = 0.95, L = 100 , logx = TRUE, wpnt = FALSE)$fe 
+    result_matrix <- apply( data_matrix_me , 2 , function(x) { 
+      
+      
+      gm_est <- exp(mean(log(x)))
+      
+      gsd_est <- exp(sd(log(x)))
+      
+      p95_est <- fun.perc.en689(x,alpha=0.05,perc=0.95)$est
+      
+      p95_70ucl <- fun.perc.en689(x,alpha=0.30,perc=0.95)$uc
+      
+      p95_95ucl <- fun.perc.en689(x,alpha=0.05,perc=0.95)$uc
+      
+      F_est <- fun.frac.dep( x , gam = 0.95, L = 100 , logx = TRUE, wpnt = FALSE)$fe 
+      
+      F_70ucl <- fun.frac.dep( x , gam = 0.70, L = 100 , logx = TRUE, wpnt = FALSE)$fe.UCL
+      
+      F_95ucl <- fun.frac.dep( x , gam = 0.95, L = 100 , logx = TRUE, wpnt = FALSE)$fe.UCL
+      
+      return( c( gm_est , gsd_est , p95_est , p95_70ucl , p95_95ucl , F_est , F_70ucl , F_95ucl ) )
+      
+    } )
     
-    F_70ucl <- fun.frac.dep( x , gam = 0.70, L = 100 , logx = TRUE, wpnt = FALSE)$fe.UCL
     
-    F_95ucl <- fun.frac.dep( x , gam = 0.95, L = 100 , logx = TRUE, wpnt = FALSE)$fe.UCL
+    # summaries across iterations
     
-    return( c( gm_est , gsd_est , p95_est , p95_70ucl , p95_95ucl , F_est , F_70ucl , F_95ucl ) )
+    results <- list( mean = apply( result_matrix , 1 , mean ),
+                     median = apply( result_matrix , 1 , median ),
+                     quantile = apply( result_matrix , 1 , function(x) { quantile(x,sim_quantile) } ) )    
     
-  } )
-  
-  
-  # summaries across iterations
-  
-  results <- list( mean = apply( result_matrix , 1 , mean ),
-                   median = apply( result_matrix , 1 , median ),
-                   quantile = apply( result_matrix , 1 , function(x) { quantile(x,sim_quantile) } ) )    
-
-  names(results$mean) <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
-  names(results$median) <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
-  names(results$quantile) <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
-  
-  return(results)
+    names(results$mean) <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
+    names(results$median) <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
+    names(results$quantile) <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
+    
+    return(results) }
   
 }
 
