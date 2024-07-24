@@ -45,13 +45,13 @@ true_gm <- exp( log(true_p95) - qnorm(0.95)*log(true_gsd) )
 
 oel <- exp( qnorm(1 - true_exceedance_perc/100, mean = log(true_gm) , sd = log(true_gsd) ) )
 
-proportion_censored <- 0.5
+proportion_censored <- 0.3
 
 loq <- signif(exp(qnorm(proportion_censored, mean = log(true_gm) , sd = log(true_gsd) )),3)
 
 sample_size <- 6
 
-n_sim <- 100 
+n_sim <- 2500 
 
 me_cv <- 0.25
 
@@ -101,7 +101,7 @@ test_ith.pair
 
 test_parallel <- parallel.function( simulated_data_object = test_data_sim , me_cv = me_cv , 
                                          n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
-                                         n_clusters = 8, oel = oel)
+                                         n_clusters = 16, oel = oel)
 
         
         
