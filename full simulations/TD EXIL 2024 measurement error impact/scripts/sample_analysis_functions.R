@@ -107,11 +107,11 @@ frequentist.naive <- function( mysample , oel  ) {
     
     p95_95ucl <- fun.perc.en689(mysample.ros,alpha=0.05,perc=0.95)$uc
     
-    F_est <- fun.frac.dep( mysample.ros , gam = 0.95, L = 100 , logx = TRUE, wpnt = FALSE)$fe 
+    F_est <- fun.frac.dep( mysample.ros , gam = 0.95, L = oel , logx = TRUE, wpnt = FALSE)$fe 
     
-    F_70ucl <- fun.frac.dep( mysample.ros , gam = 0.70, L = 100 , logx = TRUE, wpnt = FALSE)$fe.UCL
+    F_70ucl <- fun.frac.dep( mysample.ros , gam = 0.70, L = oel , logx = TRUE, wpnt = FALSE)$fe.UCL
     
-    F_95ucl <- fun.frac.dep( mysample.ros , gam = 0.95, L = 100 , logx = TRUE, wpnt = FALSE)$fe.UCL
+    F_95ucl <- fun.frac.dep( mysample.ros , gam = 0.95, L = oel , logx = TRUE, wpnt = FALSE)$fe.UCL
     
     results <- c( gm_est = gm_est,
                   gsd_est = gsd_est,
