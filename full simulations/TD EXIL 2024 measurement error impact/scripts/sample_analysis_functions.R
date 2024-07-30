@@ -186,11 +186,11 @@ frequentist.me <- function( mysample , oel , me_cv , n_iterations_gum = 10000 , 
       
       p95_95ucl <- fun.perc.en689(x,alpha=0.05,perc=0.95)$uc
       
-      F_est <- fun.frac.dep( x , gam = 0.95, L = 100 , logx = TRUE, wpnt = FALSE)$fe 
+      F_est <- fun.frac.dep( x , gam = 0.95, L = oel , logx = TRUE, wpnt = FALSE)$fe 
       
-      F_70ucl <- fun.frac.dep( x , gam = 0.70, L = 100 , logx = TRUE, wpnt = FALSE)$fe.UCL
+      F_70ucl <- fun.frac.dep( x , gam = 0.70, L = oel , logx = TRUE, wpnt = FALSE)$fe.UCL
       
-      F_95ucl <- fun.frac.dep( x , gam = 0.95, L = 100 , logx = TRUE, wpnt = FALSE)$fe.UCL
+      F_95ucl <- fun.frac.dep( x , gam = 0.95, L = oel , logx = TRUE, wpnt = FALSE)$fe.UCL
       
       return( c( gm_est , gsd_est , p95_est , p95_70ucl , p95_95ucl , F_est , F_70ucl , F_95ucl ) )
       
