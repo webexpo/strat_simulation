@@ -50,10 +50,9 @@ ithpair.function <- function( index , simulated_data_object , me_cv , n_iteratio
 
 #' function which uses parallel computing to perform the simulation for one data generation object (one scenario)
 #'
-#' @param index index of the simulation 
 #' @param simulated_data_object list containing the simulated data for a single scenario 
 #' @param me.cv value for the measurement error as standard error CV, not in % and not expanded uncertainty CV
-#' @param oel occupational exposure limit
+#' @param oel occupational exposure limit : vector across iterations
 #' @param n_iterations number of iteration for the GUM approach
 #' @param sim_quantile quantile selection for the summaries of metrics across iterations in addition to mean and median
 #'
@@ -98,15 +97,24 @@ parallel.function <- function( simulated_data_object , me_cv , n_iterations_gum 
   clusterExport( cl , "n_iterations_gum" , envir=environment())
   clusterExport( cl , "sim_quantile" , envir=environment())
   clusterExport( cl , "simulated_data_object" , envir=environment())
+  
+  # list for the LApply function
+  
+  my_X <- vector("list", length = n_sim)
+    
+  for ( i in 1:n_sim ) { my_X[[i]] <- list( index = i,
+                                            oel = oel[i]) }
+  
+
   # calculations
   
-  simulation_result_parallel <- parLapply(cl, X = as.list(1:n_sim) , function(x){ ithpair.function(x, 
-                                                                                                   simulated_data_object = simulated_data_object , 
-                                                                                                   me_cv = me_cv , 
-                                                                                                   n_iterations_gum = n_iterations_gum , 
-                                                                                                   sim_quantile = sim_quantile,
-                                                                                                   oel = oel) } ) 
-  
+  simulation_result_parallel <- parLapply(cl, X = my_X , function(x){ ithpair.function(x$index, 
+                                                                                       simulated_data_object = simulated_data_object , 
+                                                                                       me_cv = me_cv , 
+                                                                                       n_iterations_gum = n_iterations_gum , 
+                                                                                       sim_quantile = sim_quantile,
+                                                                                       oel = x$oel) } ) 
+
   # recommendation from the net: close the clusters
   stopCluster(cl)
   

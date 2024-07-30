@@ -6,21 +6,35 @@
 #' @param x : vector of parameter estimates across simulations
 #' @param theta : true value of the parameter 
 
-#' @return RMSE
+#' @return RMSE, NA values in x are excluded from the calculation, if all values are NA, return 0
 #'
 
 
 compute.rmse = function(x, theta){
   
-  mean.x = mean(x)
+  ## management of non estimable values
   
-  N = length(x)
+  n_na <- sum(is.na(x))
   
-  if(is.null(N))
-    stop("x must be a vector of minimum length 1")
+  # if all values are NA, return 0
   
-  rmse = sqrt((mean.x - theta) ^ 2 + sum((x - mean.x) ^ 2) / (N - 1))
-  return(rmse)
+  if (n_na == length(x)) return(0) else {
+    
+    # if not all values are NA, remove NA values
+    
+    x <- x[!is.na(x)]
+    
+    # calculations
+    
+    mean.x = mean(x)
+    
+    N = length(x)
+    
+    rmse = sqrt((mean.x - theta) ^ 2 + sum((x - mean.x) ^ 2) / (N - 1))
+    
+    return(rmse)
+    
+  }
 }
 
 
@@ -30,21 +44,36 @@ compute.rmse = function(x, theta){
 #' @param x : vector of parameter estimates across simulations
 #' @param theta : true value of the parameter 
 
-#' @return normalized RMSE
+#' @return normalized RMSE, NA values in x are excluded from the calculation, if all values are NA, return 0
 #'
 
 
 compute.relrmse = function(x, theta){
   
-  mean.x = mean(x)
+  ## management of non estimable values
   
-  N = length(x)
+  n_na <- sum(is.na(x))
   
-  if(is.null(N))
-    stop("x must be a vector of minimum length 1")
+  # if all values are NA, return 0
   
-  rmse = 100*sqrt((mean.x - theta) ^ 2 + sum((x - mean.x) ^ 2) / (N - 1))/theta
-  return(rmse)
+  if (n_na == length(x)) return(0) else {
+    
+    # if not all values are NA, remove NA values
+    
+    x <- x[!is.na(x)]
+    
+    
+    # calculations
+    
+    mean.x = mean(x)
+    
+    N = length(x)
+    
+    rmse = 100*sqrt((mean.x - theta) ^ 2 + sum((x - mean.x) ^ 2) / (N - 1))/theta
+    
+    return(rmse)
+    
+  }
 }
 
 
@@ -54,15 +83,31 @@ compute.relrmse = function(x, theta){
 #' @param x : vector of parameter estimates across simulations
 #' @param theta : true value of the parameter 
 
-#' @return bias
+#' @return bias, NA values in x are excluded from the calculation, if all values are NA, return 0
 #'
 
 
 compute.bias = function(x, theta){
   
-  bias = mean(x) - theta 
+  ## management of non estimable values
   
-  return(bias)
+  n_na <- sum(is.na(x))
+  
+  # if all values are NA, return 0
+  
+  if (n_na == length(x)) return(0) else {
+    
+    # if not all values are NA, remove NA values
+    
+    x <- x[!is.na(x)]
+    
+    # calculations
+    
+    bias = mean(x) - theta 
+    
+    return(bias)
+    
+  }
 }
 
 
@@ -72,15 +117,31 @@ compute.bias = function(x, theta){
 #' @param x : vector of parameter estimates across simulations
 #' @param theta : true value of the parameter 
 
-#' @return bias
+#' @return normalized bias, NA values in x are excluded from the calculation, if all values are NA, return 0
 #'
 
 
 compute.normalized.bias = function(x, theta){
   
-  nbias = 100 * (mean(x) - theta) / theta
+  ## management of non estimable values
   
-  return(nbias)
+  n_na <- sum(is.na(x))
+  
+  # if all values are NA, return 0
+  
+  if (n_na == length(x)) return(0) else {
+    
+    # if not all values are NA, remove NA values
+    
+    x <- x[!is.na(x)]
+    
+    # calculations
+    
+    nbias = 100 * (mean(x) - theta) / theta
+    
+    return(nbias)
+    
+  }
 }
 
 
@@ -90,16 +151,32 @@ compute.normalized.bias = function(x, theta){
 #' @param x : vector of parameter estimates across simulations
 #' @param theta : true value of the parameter 
 
-#' @return bias
+#' @return precision, NA values in x are excluded from the calculation, if all values are NA, return 0
 #'
 
 compute.precision = function(x, theta){
   
-  error = x-theta
+  ## management of non estimable values
   
-  p = sd(error)
+  n_na <- sum(is.na(x))
   
-  return(p)
+  # if all values are NA, return 0
+  
+  if (n_na == length(x)) return(0) else {
+    
+    # if not all values are NA, remove NA values
+    
+    x <- x[!is.na(x)]
+    
+    # calculations
+    
+    error = x-theta
+    
+    p = sd(error)
+    
+    return(p)
+    
+  }
 }
 
 
@@ -109,17 +186,33 @@ compute.precision = function(x, theta){
 #' @param x : vector of parameter estimates across simulations
 #' @param theta : true value of the parameter 
 
-#' @return bias
+#' @return normalized precision, NA values in x are excluded from the calculation, if all values are NA, return 0
 #'
 
 
 compute.normalized.precision = function(x, theta){
   
-  error = x-theta
+  ## management of non estimable values
   
-  np = 100*sd(error)/theta
+  n_na <- sum(is.na(x))
   
-  return(np)
+  # if all values are NA, return 0
+  
+  if (n_na == length(x)) return(0) else {
+    
+    # if not all values are NA, remove NA values
+    
+    x <- x[!is.na(x)]
+    
+    # calculations
+    
+    error = x-theta
+    
+    np = 100*sd(error)/theta
+    
+    return(np)
+    
+  }
 }
 
 
@@ -129,14 +222,30 @@ compute.normalized.precision = function(x, theta){
 #' @param x : vector of parameter estimates across simulations
 #' @param theta : true value of the parameter 
 
-#' @return Median error
+#' @return Median error, NA values in x are excluded from the calculation, if all values are NA, return 0
 #'
 
 compute.median.error = function(x, theta){
   
-  me = median( x - theta )
+  ## management of non estimable values
   
-  return(me)
+  n_na <- sum(is.na(x))
+  
+  # if all values are NA, return 0
+  
+  if (n_na == length(x)) return(0) else {
+    
+    # if not all values are NA, remove NA values
+    
+    x <- x[!is.na(x)]
+    
+    # calculations
+    
+    me = median( x - theta )
+    
+    return(me)
+    
+  }
 }
 
 
@@ -146,16 +255,32 @@ compute.median.error = function(x, theta){
 #' @param x : vector of parameter estimates across simulations
 #' @param theta : true value of the parameter 
 
-#' @return Median error
+#' @return Normalized median error, NA values in x are excluded from the calculation, if all values are NA, return 0
 #'
 
 compute.normalized.median_error = function(x, theta){
   
-  me = median( x - theta )
-
-  nme <- 100*me/theta
+  ## management of non estimable values
+  
+  n_na <- sum(is.na(x))
+  
+  # if all values are NA, return 0
+  
+  if (n_na == length(x)) return(0) else {
     
-  return(nme)
+    # if not all values are NA, remove NA values
+    
+    x <- x[!is.na(x)]
+    
+    # calculations
+    
+    me = median( x - theta )
+    
+    nme <- 100*me/theta
+    
+    return(nme)
+    
+  }
 }
 
 
@@ -166,15 +291,31 @@ compute.normalized.median_error = function(x, theta){
 #' @param x : vector of parameter estimates across simulations
 #' @param theta : true value of the parameter 
 
-#' @return mad
+#' @return mad, NA values in x are excluded from the calculation, if all values are NA, return 0
 #'
 
 
 compute.mad = function(x, theta){
   
-  mad = median(abs(x - median(x)))
+  ## management of non estimable values
   
-  return(mad)
+  n_na <- sum(is.na(x))
+  
+  # if all values are NA, return 0
+  
+  if (n_na == length(x)) return(0) else {
+    
+    # if not all values are NA, remove NA values
+    
+    x <- x[!is.na(x)]
+    
+    # calculations
+    
+    mad = median(abs(x - median(x)))
+    
+    return(mad)
+    
+  }
 }
 
 
@@ -185,12 +326,29 @@ compute.mad = function(x, theta){
 #' @param x : vector of parameter estimates across simulations
 #' @param theta : true value of the parameter 
 
-#' @return rmsle
+#' @return rmsle, NA values in x are excluded from the calculation, if all values are NA, return 0
 #'
 
 compute.rmsle = function(x, theta){
   
-  rmsle = sqrt(mean((log(x + 1) - log(theta + 1))^2))
+  ## management of non estimable values
   
-  return(rmsle)
+  n_na <- sum(is.na(x))
+  
+  # if all values are NA, return 0
+  
+  if (n_na == length(x)) return(0) else {
+    
+    # if not all values are NA, remove NA values
+    
+    x <- x[!is.na(x)]
+    
+    # calculations
+    
+    rmsle = sqrt(mean((log(x + 1) - log(theta + 1))^2))
+    
+    return(rmsle)
+    
+  }
 }
+
