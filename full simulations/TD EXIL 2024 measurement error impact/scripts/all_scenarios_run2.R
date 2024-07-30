@@ -1,17 +1,11 @@
-# Script for performing a simulation study with all scenarios : only ten iterations per scenario
+# Script for performing a simulation study with all scenarios 
 
-# simulated data no saved !
-
-# simulation results moved to dropbox|github due to size
+# compared to run 1 : simulated data and data interpreation saved, quantile for the GUM approach is 97.5%
 
 ##### LIBRARIES ####
 
 library(tolerance)
 library(parallel)
-
-##### DATA ####
-
-real_gsds <- readRDS( "created data/real_gsd_values.RDS")
 
 
 ##### SCRIPTS ####
@@ -64,7 +58,7 @@ me_cv <- 0.25
 
 n_iterations_gum = 5000  
 
-sim_quantile = 0.95
+sim_quantile = 0.975
 
 
 
@@ -89,32 +83,18 @@ for (i in 1:dim(scenarios)[1]) {
   
 }
 
-## running the parallel function (6 scenarios at a time)
 
-##1:6
 
-start_time <- Sys.time()
+## running the parallel function 
 
-for (i in 1:6) {
-  
-  simulation_results[[i]] <- parallel.function( simulated_data_object = simulated_data_objects[[i]] , me_cv = me_cv , 
-                                                n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
-                                                n_clusters = 8, oel = scenarios$oel[i])
-  
-}
-
-end_time <- Sys.time()
-mytime <- end_time - start_time 
-
-##7:12
 
 start_time <- Sys.time()
 
-for (i in 7:12) {
+for (i in 1:dim(scenarios)[1]) {
   
   simulation_results[[i]] <- parallel.function( simulated_data_object = simulated_data_objects[[i]] , me_cv = me_cv , 
                                                 n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
-                                                n_clusters = 8, oel = scenarios$oel[i])
+                                                n_clusters = 16, oel = scenarios$oel[i])
   
 }
 
@@ -122,100 +102,13 @@ end_time <- Sys.time()
 mytime <- end_time - start_time 
 
 
-##13:18
+## saving the simulation results and the simulated data
 
-start_time <- Sys.time()
+save(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run2_sim.RDS")
 
-for (i in 13:18) {
-  
-  simulation_results[[i]] <- parallel.function( simulated_data_object = simulated_data_objects[[i]] , me_cv = me_cv , 
-                                                n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
-                                                n_clusters = 8, oel = scenarios$oel[i])
-  
-}
-
-end_time <- Sys.time()
-mytime <- end_time - start_time 
-mytime
+save(simulated_data_objects, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run2_data.RDS.RDS")
 
 
-##19:30
-
-start_time <- Sys.time()
-
-for (i in 19:30) {
-  
-  simulation_results[[i]] <- parallel.function( simulated_data_object = simulated_data_objects[[i]] , me_cv = me_cv , 
-                                                n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
-                                                n_clusters = 8, oel = scenarios$oel[i])
-  
-}
-
-end_time <- Sys.time()
-mytime <- end_time - start_time 
-mytime
-
-
-#saveRDS( simulation_results , "full simulations/TD EXIL 2024 measurement error impact/data/all_scenarios_run1_b.RDS")
-
-##31:45
-
-simulation_results <- readRDS( "full simulations/TD EXIL 2024 measurement error impact/data/all_scenarios_run1_a.RDS")
-
-start_time <- Sys.time()
-
-for (i in 31:45) {
-  
-  simulation_results[[i]] <- parallel.function( simulated_data_object = simulated_data_objects[[i]] , me_cv = me_cv , 
-                                                n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
-                                                n_clusters = 8, oel = scenarios$oel[i])
-  i
-}
-
-end_time <- Sys.time()
-mytime <- end_time - start_time 
-mytime
-
-saveRDS( simulation_results , "full simulations/TD EXIL 2024 measurement error impact/data/all_scenarios_run1_b.RDS")
-
-##46-53
-
-#simulation_results <- readRDS( "full simulations/TD EXIL 2024 measurement error impact/data/all_scenarios_run1_a.RDS")
-
-start_time <- Sys.time()
-
-for (i in 46:53) {
-  
-  simulation_results[[i]] <- parallel.function( simulated_data_object = simulated_data_objects[[i]] , me_cv = me_cv , 
-                                                n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
-                                                n_clusters = 8, oel = scenarios$oel[i])
-  i
-}
-
-end_time <- Sys.time()
-mytime <- end_time - start_time 
-mytime
-
-#saveRDS( simulation_results , "full simulations/TD EXIL 2024 measurement error impact/data/all_scenarios_run1_c.RDS")
-
-##54-72
-
-
-start_time <- Sys.time()
-
-for (i in 54:72) {
-  
-  simulation_results[[i]] <- parallel.function( simulated_data_object = simulated_data_objects[[i]] , me_cv = me_cv , 
-                                                n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
-                                                n_clusters = 8, oel = scenarios$oel[i])
-  i
-}
-
-end_time <- Sys.time()
-mytime <- end_time - start_time 
-mytime
-
-#saveRDS( simulation_results , "full simulations/TD EXIL 2024 measurement error impact/data/all_scenarios_run1_d.RDS")
 
 
 #### INTERPREATION ####
