@@ -4,6 +4,9 @@
 
 # simulation results moved to dropbox|github due to size
 
+# simulation functions updated since this operation, this script would not function anymore but the results are valid
+
+
 ##### LIBRARIES ####
 
 library(tolerance)

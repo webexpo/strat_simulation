@@ -11,13 +11,12 @@
 #' @param me.cv value for the measurement error as standard error CV, not in % and not expanded uncertainty CV
 #' @param oel occupational exposure limit
 #' @param n_iterations number of iteration for the GUM approach
-#' @param sim_quantile quantile selection for the summaries of metrics across iterations in addition to mean and median
 #'
 #' @return matrix of results with one column per approach
 #'
 
 
-ithpair.function <- function( index , simulated_data_object , me_cv , n_iterations_gum = 10000 , sim_quantile = 0.95, oel ) {
+ithpair.function <- function( index , simulated_data_object , me_cv , n_iterations_gum = 10000 , oel ) {
   
   # data preparation
   
@@ -32,15 +31,15 @@ ithpair.function <- function( index , simulated_data_object , me_cv , n_iteratio
   naive_b = expostats.naive( observed_data , oel)
   naive_f = frequentist.naive( observed_data , oel)
   me_b = expostats.me( observed_data , oel , me_cv)
-  me_f = frequentist.me( observed_data , oel , me_cv , n_iterations_gum , sim_quantile ) # is a list of 3 vectors (mean, median,quantile)
+  me_f = frequentist.me( observed_data , oel , me_cv , n_iterations_gum  ) # is a list of 6 vectors (mean, median,quantile)
   
   ## results as a single matrix
   
   one_column <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
   
-  results <- matrix( c( ideal_b , ideal_f , naive_b , naive_f , me_b , me_f$mean , me_f$median , me_f$quantile ) , nrow = length(one_column) )
+  results <- matrix( c( ideal_b , ideal_f , naive_b , naive_f , me_b , me_f$mean , me_f$median , me_f$q2.5 , me_f$q5, me_f$q95 , me_f$q97.5) , nrow = length(one_column) )
 
-  colnames(results) <- c("ideal_b","ideal_f","naive_b","naive_f","me_b","me_f_mean","me_f_median","me_f_quantile")
+  colnames(results) <- c("ideal_b","ideal_f","naive_b","naive_f","me_b","me_f_mean","me_f_median","me_f_q2.5","me_f_q5","me_f_q95","me_f_q97.5")
   rownames(results) <- one_column
   
   return(results)
@@ -60,7 +59,7 @@ ithpair.function <- function( index , simulated_data_object , me_cv , n_iteratio
 #'
 
 
-parallel.function <- function( simulated_data_object , me_cv , n_iterations_gum = 10000 , sim_quantile = 0.95 , n_sim , n_clusters = 10, oel ) {
+parallel.function <- function( simulated_data_object , me_cv , n_iterations_gum = 10000 , n_sim , n_clusters = 10, oel ) {
   
   # compteur de temps initialisé
   start_time <- Sys.time()
@@ -95,7 +94,6 @@ parallel.function <- function( simulated_data_object , me_cv , n_iterations_gum 
   clusterExport( cl , "oel" , envir=environment())
   clusterExport( cl , "me_cv" , envir=environment())
   clusterExport( cl , "n_iterations_gum" , envir=environment())
-  clusterExport( cl , "sim_quantile" , envir=environment())
   clusterExport( cl , "simulated_data_object" , envir=environment())
   
   # list for the LApply function
@@ -112,7 +110,6 @@ parallel.function <- function( simulated_data_object , me_cv , n_iterations_gum 
                                                                                        simulated_data_object = simulated_data_object , 
                                                                                        me_cv = me_cv , 
                                                                                        n_iterations_gum = n_iterations_gum , 
-                                                                                       sim_quantile = sim_quantile,
                                                                                        oel = x$oel) } ) 
 
   # recommendation from the net: close the clusters
@@ -120,7 +117,7 @@ parallel.function <- function( simulated_data_object , me_cv , n_iterations_gum 
   
   # making an array of the results
   
-  simulation_result_parallel_array <- array( data = unlist(simulation_result_parallel) , dim = c( 8 , 8 , n_sim ) )
+  simulation_result_parallel_array <- array( data = unlist(simulation_result_parallel) , dim = c( 8 , 11 , n_sim ) )
   
   # estimation of computing time ( 9 min on my computer for 5000 iterations)
   end_time <- Sys.time()

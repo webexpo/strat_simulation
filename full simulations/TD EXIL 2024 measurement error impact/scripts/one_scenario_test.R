@@ -6,11 +6,6 @@
 library(tolerance)
 library(parallel)
 
-##### DATA ####
-
-real_gsds <- readRDS( "created data/real_gsd_values.RDS")
-
-
 ##### SCRIPTS ####
 
 source("full simulations/TD EXIL 2024 measurement error impact/scripts/sample_analysis_functions.R")
@@ -37,7 +32,7 @@ source("full simulations/TD EXIL 2024 measurement error impact/scripts/one_scena
 
 true_gsd <- 2.5
 
-true_exceedance_perc <- 2.5  ## in percentage
+true_exceedance_perc <- 5.1  ## in percentage
 
 true_p95 <- 100
 
@@ -51,7 +46,7 @@ loq <- exp(qnorm(proportion_censored, mean = log(true_gm) , sd = log(true_gsd) )
 
 sample_size <- 6
 
-n_sim <- 5000 # 1.3 hour approx
+n_sim <- 1000 
 
 me_cv <- 0.25
 
@@ -59,7 +54,6 @@ expostats_sample <- c("28.9","19.4","<5.5","149.9","26.42","56.1")
 
 n_iterations_gum = 5000  
 
-sim_quantile = 0.95
 
 ##### ANALYSES ####
 
@@ -90,15 +84,15 @@ View(data.frame( naive_b = test_expostats_naive , naive_f=test_frequentist_naive
 ###### testing ith.pair function ####  
 
 test_ith.pair <- ithpair.function( index = 1 , simulated_data_object = test_data_sim , me_cv = me_cv , 
-                                    n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , oel = oel)
+                                    n_iterations_gum = n_iterations_gum , oel = oel)
 
 test_ith.pair
 
 ###### testing parallel function ####  
 
 test_parallel <- parallel.function( simulated_data_object = test_data_sim , me_cv = me_cv , 
-                                         n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
-                                         n_clusters = 10, oel = oel)
+                                         n_iterations_gum = n_iterations_gum , n_sim = n_sim , 
+                                         n_clusters = 10, oel = rep(oel,n_sim))
 
         
         
@@ -146,25 +140,25 @@ test_perc_mistake <- perc.mistake.result( results_one_scenario = test_parallel ,
                                   true_exceedance_perc = true_exceedance_perc,
                                   oel=oel)
 
-###### testing repeatability ####
+###### testing repeatability #### obsolete (older functions)
 
-test_repeatability <- vector("list", length = 5)
+#test_repeatability <- vector("list", length = 5)
 
-for (i in 1:5) {
+#for (i in 1:5) {
   
-  test_data_sim <- data.simulation.seg( true_gsd = true_gsd, 
-                                        true_gm = true_gm, 
-                                        n_sim = n_sim, 
-                                        sample_size = sample_size ,
-                                        me_cv_inf = me_cv,
-                                        me_cv_sup = me_cv,
-                                        censor_level = loq )
+#  test_data_sim <- data.simulation.seg( true_gsd = true_gsd, 
+#                                        true_gm = true_gm, 
+#                                        n_sim = n_sim, 
+#                                        sample_size = sample_size ,
+#                                        me_cv_inf = me_cv,
+#                                        me_cv_sup = me_cv,
+#                                        censor_level = loq )
   
-  test_repeatability[[i]] <- parallel.function( simulated_data_object = test_data_sim , me_cv = me_cv , 
-                                         n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
-                                         n_clusters = 8, oel = oel)
+#  test_repeatability[[i]] <- parallel.function( simulated_data_object = test_data_sim , me_cv = me_cv , 
+#                                         n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
+#                                         n_clusters = 8, oel = oel)
   
-}
+#}
 
-saveRDS(test_repeatability, "full simulations/TD EXIL 2024 measurement error impact/data/test_repeatability1.RDS")
+#saveRDS(test_repeatability, "full simulations/TD EXIL 2024 measurement error impact/data/test_repeatability1.RDS")
 

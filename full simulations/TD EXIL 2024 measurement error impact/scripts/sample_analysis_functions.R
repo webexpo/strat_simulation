@@ -136,9 +136,8 @@ frequentist.naive <- function( mysample , oel  ) {
 #' @param oel occupational exposure limit
 #' @param me_cv coefficient of variation in proportion
 #' @param n_iterations number of iteration for the GUM approach
-#' @param sim_quantile quantile selection for the summaries of metrics across iterations in addition to mean and median
 #' 
-#' @return mean, median and selected quantile summarizing point estimates for GM, GSD, exceedance and P95, and 70 and 95 UCL for P95 and exceedance across iterations, as 
+#' @return mean, median and 4 quantiles summarizing point estimates for GM, GSD, exceedance and P95, and 70 and 95 UCL for P95 and exceedance across iterations, as 
 
 frequentist.me <- function( mysample , oel , me_cv , n_iterations_gum = 10000 , sim_quantile = 0.95 ) {
   
@@ -157,7 +156,10 @@ frequentist.me <- function( mysample , oel , me_cv , n_iterations_gum = 10000 , 
     
     results <- list( mean = c( gm_est = NA , gsd_est = NA , p95_est = NA , p95_70ucl = NA , p95_95ucl = NA , F_est = NA , F_70ucl = NA , F_95ucl = NA ),
                      median = c( gm_est = NA , gsd_est = NA , p95_est = NA , p95_70ucl = NA , p95_95ucl = NA , F_est = NA , F_70ucl = NA , F_95ucl = NA ),
-                     quantile = c( gm_est = NA , gsd_est = NA , p95_est = NA , p95_70ucl = NA , p95_95ucl = NA , F_est = NA , F_70ucl = NA , F_95ucl = NA ) )    
+                     q2.5 = c( gm_est = NA , gsd_est = NA , p95_est = NA , p95_70ucl = NA , p95_95ucl = NA , F_est = NA , F_70ucl = NA , F_95ucl = NA ),
+                     q5 = c( gm_est = NA , gsd_est = NA , p95_est = NA , p95_70ucl = NA , p95_95ucl = NA , F_est = NA , F_70ucl = NA , F_95ucl = NA ),
+                     q95 = c( gm_est = NA , gsd_est = NA , p95_est = NA , p95_70ucl = NA , p95_95ucl = NA , F_est = NA , F_70ucl = NA , F_95ucl = NA ),
+                     q97.5 = c( gm_est = NA , gsd_est = NA , p95_est = NA , p95_70ucl = NA , p95_95ucl = NA , F_est = NA , F_70ucl = NA , F_95ucl = NA ))    
     
     return(results) }
   
@@ -201,11 +203,17 @@ frequentist.me <- function( mysample , oel , me_cv , n_iterations_gum = 10000 , 
     
     results <- list( mean = apply( result_matrix , 1 , mean ),
                      median = apply( result_matrix , 1 , median ),
-                     quantile = apply( result_matrix , 1 , function(x) { quantile(x,sim_quantile) } ) )    
+                     q2.5 = apply( result_matrix , 1 , function(x) { quantile(x,0.025) } ),
+                     q5 = apply( result_matrix , 1 , function(x) { quantile(x,0.05) } ),
+                     q95 = apply( result_matrix , 1 , function(x) { quantile(x,0.95) } ),
+                     q97.5 = apply( result_matrix , 1 , function(x) { quantile(x,0.975) } ))    
     
     names(results$mean) <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
     names(results$median) <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
-    names(results$quantile) <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
+    names(results$q2.5) <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
+    names(results$q5) <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
+    names(results$q95) <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
+    names(results$q97.5) <- c("gm_est","gsd_est","p95_est","p95_70ucl","p95_95ucl","F_est","F_70ucl","F_95ucl")
     
     return(results) }
   

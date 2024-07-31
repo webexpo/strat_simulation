@@ -19,12 +19,10 @@
 rmse.result <- function( results_one_scenario , true_gm , true_gsd , true_p95 , true_exceedance_perc ) { 
   
   
-  rmse_table <- data.frame( method = c("ideal_b" , "ideal_f" ,
-                                       "naive_b" , "naive_f",
-                                       "me_b" , "me_f_mean" , "me_f_median" , "me_f_quantile"),
-                            gm = numeric(8),
-                            gsd = numeric(8),
-                            p95 = numeric(8))
+  rmse_table <- data.frame( method = c("ideal_b","ideal_f","naive_b","naive_f","me_b","me_f_mean","me_f_median","me_f_q2.5","me_f_q5","me_f_q95","me_f_q97.5"),
+                            gm = numeric(11),
+                            gsd = numeric(11),
+                            p95 = numeric(11))
   
   if (is.na(true_gm[1])) rmse_table$gm <- NA else rmse_table$gm <- apply(results_one_scenario$array[1,,], 1, compute.rmse , theta = true_gm ) 
   
@@ -56,12 +54,10 @@ rmse.result <- function( results_one_scenario , true_gm , true_gsd , true_p95 , 
 precision.result <- function( results_one_scenario , true_p95 , true_gsd , true_gm , true_exceedance_perc ) { 
   
   
-  precision_table <- data.frame( method = c("ideal_b" , "ideal_f" ,
-                                            "naive_b" , "naive_f",
-                                            "me_b" , "me_f_mean" , "me_f_median" , "me_f_quantile"),
-                                 gm = numeric(8),
-                                 gsd = numeric(8),
-                                 p95 = numeric(8))
+  precision_table <- data.frame( method = c("ideal_b","ideal_f","naive_b","naive_f","me_b","me_f_mean","me_f_median","me_f_q2.5","me_f_q5","me_f_q95","me_f_q97.5"),
+                                 gm = numeric(11),
+                                 gsd = numeric(11),
+                                 p95 = numeric(11))
   
   if (is.na(true_gm[1])) precision_table$gm <- NA else precision_table$gm <- apply(results_one_scenario$array[1,,], 1, compute.precision , theta = true_gm ) 
   
@@ -95,12 +91,10 @@ precision.result <- function( results_one_scenario , true_p95 , true_gsd , true_
 bias.result <- function( results_one_scenario , true_p95 , true_gsd , true_gm , true_exceedance_perc ) { 
   
   
-  bias_table <- data.frame( method = c("ideal_b" , "ideal_f" ,
-                                       "naive_b" , "naive_f",
-                                       "me_b" , "me_f_mean" , "me_f_median" , "me_f_quantile"),
-                            gm = numeric(8),
-                            gsd = numeric(8),
-                            p95 = numeric(8))
+  bias_table <- data.frame( method = c("ideal_b","ideal_f","naive_b","naive_f","me_b","me_f_mean","me_f_median","me_f_q2.5","me_f_q5","me_f_q95","me_f_q97.5"),
+                            gm = numeric(11),
+                            gsd = numeric(11),
+                            p95 = numeric(11))
   
   if (is.na(true_gm[1])) bias_table$gm <- NA else bias_table$gm <- apply(results_one_scenario$array[1,,], 1, compute.bias , theta = true_gm ) 
   
@@ -133,12 +127,10 @@ bias.result <- function( results_one_scenario , true_p95 , true_gsd , true_gm , 
 median.error.result <- function( results_one_scenario , true_p95 , true_gsd , true_gm , true_exceedance_perc ) { 
   
   
-  median_error_table <- data.frame( method = c("ideal_b" , "ideal_f" ,
-                                               "naive_b" , "naive_f",
-                                               "me_b" , "me_f_mean" , "me_f_median" , "me_f_quantile"),
-                                    gm = numeric(8),
-                                    gsd = numeric(8),
-                                    p95 = numeric(8))
+  median_error_table <- data.frame( method = c("ideal_b","ideal_f","naive_b","naive_f","me_b","me_f_mean","me_f_median","me_f_q2.5","me_f_q5","me_f_q95","me_f_q97.5"),
+                                    gm = numeric(11),
+                                    gsd = numeric(11),
+                                    p95 = numeric(11))
   
   if (is.na(true_gm[1])) median_error_table$gm <- NA else median_error_table$gm <- apply(results_one_scenario$array[1,,], 1, compute.median.error , theta = true_gm ) 
   
@@ -171,12 +163,10 @@ median.error.result <- function( results_one_scenario , true_p95 , true_gsd , tr
 rmsle.result <- function( results_one_scenario , true_gm , true_gsd , true_p95 , true_exceedance_perc ) { 
   
   
-  rmsle_table <- data.frame( method = c("ideal_b" , "ideal_f" ,
-                                        "naive_b" , "naive_f",
-                                        "me_b" , "me_f_mean" , "me_f_median" , "me_f_quantile"),
-                             gm = numeric(8),
-                             gsd = numeric(8),
-                             p95 = numeric(8))
+  rmsle_table <- data.frame( method = c("ideal_b","ideal_f","naive_b","naive_f","me_b","me_f_mean","me_f_median","me_f_q2.5","me_f_q5","me_f_q95","me_f_q97.5"),
+                             gm = numeric(11),
+                             gsd = numeric(11),
+                             p95 = numeric(11))
   
   if (is.na(true_gm[1])) rmsle_table$gm <- NA else rmsle_table$gm <- apply(results_one_scenario$array[1,,], 1, compute.rmsle , theta = true_gm ) 
   
@@ -211,12 +201,10 @@ rmsle.result <- function( results_one_scenario , true_gm , true_gsd , true_p95 ,
 mad.result <- function( results_one_scenario , true_gm , true_gsd , true_p95 , true_exceedance_perc ) { 
   
   
-  mad_table <- data.frame( method = c("ideal_b" , "ideal_f" ,
-                                      "naive_b" , "naive_f",
-                                      "me_b" , "me_f_mean" , "me_f_median" , "me_f_quantile"),
-                           gm = numeric(8),
-                           gsd = numeric(8),
-                           p95 = numeric(8))
+  mad_table <- data.frame( method = c("ideal_b","ideal_f","naive_b","naive_f","me_b","me_f_mean","me_f_median","me_f_q2.5","me_f_q5","me_f_q95","me_f_q97.5"),
+                           gm = numeric(11),
+                           gsd = numeric(11),
+                           p95 = numeric(11))
   
   if (is.na(true_gm[1])) mad_table$gm <- NA else mad_table$gm <- apply(results_one_scenario$array[1,,], 1, compute.mad , theta = true_gm ) 
   
@@ -246,13 +234,11 @@ mad.result <- function( results_one_scenario , true_gm , true_gsd , true_p95 , t
 
 coverage.result <- function( results_one_scenario , true_p95 , true_exceedance_perc ) { 
   
-  coverage_table <- data.frame( method = c("ideal_b" , "ideal_f" ,
-                                           "naive_b" , "naive_f",
-                                           "me_b" , "me_f_mean" , "me_f_median" , "me_f_quantile"),
-                                p95_ucl70 = numeric(8),
-                                p95_ucl95 = numeric(8),
-                                exceedance_ucl70 = numeric(8),
-                                exceedance_ucl95 = numeric(8))
+  coverage_table <- data.frame( method = c("ideal_b","ideal_f","naive_b","naive_f","me_b","me_f_mean","me_f_median","me_f_q2.5","me_f_q5","me_f_q95","me_f_q97.5"),
+                                p95_ucl70 = numeric(11),
+                                p95_ucl95 = numeric(11),
+                                exceedance_ucl70 = numeric(11),
+                                exceedance_ucl95 = numeric(11))
   
   
 
@@ -286,7 +272,7 @@ coverage.result <- function( results_one_scenario , true_p95 , true_exceedance_p
 #' for truly OK situations, error = 100-specificity, for truly not OK situations, error = 100-sensitivity
 #'
 #' @param results_one_scenario index of the simulation 
-#' @param true_p95 occupational exposure limit
+#' @param true_p95 true 95th percentile
 #' @param oel vector of occupational exposure limit across iterations
 #'
 #' @return data.frame of results with one line per approach, and columns for UTL95,70 /  UTL95,95 /  F_UCL70 and F_UCL95
@@ -299,13 +285,11 @@ perc.mistake.result <- function( results_one_scenario , true_p95 , true_exceedan
   #results_one_scenario <- test_parallel
   
   
-  perc_mistake_table <- data.frame( method = c("ideal_b" , "ideal_f" ,
-                                               "naive_b" , "naive_f",
-                                               "me_b" , "me_f_mean" , "me_f_median" , "me_f_quantile"),
-                                    p95_ucl70 = numeric(8),
-                                    p95_ucl95 = numeric(8),
-                                    exceedance_ucl70 = numeric(8),
-                                    exceedance_ucl95 = numeric(8))
+  perc_mistake_table <- data.frame( method = c("ideal_b","ideal_f","naive_b","naive_f","me_b","me_f_mean","me_f_median","me_f_q2.5","me_f_q5","me_f_q95","me_f_q97.5"),
+                                    p95_ucl70 = numeric(11),
+                                    p95_ucl95 = numeric(11),
+                                    exceedance_ucl70 = numeric(11),
+                                    exceedance_ucl95 = numeric(11))
   
   # matrix of OELs, with the same values for each methods, but different across iteration (real gsd approach), for comparison with the UCLs
   

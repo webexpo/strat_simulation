@@ -1,6 +1,6 @@
 # Script for performing a simulation study with all scenarios : only ten iterations per scenario
 
-# test seccessfully run on 2024-07-17
+# test successfully run on 2024-07-17, then after ND and real GSD update, on 2024-07-31 
 
 ##### LIBRARIES ####
 
@@ -36,9 +36,9 @@ source("full simulations/TD EXIL 2024 measurement error impact/scripts/one_scena
 ##### SIMULATUON SPACE ####
 
 scenarios <- expand.grid(
-  true_gsd        = c(1.5, 2.5, 3.5),
   true_exceedance_perc = c(0.1, 1, 3, 7, 10, 25),
   sample_size      = c(3L, 6L , 9L, 12L),
+  proportion_censored        = c(0, 0.3, 0.6),
   stringsAsFactors = FALSE)
 
 ## parameters depending on scenario

@@ -2,6 +2,8 @@
 
 # compared to run 1 : simulated data and data interpreation saved, quantile for the GUM approach is 97.5%
 
+# simulation functions updated since this operation, this script would not function anymore but the results are valid
+
 ##### LIBRARIES ####
 
 library(tolerance)

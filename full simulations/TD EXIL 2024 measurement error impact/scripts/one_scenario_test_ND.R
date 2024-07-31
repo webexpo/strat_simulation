@@ -6,10 +6,6 @@
 library(tolerance)
 library(parallel)
 
-##### DATA ####
-
-real_gsds <- readRDS( "created data/real_gsd_values.RDS")
-
 
 ##### SCRIPTS ####
 
@@ -37,7 +33,7 @@ source("full simulations/TD EXIL 2024 measurement error impact/scripts/one_scena
 
 true_gsd <- 2.5
 
-true_exceedance_perc <- 2.5  ## in percentage
+true_exceedance_perc <- 5.1  ## in percentage
 
 true_p95 <- 100
 
@@ -51,89 +47,73 @@ loq <- signif(exp(qnorm(proportion_censored, mean = log(true_gm) , sd = log(true
 
 sample_size <- 6
 
-n_sim <- 2500 
+n_sim <- 1000 
 
 me_cv <- 0.25
 
-expostats_sample <- c("28.9","19.4","<5.5","149.9","26.42","56.1")
-
-expostats_sample_ND <- c("<10","<10","<10","<10")
-
-
 n_iterations_gum = 5000  
-
-sim_quantile = 0.95
 
 ##### ANALYSES ####
 
 ###### testing sample generation ####    
 
 test_data_sim <- data.simulation.seg( true_gsd = true_gsd, 
-                             true_gm = true_gm, 
-                             n_sim = n_sim, 
-                             sample_size = sample_size ,
-                             me_cv_inf = me_cv,
-                             me_cv_sup = me_cv,
-                             censor_level = loq )
-
-
-###### testing sample analysis functions ####  
-
-test_expostats_naive <- expostats.naive( mysample = expostats_sample_ND , oel)
-
-test_expostats_me <- expostats.me( mysample = expostats_sample_ND , oel , me_cv)
-
-test_frequentist_naive <- frequentist.naive( mysample = expostats_sample_ND , oel  )
-
-test_frequentist_me <- frequentist.me( mysample = expostats_sample_ND , oel , me_cv , n_iterations = n_iterations_gum , sim_quantile )
-
-View(data.frame( naive_b = test_expostats_naive , naive_f=test_frequentist_naive , me_b=test_expostats_me , me_f=test_frequentist_me$mean))
+                                      true_gm = true_gm, 
+                                      n_sim = n_sim, 
+                                      sample_size = sample_size ,
+                                      me_cv_inf = me_cv,
+                                      me_cv_sup = me_cv,
+                                      censor_level = loq )
 
 
 ###### testing ith.pair function ####  
 
 test_ith.pair <- ithpair.function( index = 1 , simulated_data_object = test_data_sim , me_cv = me_cv , 
-                                    n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , oel = oel)
+                                   n_iterations_gum = n_iterations_gum , oel = oel)
 
 test_ith.pair
 
 ###### testing parallel function ####  
 
 test_parallel <- parallel.function( simulated_data_object = test_data_sim , me_cv = me_cv , 
-                                         n_iterations_gum = n_iterations_gum , sim_quantile = sim_quantile , n_sim = n_sim , 
-                                         n_clusters = 16, oel = oel)
+                                    n_iterations_gum = n_iterations_gum , n_sim = n_sim , 
+                                    n_clusters = 10, oel = rep(oel,n_sim))
 
-        
-        
+
+
 test_parallel$time
 
-    
+#data interpretation : mean over the simulation
+
+apply(test_parallel$array, c(1,2), mean)
+
+
 ###### testing performance functions ####      
-        
+
 test_rmse <- rmse.result( results_one_scenario = test_parallel , 
                           true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
                           true_exceedance_perc = true_exceedance_perc )
-  
+
 
 test_precision <- precision.result( results_one_scenario = test_parallel , 
-                          true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
-                          true_exceedance_perc = true_exceedance_perc )
-
-test_bias <- bias.result( results_one_scenario = test_parallel , 
                                     true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
                                     true_exceedance_perc = true_exceedance_perc )
 
-test_median_error <- median.error.result( results_one_scenario = test_parallel , 
+test_bias <- bias.result( results_one_scenario = test_parallel , 
                           true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
                           true_exceedance_perc = true_exceedance_perc )
+
+test_median_error <- median.error.result( results_one_scenario = test_parallel , 
+                                          true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
+                                          true_exceedance_perc = true_exceedance_perc )
 
 test_rmsle <- rmsle.result( results_one_scenario = test_parallel , 
-                          true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
-                          true_exceedance_perc = true_exceedance_perc )
-
-test_mad <- mad.result( results_one_scenario = test_parallel , 
                             true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
                             true_exceedance_perc = true_exceedance_perc )
+
+test_mad <- mad.result( results_one_scenario = test_parallel , 
+                        true_gm = true_gm , true_gsd = true_gsd , true_p95 = true_p95 , 
+                        true_exceedance_perc = true_exceedance_perc )
 
 test_coverage <- coverage.result( results_one_scenario = test_parallel ,
                                   true_p95 = true_p95 , 
@@ -141,9 +121,8 @@ test_coverage <- coverage.result( results_one_scenario = test_parallel ,
 
 
 test_perc_mistake <- perc.mistake.result( results_one_scenario = test_parallel ,
-                                  true_p95 = true_p95 , 
-                                  true_exceedance_perc = true_exceedance_perc,
-                                  oel=oel)
-
+                                          true_p95 = true_p95 , 
+                                          true_exceedance_perc = true_exceedance_perc,
+                                          oel=oel)
 
 
