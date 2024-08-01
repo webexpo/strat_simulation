@@ -35,13 +35,13 @@ source("full simulations/TD EXIL 2024 measurement error impact/scripts/one_scena
 
 ###### parameters ####
 
-true_exceedance_perc <- 5.1  ## in percentage
+true_exceedance_perc <- 3  ## in percentage
 
 true_p95 <- 100
 
 proportion_censored <- 0
 
-sample_size <- 6
+sample_size <- 12
 
 n_sim <- 1000 
 
