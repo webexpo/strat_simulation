@@ -1,6 +1,6 @@
 #' Script for simulating lognormal data with or without censoring, and with and without a measurement error
 
-
+# WARNING :  random numbers generated below 0.001 will be replaced by 0.001. simulation is designed for 95th percentile around 100, GM around 10. Avoid values below.
 
 ##### DATA ####
 
@@ -82,15 +82,15 @@ data.simulation.seg.realgsd <- function(  true_gm = 30,
                                   censor_level = 0 )  {
   
   
-  ###### sampling GSD values
+  ###### sampling GSD values within the 95% I of the real GSD values
   
-  gsd <- sample( real_gsds , n_sim , replace = TRUE )
+  gsd <- sample( real_gsds[ real_gsds>=quantile(real_gsds,0.025) & real_gsds<=quantile(real_gsds,0.975)] , n_sim , replace = TRUE )
   
   ###### data generation
   
   data_matrix <- sapply( gsd , function(x) { exp( rnorm( n = sample_size , mean = log(true_gm) , sd = log(x) ) ) }  )
   
-  data_matrix_me <- apply( data_matrix, 2 , function(x) { pmax( rep(0.1,sample_size)  , rnorm( sample_size , x , x*runif( sample_size , me_cv_inf ,  me_cv_sup ) ) )  }  )
+  data_matrix_me <- apply( data_matrix, 2 , function(x) { pmax( rep(0.001,sample_size)  , rnorm( sample_size , x , x*runif( sample_size , me_cv_inf ,  me_cv_sup ) ) )  }  )
   
 
   ###### censoring
@@ -134,7 +134,7 @@ data.simulation.seg.gen <- function(      true_gm = rep(30,10),
   
   data_matrix <- exp( mapply(FUN = rnorm, n = sample_size , mean = log(true_gm) , sd = log(true_gsd) ) )
   
-  data_matrix_me <- apply( data_matrix, 2 , function(x) { pmax( rep(0.1,sample_size)  , rnorm( sample_size , x , x*runif( sample_size , me_cv_inf ,  me_cv_sup ) ) )  }  )
+  data_matrix_me <- apply( data_matrix, 2 , function(x) { pmax( rep(0.001,sample_size)  , rnorm( sample_size , x , x*runif( sample_size , me_cv_inf ,  me_cv_sup ) ) )  }  )
   
   
   ###### censoring

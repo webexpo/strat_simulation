@@ -137,4 +137,4 @@ for (i in 1:dim(scenarios)[1]) {
   
                                                   
 
-saveRDS( simulated_data_objects[[1]] , "C:/jerome/Dropbox/temp/real_gsd_simulation_data.RDS")
+

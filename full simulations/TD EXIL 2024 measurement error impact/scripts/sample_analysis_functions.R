@@ -139,7 +139,7 @@ frequentist.naive <- function( mysample , oel  ) {
 #' 
 #' @return mean, median and 4 quantiles summarizing point estimates for GM, GSD, exceedance and P95, and 70 and 95 UCL for P95 and exceedance across iterations, as 
 
-frequentist.me <- function( mysample , oel , me_cv , n_iterations_gum = 10000 , sim_quantile = 0.95 ) {
+frequentist.me <- function( mysample , oel , me_cv , n_iterations_gum = 10000  ) {
   
   # preliminary calculations
   
@@ -170,7 +170,7 @@ frequentist.me <- function( mysample , oel , me_cv , n_iterations_gum = 10000 , 
     
     data_matrix <- as.matrix( replicate( n_iterations_gum , mysample.ros ))
     
-    data_matrix_me <- apply( data_matrix, 2 , function(x) { pmax( rep(0.1,sample_size)  , rnorm( sample_size , x , x*me_cv ) )  }  )
+    data_matrix_me <- apply( data_matrix, 2 , function(x) { pmax( rep(0.001,sample_size)  , rnorm( sample_size , x , x*me_cv ) )  }  )
     
     
     # parameter estimates across iterations
