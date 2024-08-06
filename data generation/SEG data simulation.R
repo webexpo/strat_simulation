@@ -151,6 +151,13 @@ data.simulation.seg.gen <- function(      true_gm = rep(30,10),
   
   data_matrix_me <- apply( data_matrix, 2 , function(x) { pmax( rep(0.001,sample_size)  , rnorm( sample_size , x , x*runif( sample_size , me_cv_inf ,  me_cv_sup ) ) )  }  )
   
+  ###### limit between exp(-20) and exp(20) due to expostats prior
+  
+  data_matrix[ data_matrix < exp(-15) ] <- exp(-15)
+  data_matrix[ data_matrix > exp(15) ] <- exp(15)
+  
+  data_matrix_me[ data_matrix_me < exp(-15) ] <- exp(-15)
+  data_matrix_me[ data_matrix_me > exp(15) ] <- exp(15)
   
   ###### censoring
   

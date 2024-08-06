@@ -57,11 +57,11 @@ simulation_results <- vector("list", length = dim(scenarios)[1])
 
 simulated_data_objects <- vector("list", length = dim(scenarios)[1])
 
-for (i in 31:dim(scenarios)[1]) {
+for (i in 1:dim(scenarios)[1]) {
 
-  ## parameter vectors due to GSDs i=25 prob
+  ## parameter vectors due to GSDs
   
-  true_gsd <- sample( real_gsds , n_sim , replace = TRUE )
+  true_gsd <- sample( real_gsds[ real_gsds>=quantile(real_gsds,0.025) & real_gsds<=quantile(real_gsds,0.975)] , n_sim , replace = TRUE )
   
   true_gm <- exp( log(true_p95) - qnorm(0.95)*log(true_gsd) )
   
@@ -78,6 +78,9 @@ for (i in 31:dim(scenarios)[1]) {
                                                            me_cv_inf = me_cv,
                                                            me_cv_sup = me_cv,
                                                            censor_level = loq )
+  
+  
+  
  ## running the parallel function
 
 
@@ -136,5 +139,72 @@ for (i in 1:dim(scenarios)[1]) {
   
   
                                                   
+
+### debug (iteration 31)
+    
+    #param and data
+    
+    n_sim <- 5000
+    
+    me_cv <- 0.25
+    
+    n_iterations_gum = 5000  
+    
+    true_p95 <- 100
+    
+    scenarios <- expand.grid(
+      true_exceedance_perc = c(0.1, 1, 3, 7, 10, 25),
+      sample_size      = c(3L, 6L , 9L, 12L),
+      proportion_censored        = c(0, 0.3, 0.6),
+      stringsAsFactors = FALSE)
+    
+    simulated_data_objects <- readRDS("F:/Dropbox/temp/mytest.RDS")
+    
+    
+    ## parameter vectors due to GSDs i=31 prob
+    
+    i <- 31
+    
+    true_gsd <- simulated_data_objects$true_gsd
+    
+    true_gm <- simulated_data_objects$true_gm
+    
+    oel <- exp( qnorm(1 - scenarios$true_exceedance_perc[i]/100, mean = log(true_gm) , sd = log(true_gsd) ) )
+    
+    loq <- signif(exp(qnorm(scenarios$proportion_censored[i], mean = log(true_gm) , sd = log(true_gsd) )),3)
+    
+    
+    
+    
+    #calculus
+    
+    my_X <- vector("list", length = n_sim)
+    
+    for ( j in 1:n_sim ) { my_X[[j]] <- list( index = j,
+                                              oel = oel[j]) }
+    
+    
+    # calculations
+    
+    myresults <- vector("list", length = n_sim)
+    
+    for (j in 1:n_sim) { 
+      
+      
+      
+      myresults[[j]] <- ithpair.function( my_X[[j]]$index, 
+                                            simulated_data_object = simulated_data_objects , 
+                                            me_cv = me_cv , 
+                                            n_iterations_gum = n_iterations_gum , 
+                                            oel = my_X[[j]]$oel) 
+      }
+    
+    ## error for j=129 bad sampling of GSDs (no quantiles used)
+    
+    true_gm[129]
+    true_gsd[129]
+    oel[129]
+    loq[129]
+
 
 
