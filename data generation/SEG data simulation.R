@@ -41,6 +41,14 @@ data.simulation.seg <- function(  true_gsd = 2.5,
   data_vector_me <- pmax( rep(0.1,sample_size*n_sim)  , rnorm( sample_size*n_sim , data_vector , data_vector*runif( sample_size*n_sim , me_cv_inf ,  me_cv_sup ) ) ) # truncation at 0.1 to avoind negative numbers
   
   
+  ###### limit between exp(-20) and exp(20) due to expostats prior
+  
+  data_vector[ data_vector < exp(-15) ] <- exp(-15)
+  data_vector[ data_vector > exp(15) ] <- exp(15)
+  
+  data_vector_me[ data_vector_me < exp(-15) ] <- exp(-15)
+  data_vector_me[ data_vector_me > exp(15) ] <- exp(15)
+  
   ###### censoring
   
   data_vector[ data_vector < censor_level ] <- paste("<", censor_level , sep="")
@@ -92,7 +100,14 @@ data.simulation.seg.realgsd <- function(  true_gm = 30,
   
   data_matrix_me <- apply( data_matrix, 2 , function(x) { pmax( rep(0.001,sample_size)  , rnorm( sample_size , x , x*runif( sample_size , me_cv_inf ,  me_cv_sup ) ) )  }  )
   
-
+  ###### limit between exp(-20) and exp(20) due to expostats prior
+  
+  data_matrix[ data_matrix < exp(-15) ] <- exp(-15)
+  data_matrix[ data_matrix > exp(15) ] <- exp(15)
+  
+  data_matrix_me[ data_matrix_me < exp(-15) ] <- exp(-15)
+  data_matrix_me[ data_matrix_me > exp(15) ] <- exp(15)
+  
   ###### censoring
   
   data_matrix[ data_matrix < censor_level ] <- paste("<", censor_level , sep="")

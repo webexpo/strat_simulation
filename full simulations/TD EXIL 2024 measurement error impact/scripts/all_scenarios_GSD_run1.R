@@ -57,9 +57,9 @@ simulation_results <- vector("list", length = dim(scenarios)[1])
 
 simulated_data_objects <- vector("list", length = dim(scenarios)[1])
 
-for (i in 1:dim(scenarios)[1]) {
+for (i in 31:dim(scenarios)[1]) {
 
-  ## parameter vectors due to GSDs
+  ## parameter vectors due to GSDs i=25 prob
   
   true_gsd <- sample( real_gsds , n_sim , replace = TRUE )
   
@@ -83,7 +83,7 @@ for (i in 1:dim(scenarios)[1]) {
 
     simulation_results[[i]] <- parallel.function( simulated_data_object = simulated_data_objects[[i]] , me_cv = me_cv , 
                                                   n_iterations_gum = n_iterations_gum , n_sim = n_sim , 
-                                                  n_clusters = 12, oel = oel)
+                                                  n_clusters = 18, oel = oel)
     
     
     print(i)
@@ -93,7 +93,7 @@ for (i in 1:dim(scenarios)[1]) {
 }
 
 
-#### INTERPREATION ####
+#### INTERPRETATION ####
 
 simulation_interpretation_results <- vector("list", length = dim(scenarios)[1])
 
