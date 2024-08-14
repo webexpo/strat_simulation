@@ -57,7 +57,7 @@ simulation_results <- vector("list", length = dim(scenarios)[1])
 
 simulated_data_objects <- vector("list", length = dim(scenarios)[1])
 
-for (i in 1:dim(scenarios)[1]) {
+for (i in 68:dim(scenarios)[1]) { #issue with 37,43,67
 
   ## parameter vectors due to GSDs
   
@@ -94,6 +94,11 @@ for (i in 1:dim(scenarios)[1]) {
     print(simulation_results[[i]]$time)
   
 }
+
+
+saveRDS( simulation_results , "C:/jerome/dropbox/temp/simulation_results_real_gsd_1.RDS")
+saveRDS( simulated_data_objects , "C:/jerome/dropbox/temp/simulated_data_real_gsd_1.RDS")
+
 
 
 #### INTERPRETATION ####
@@ -140,7 +145,7 @@ for (i in 1:dim(scenarios)[1]) {
   
                                                   
 
-### debug (iteration 31)
+### debug attempts for the problematic scenarios : low exceedance and censoring, only patterns seems higher OELs
     
     #param and data
     
