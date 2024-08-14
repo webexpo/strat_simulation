@@ -53,7 +53,7 @@ ithpair.function <- function( index , simulated_data_object , me_cv , n_iteratio
 #' @param me.cv value for the measurement error as standard error CV, not in % and not expanded uncertainty CV
 #' @param oel occupational exposure limit : vector across iterations
 #' @param n_iterations number of iteration for the GUM approach
-#' @param sim_quantile quantile selection for the summaries of metrics across iterations in addition to mean and median
+
 #'
 #' @return matrix of results with one column per approach
 #'

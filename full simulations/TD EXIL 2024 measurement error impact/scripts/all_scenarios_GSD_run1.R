@@ -57,7 +57,7 @@ simulation_results <- vector("list", length = dim(scenarios)[1])
 
 simulated_data_objects <- vector("list", length = dim(scenarios)[1])
 
-for (i in 68:dim(scenarios)[1]) { #issue with 37,43,67
+for (i in 1:dim(scenarios)[1]) { #issue with 37,43,67
 
   ## parameter vectors due to GSDs
   
