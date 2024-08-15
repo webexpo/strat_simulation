@@ -143,7 +143,7 @@ for (i in 1:dim(scenarios)[1]) {
 }                     
   
   
-                                                  
+####  DEBUG ####                                                 
 
 ### debug attempts for the problematic scenarios : low exceedance and censoring, only patterns seems higher OELs
     
@@ -212,4 +212,210 @@ for (i in 1:dim(scenarios)[1]) {
     loq[129]
 
 
+####  SEPARATE ANALYSIS #### 
+    
+    
+    simulated_data_objects <- readRDS( "C:/jerome/dropbox/temp/simulated_data_real_gsd_1.RDS")
+    
+###### ideal bayesian ####  
+    
+    ## error
+    
+    simulation_results_ideal_b <- vector("list", length = dim(scenarios)[1])
+    
+    for (i in 37:37) { 
+      
+      ## parameter vectors due to GSDs
+      
+      true_gsd <- simulated_data_objects[[i]]$true_gsd
+      
+      true_gm <- simulated_data_objects[[i]]$true_gm
+      
+      oel <- exp( qnorm(1 - scenarios$true_exceedance_perc[i]/100, mean = log(true_gm) , sd = log(true_gsd) ) )
+      
+      loq <- signif(exp(qnorm(scenarios$proportion_censored[i], mean = log(true_gm) , sd = log(true_gsd) )),3)
+      
+      
+      ## running the parallel function
+      
+      
+      simulation_results_ideal_b[[i]] <- parallel.function.ideal.b( simulated_data_object = simulated_data_objects[[i]], 
+                                                                    n_sim = n_sim , 
+                                                                    n_clusters = 16, oel = oel)
+      
+      
+      print(i)
+      
+      print(simulation_results[[i]]$time)
+      
+    }
+    
 
+    
+###### naive bayesian #### 
+    
+    # error
+    
+    simulation_results_naive_b <- vector("list", length = dim(scenarios)[1])
+    
+    for (i in 37:37) { 
+      
+      ## parameter vectors due to GSDs
+      
+      true_gsd <- simulated_data_objects[[i]]$true_gsd
+      
+      true_gm <- simulated_data_objects[[i]]$true_gm
+      
+      oel <- exp( qnorm(1 - scenarios$true_exceedance_perc[i]/100, mean = log(true_gm) , sd = log(true_gsd) ) )
+      
+      loq <- signif(exp(qnorm(scenarios$proportion_censored[i], mean = log(true_gm) , sd = log(true_gsd) )),3)
+      
+      
+      ## running the parallel function
+      
+      
+      simulation_results_naive_b[[i]] <- parallel.function.naive.b( simulated_data_object = simulated_data_objects[[i]], 
+                                                                    n_sim = n_sim , 
+                                                                    n_clusters = 16, oel = oel)
+      
+      
+      print(i)
+      
+      print(simulation_results[[i]]$time)
+      
+    }    
+
+    
+###### me bayesian ####  
+    
+    #no error
+    
+    simulation_results_me_b <- vector("list", length = dim(scenarios)[1])
+    
+    for (i in 37:37) { 
+      
+      ## parameter vectors due to GSDs
+      
+      true_gsd <- simulated_data_objects[[i]]$true_gsd
+      
+      true_gm <- simulated_data_objects[[i]]$true_gm
+      
+      oel <- exp( qnorm(1 - scenarios$true_exceedance_perc[i]/100, mean = log(true_gm) , sd = log(true_gsd) ) )
+      
+      loq <- signif(exp(qnorm(scenarios$proportion_censored[i], mean = log(true_gm) , sd = log(true_gsd) )),3)
+      
+      
+      ## running the parallel function
+      
+      
+      simulation_results_me_b[[i]] <- parallel.function.me.b( simulated_data_object = simulated_data_objects[[i]], 
+                                                                    n_sim = n_sim ,
+                                                                    me_cv = me_cv,
+                                                                    n_clusters = 16, oel = oel)
+      
+      
+      print(i)
+      
+      print(simulation_results[[i]]$time)
+      
+    }    
+ 
+    
+###### ideal frequentist ####  
+    
+    #no error
+    
+    simulation_results_ideal_f <- vector("list", length = dim(scenarios)[1])
+    
+    for (i in 37:37) { 
+      
+      ## parameter vectors due to GSDs
+      
+      true_gsd <- simulated_data_objects[[i]]$true_gsd
+      
+      true_gm <- simulated_data_objects[[i]]$true_gm
+      
+      oel <- exp( qnorm(1 - scenarios$true_exceedance_perc[i]/100, mean = log(true_gm) , sd = log(true_gsd) ) )
+      
+      loq <- signif(exp(qnorm(scenarios$proportion_censored[i], mean = log(true_gm) , sd = log(true_gsd) )),3)
+      
+      
+      ## running the parallel function
+      
+      
+      simulation_results_ideal_f[[i]] <- parallel.function.ideal.f( simulated_data_object = simulated_data_objects[[i]], 
+                                                              n_sim = n_sim ,
+                                                              n_clusters = 16, oel = oel)
+      
+      
+      print(i)
+      
+      print(simulation_results_ideal_f[[i]]$time)
+      
+    }   
+    
+    
+    
+    
+    
+    ########################################################################
+    
+    ## other approach : fixed GM
+    
+    
+    scenarios <- expand.grid(
+      true_exceedance_perc = c(0.1, 1, 3, 7, 10, 25),
+      sample_size      = c(3L, 6L , 9L, 12L),
+      proportion_censored        = c(0, 0.3, 0.6),
+      stringsAsFactors = FALSE)
+    
+    ## fixed oel
+    
+    i <-38
+    
+    n_sim <- 5000
+    
+    me_cv <- 0.25
+    
+    n_iterations_gum = 5000  
+    
+    oel <- rep(100, n_sim)
+    
+    true_gsd <- sample( real_gsds[ real_gsds>=quantile(real_gsds,0.025) & real_gsds<=quantile(real_gsds,0.975)] , n_sim , replace = TRUE )
+    
+    true_gm <- numeric(n_sim)
+    
+    for (j in 1:n_sim) true_gm[j] <- exp( mu.from.f( f = scenarios$true_exceedance_perc[i]/100 , sig = log( true_gsd[j]) , oel = oel[j] ))
+    
+    loq <- signif(exp(qnorm(scenarios$proportion_censored[i], mean = log(true_gm) , sd = log(true_gsd) )),3)
+    
+    ## simulated exposure values
+    
+    simulated_data_object <- data.simulation.seg.gen(  true_gm = true_gm, 
+                                                             true_gsd = true_gsd,
+                                                             sample_size = scenarios$sample_size[i]  ,
+                                                             me_cv_inf = me_cv,
+                                                             me_cv_sup = me_cv,
+                                                             censor_level = loq )
+    
+    
+    # running the parallel function
+    
+    
+    simulation_results_ideal_b <- parallel.function.ideal.b( simulated_data_object = simulated_data_object , 
+                                                             n_sim = n_sim , 
+                                                  n_clusters = 18, oel = oel)
+    
+    
+    print(i)
+    
+    print(simulation_results_ideal_b$time)
+    
+    
+    
+    
+    
+    ## other options : loop in a loop.
+    
+    ## webexpo R algorithms
+    
