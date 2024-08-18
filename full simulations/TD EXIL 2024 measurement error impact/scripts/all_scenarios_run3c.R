@@ -91,7 +91,7 @@ for (i in 1:dim(scenarios)[1]) {
   
   simulation_results[[i]] <- parallel.function( simulated_data_object = simulated_data_objects[[i]] , me_cv = me_cv , 
                                                 n_iterations_gum = n_iterations_gum , n_sim = n_sim , 
-                                                n_clusters = 16, oel = rep(scenarios$oel[i],n_sim))
+                                                n_clusters = 20, oel = rep(scenarios$oel[i],n_sim))
   
   
   print(i)
