@@ -108,7 +108,7 @@ mytime <- end_time - start_time
 
 save(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run3a_sim.RDS")
 
-save(simulated_data_objects, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run3a_data.RDS.RDS")
+save(simulated_data_objects, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run3a_data.RDS")
 
 
 

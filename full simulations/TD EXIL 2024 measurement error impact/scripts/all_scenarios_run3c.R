@@ -1,6 +1,6 @@
 # Script for performing a simulation study with all scenarios 
 
-# compared to run 1 and 2 : simulated data and data interpreation saved, quantile for the GUM approach are 2.5, 5, 95 and  97.5%
+# compared to run 1 and 2 : simulated data and data interpretation saved, quantile for the GUM approach are 2.5, 5, 95 and  97.5%
 
 ##### LIBRARIES ####
 
@@ -106,9 +106,9 @@ mytime <- end_time - start_time
 
 ## saving the simulation results and the simulated data
 
-save(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run3b_sim.RDS")
+save(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run3c_sim.RDS")
 
-save(simulated_data_objects, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run3b_data.RDS")
+save(simulated_data_objects, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run3c_data.RDS")
 
 
 
