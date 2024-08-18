@@ -165,6 +165,35 @@ ithpair.function.ideal.b <- function( index , simulated_data_object , oel ) {
   
 }
 
+#' function which analyses the ith pair of samples ( clean and dirtied ) in the simulation for case "IDEAL - BAYESIAN"   : Webexpo
+#'
+#' @param index index of the simulation 
+#' @param simulated_data_object list containing the simulated data for a single scenario 
+#' @param oel occupational exposure limit
+#'
+#' @return vector of results 
+#'
+
+
+
+ithpair.function.ideal.b.w <- function( index , simulated_data_object , oel ) {
+  
+  # data preparation
+  
+  true_data <- simulated_data_object$true[,index]
+  
+  ## analysis
+  
+  ideal_b = expostats.naive.w( true_data , oel)
+  
+  ## results 
+  
+  results <- ideal_b 
+  
+  return(results)
+  
+}
+
 #' function which analyses the ith pair of samples ( clean and dirtied ) in the simulation for case "IDEAL - FREQUENTIST" 
 #'
 #' @param index index of the simulation 
@@ -396,6 +425,94 @@ parallel.function.ideal.b <- function( simulated_data_object , n_sim , n_cluster
   
 }
 
+#' function which uses parallel computing to perform the simulation for one data generation object (one scenario): approach IDEAL BAYESIAN : WEBEXPO
+#'
+#' @param simulated_data_object list containing the simulated data for a single scenario 
+#' @param oel occupational exposure limit : vector across iterations
+#' @param n_sim number of simulation iteration
+#' @param n_clusters number of clusters for parallel computing
+
+#'
+#' @return matrix of results with one column per approach
+#'
+
+
+parallel.function.ideal.b.w <- function( simulated_data_object , n_sim , n_clusters = 10, oel ) {
+  
+  # compteur de temps initialisé
+  start_time <- Sys.time()
+  
+  
+  #procédure parallele
+  
+  # creating the clusters ( use detectCores() to count the cores available, choose this number minus 2 or 4 below) 
+  
+  cl <- makeCluster(n_clusters)
+  
+  # libraries and scripts to be used in each cluster
+  
+  clusterEvalQ(cl, library(rjags))
+  
+  # sending objects to clusters
+  clusterExport( cl , "Webexpo.seg.globalbayesian.mcgill" , envir=environment())
+  clusterExport( cl , "webexpo.seg.datapreparation" , envir=environment())
+  clusterExport( cl , "data.summary" , envir=environment())
+  clusterExport( cl , "dens.gen.icdf" , envir=environment())
+  clusterExport( cl , list("any.me","cond.values","Default.inits","empty.matrices","logp.from.logpcum",
+                           "logPhi.quadratic.approx.coeff","lphi","me.gen","me.gen.object","mu.truncatedData.gen",
+                           "mu.truncatedData.gen.object","out.logout.moments","out.sample","pnorm.logpcum",
+                           "polynomial.product.coeff","quadratic.solution","random.pow","real.cubic.roots",
+                           "renamed.me.parm","rgamma.truncated","rnorm.censored","runif.logp",
+                           "sigma.gen.object","sigma.truncatedData.gen","sigma.truncatedData.gen.object",
+                           "sqrt.invertedGamma.gen","take.log","truevalue.gen","truevalue.gen.object",
+                           "truevalues.gen","Xinverse.y","y.gen","y.gen.inits") , envir=environment())
+  
+  
+  
+  clusterExport( cl , "SEG.informedvar" , envir=environment())
+  
+  #clusterExport( cl , "cond.values" , envir=environment())
+  #clusterExport( cl , "cond.values" , envir=environment())
+  
+  
+  clusterExport( cl , "expostats.naive.w" , envir=environment())
+  clusterExport( cl , "ithpair.function.ideal.b.w" , envir=environment())
+  
+  clusterExport( cl , "oel" , envir=environment())
+  clusterExport( cl , "simulated_data_object" , envir=environment())
+  
+  # list for the LApply function
+  
+  my_X <- vector("list", length = n_sim)
+  
+  for ( i in 1:n_sim ) { my_X[[i]] <- list( index = i,
+                                            oel = oel[i]) }
+  
+  
+  # calculations
+  
+  simulation_result_parallel <- parLapply(cl, X = my_X , function(x){ ithpair.function.ideal.b.w(x$index, 
+                                                                                               simulated_data_object = simulated_data_object , 
+                                                                                               oel = x$oel) } ) 
+  
+  # recommendation from the net: close the clusters
+  stopCluster(cl)
+  
+  # making an matrix of the results
+  
+  simulation_result_parallel_matrix <- matrix( data = unlist(simulation_result_parallel) , nrow =  8  , ncol = n_sim ) 
+  
+  # estimation of computing time ( 9 min on my computer for 5000 iterations)
+  end_time <- Sys.time()
+  mytime <- end_time - start_time 
+  
+  # results
+  
+  results <- list( matrix = simulation_result_parallel_matrix , time = mytime )
+  
+  return(results)
+  
+}
 
 #' function which uses parallel computing to perform the simulation for one data generation object (one scenario): approach NAIVE BAYESIAN
 #'
