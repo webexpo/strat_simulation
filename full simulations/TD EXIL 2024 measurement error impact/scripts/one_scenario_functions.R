@@ -194,6 +194,35 @@ ithpair.function.ideal.b.w <- function( index , simulated_data_object , oel ) {
   
 }
 
+#' function which analyses the ith pair of samples ( clean and dirtied ) in the simulation for case "IDEAL - BAYESIAN"   : STAN Webexpo
+#'
+#' @param index index of the simulation 
+#' @param simulated_data_object list containing the simulated data for a single scenario 
+#' @param oel occupational exposure limit
+#'
+#' @return vector of results 
+#'
+
+
+
+ithpair.function.ideal.b.s <- function( index , simulated_data_object , oel ) {
+  
+  # data preparation
+  
+  true_data <- simulated_data_object$true[,index]
+  
+  ## analysis
+  
+  ideal_b = expostats.naive.s( true_data , oel)
+  
+  ## results 
+  
+  results <- ideal_b 
+  
+  return(results)
+  
+}
+
 #' function which analyses the ith pair of samples ( clean and dirtied ) in the simulation for case "IDEAL - FREQUENTIST" 
 #'
 #' @param index index of the simulation 
@@ -494,6 +523,84 @@ parallel.function.ideal.b.w <- function( simulated_data_object , n_sim , n_clust
   simulation_result_parallel <- parLapply(cl, X = my_X , function(x){ ithpair.function.ideal.b.w(x$index, 
                                                                                                simulated_data_object = simulated_data_object , 
                                                                                                oel = x$oel) } ) 
+  
+  # recommendation from the net: close the clusters
+  stopCluster(cl)
+  
+  # making an matrix of the results
+  
+  simulation_result_parallel_matrix <- matrix( data = unlist(simulation_result_parallel) , nrow =  8  , ncol = n_sim ) 
+  
+  # estimation of computing time ( 9 min on my computer for 5000 iterations)
+  end_time <- Sys.time()
+  mytime <- end_time - start_time 
+  
+  # results
+  
+  results <- list( matrix = simulation_result_parallel_matrix , time = mytime )
+  
+  return(results)
+  
+}
+
+
+#' function which uses parallel computing to perform the simulation for one data generation object (one scenario): approach IDEAL BAYESIAN : STAN WEBEXPO
+#'
+#' @param simulated_data_object list containing the simulated data for a single scenario 
+#' @param oel occupational exposure limit : vector across iterations
+#' @param n_sim number of simulation iteration
+#' @param n_clusters number of clusters for parallel computing
+
+#'
+#' @return matrix of results with one column per approach
+#'
+
+
+parallel.function.ideal.b.s <- function( simulated_data_object , n_sim , n_clusters = 10, oel ) {
+  
+  # compteur de temps initialisé
+  start_time <- Sys.time()
+  
+  
+  #procédure parallele
+  
+  # creating the clusters ( use detectCores() to count the cores available, choose this number minus 2 or 4 below) 
+  
+  cl <- makeCluster(n_clusters)
+  
+  # libraries and scripts to be used in each cluster
+  
+  clusterEvalQ(cl, library(rstan))
+  
+  # sending objects to clusters
+  
+  clusterExport( cl , "Webexpo.seg.globalbayesian.stan" , envir=environment())
+  clusterExport( cl , "webexpo.seg.datapreparation" , envir=environment())
+  clusterExport( cl , "Default.inits" , envir=environment())
+  
+  clusterExport( cl , "SEG.informedvar.stan" , envir=environment())
+  clusterExport( cl , "stan.model.informedVar" , envir=environment())
+  clusterExport( cl , "stan.model.informedVarAndMean" , envir=environment())
+  
+  clusterExport( cl , "expostats.naive.s" , envir=environment())
+  clusterExport( cl , "ithpair.function.ideal.b.s" , envir=environment())
+  
+  clusterExport( cl , "oel" , envir=environment())
+  clusterExport( cl , "simulated_data_object" , envir=environment())
+  
+  # list for the LApply function
+  
+  my_X <- vector("list", length = n_sim)
+  
+  for ( i in 1:n_sim ) { my_X[[i]] <- list( index = i,
+                                            oel = oel[i]) }
+  
+  
+  # calculations
+  
+  simulation_result_parallel <- parLapply(cl, X = my_X , function(x){ ithpair.function.ideal.b.s(x$index, 
+                                                                                                 simulated_data_object = simulated_data_object , 
+                                                                                                 oel = x$oel) } ) 
   
   # recommendation from the net: close the clusters
   stopCluster(cl)

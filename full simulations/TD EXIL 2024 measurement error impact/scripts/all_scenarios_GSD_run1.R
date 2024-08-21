@@ -330,4 +330,83 @@ true_p95 <- 100
     }     
     
 
+    ###### ideal bayesian stan ####
+    
+    ## prep
+    
+    source("C:/jerome/Dropbox/temp/stan webexpo/model-SEG-informedVar-stan.R")
+    
+    source("C:/jerome/Dropbox/temp/stan webexpo/webexpo.seg.mainbayesian.stan.R")
+    
+    
+    stan.file.informedVar        <- readLines("C:/jerome/Dropbox/temp/stan webexpo/SEG-informedVar.stan")
+    stan.file.informedVarAndMean <- readLines("C:/jerome/Dropbox/temp/stan webexpo/SEG-informedVar+informedMean.stan")
+    
+    stan.model.informedVar        <- stan_model(model_code=stan.file.informedVar)
+    stan.model.informedVarAndMean <- stan_model(model_code=stan.file.informedVarAndMean)
+    
+    
+    ## scenarios
+    
+    scenarios <- expand.grid(
+      true_exceedance_perc = c(0.1, 1, 3, 7, 10, 25),
+      sample_size      = c(3L, 6L , 9L, 12L),
+      proportion_censored        = c(0, 0.3, 0.6),
+      stringsAsFactors = FALSE)
+    
+    ## fixed parameters
+    
+    n_sim <- 5000
+    
+    me_cv <- 0.25
+    
+    n_iterations_gum = 5000  
+    
+    true_p95 <- 100
+    
+    simulation_results_ideal_b_s <- vector("list", length = dim(scenarios)[1])
+    
+    for (i in c(37)) { 
+      
+      ## parameter vectors due to GSDs
+      
+      
+      true_gsd <- sample( real_gsds[ real_gsds>=quantile(real_gsds,0.025) & real_gsds<=quantile(real_gsds,0.975)] , n_sim , replace = TRUE )
+      
+      true_gm <- exp( log(true_p95) - qnorm(0.95)*log(true_gsd) )
+      
+      
+      oel <- exp( qnorm(1 - scenarios$true_exceedance_perc[i]/100, mean = log(true_gm) , sd = log(true_gsd) ) )
+      
+      loq <- signif(exp(qnorm(scenarios$proportion_censored[i], mean = log(true_gm) , sd = log(true_gsd) )),3)
+      
+      simulated_data_object <- data.simulation.seg.gen(  true_gm = true_gm, 
+                                                         true_gsd = true_gsd,
+                                                         sample_size = scenarios$sample_size[i]  ,
+                                                         me_cv_inf = me_cv,
+                                                         me_cv_sup = me_cv,
+                                                         censor_level = loq )
+      
+      
+      ## play by play
+      
+     for (i in 1:1000)  
+       
+       
+       test <- ithpair.function.ideal.b.s( i , simulated_data_object=simulated_data_object , oel=oel[i])
+      
+      
+      ## running the parallel function
+      
+      
+      simulation_results_ideal_b_s[[i]] <- parallel.function.ideal.b.s( simulated_data_object = simulated_data_object, 
+                                                                    n_sim = 10 , 
+                                                                    n_clusters = 16, oel = oel)
+      
+      
+      print(i)
+      
+      print(simulation_results_ideal_b_s[[i]]$time)
+      
+    }
     
