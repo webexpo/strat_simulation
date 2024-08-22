@@ -86,7 +86,7 @@ expostats.naive.s <- function( mysample , oel) {
                                                                me.range = c(0.3,0.3) , 
                                                                oel = oel ,
                                                                prior.model = "informedvar",
-                                                               n.iter = 15000))
+                                                               n.iter = 25000))
   
   results <- c( gm_est = exp(median(mcmc$mu.chain)),
                 gsd_est = exp(median(mcmc$sigma.chain)),

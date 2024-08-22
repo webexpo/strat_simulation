@@ -580,7 +580,6 @@ parallel.function.ideal.b.s <- function( simulated_data_object , n_sim , n_clust
   
   clusterExport( cl , "SEG.informedvar.stan" , envir=environment())
   clusterExport( cl , "stan.model.informedVar" , envir=environment())
-  clusterExport( cl , "stan.model.informedVarAndMean" , envir=environment())
   
   clusterExport( cl , "expostats.naive.s" , envir=environment())
   clusterExport( cl , "ithpair.function.ideal.b.s" , envir=environment())
