@@ -102,7 +102,7 @@ for (i in 1:dim(scenarios)[1]) {
 
 end_time <- Sys.time()
 mytime <- end_time - start_time 
-
+mytime
 
 ## saving the simulation results and the simulated data
 
