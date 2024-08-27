@@ -78,7 +78,7 @@ expostats.naive.w <- function( mysample , oel) {
 #' @return point estimates for GM, GSD, exceedance and P95, and 70 and 95 UCL for P95 and exceedance
 #'
 
-expostats.naive.s <- function( mysample , oel) {
+expostats.naive.s <- function( mysample , oel , models.list) {
   
   mcmc <- suppressWarnings( Webexpo.seg.globalbayesian.stan( data.sample = mysample ,
                                                                is.lognormal = TRUE , 
@@ -86,7 +86,8 @@ expostats.naive.s <- function( mysample , oel) {
                                                                me.range = c(0.3,0.3) , 
                                                                oel = oel ,
                                                                prior.model = "informedvar",
-                                                               n.iter = 25000))
+                                                               n.iter = 25000,
+                                                               models.list=stan.models.list))
   
   results <- c( gm_est = exp(median(mcmc$mu.chain)),
                 gsd_est = exp(median(mcmc$sigma.chain)),
@@ -136,6 +137,43 @@ expostats.me <- function( mysample , oel , me_cv) {
   return(results)
   
 }
+
+
+#' Measurement error bayesian analysis using the expostats prior
+#'
+#' @param mysample sample to be analysed
+#' @param oel occupational exposure limit
+#' @param me_cv coefficient of variation in proportion
+#'
+#' @return point estimates for GM, GSD, exceedance and P95, and 70 and 95 UCL for P95 and exceedance
+#'
+
+expostats.me.s <- function( mysample , oel , me_cv , models.list) {
+  
+  mcmc <- suppressWarnings( Webexpo.seg.globalbayesian.stan( data.sample = mysample ,
+                                                             is.lognormal = TRUE , 
+                                                             error.type = "CV" ,
+                                                             me.range = c(me_cv-0.001,me_cv+0.001) , 
+                                                             oel = oel ,
+                                                             prior.model = "informedvar",
+                                                             n.iter = 50000,
+                                                             models.list=stan.models.list) )
+  
+  
+  results <- c( gm_est = exp(median(mcmc$mu.chain)),
+                gsd_est = exp(median(mcmc$sigma.chain)),
+                p95_est = median(exp(mcmc$mu.chain+qnorm(0.95)*mcmc$sigma.chain)),
+                p95_70ucl = quantile(exp(mcmc$mu.chain+qnorm(0.95)*mcmc$sigma.chain),0.7),
+                p95_95ucl = quantile(exp(mcmc$mu.chain+qnorm(0.95)*mcmc$sigma.chain),0.95),
+                F_est = unname(quantile(100*(1 - pnorm( log(oel) , mean = mcmc$mu.chain , sd = mcmc$sigma.chain )),0.5)),
+                F_70ucl = unname(quantile(100*(1 - pnorm( log(oel) , mean = mcmc$mu.chain , sd = mcmc$sigma.chain )),0.7)),
+                F_95ucl = unname(quantile(100*(1 - pnorm( log(oel) , mean = mcmc$mu.chain , sd = mcmc$sigma.chain )),0.95)))
+  
+  
+  return(results)
+  
+}
+
 
 
 

@@ -98,6 +98,21 @@ chemin(
 )
 
 
+## STAN WEBEXPO functions and models ( informedvar and uninformative, lognormal, no ME and ME as CV )
+
+source("https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/McGILL%20FUNCTIONS/SEG-informedVar-stan.R")
+source("https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/McGILL%20FUNCTIONS/SEG-uninformative-stan.R")
+source("https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/McGILL%20FUNCTIONS/stan-fcts.R")
+source("https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/WRAPPING%20FUNCTIONS/webexpo.seg.mainbayesian.stan.R")
+
+#uninformative models code
+code_seg_uninformative <- 'https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/MODELS/seg_uninformative.stan'
+code_seg_uninformative_lognormal_mecv <- 'https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/MODELS/seg_uninformative_lognormal_mecv.stan'
+
+#informedvar models code
+code_seg_informedvar <- 'https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/MODELS/seg_informedvar.stan'
+code_seg_informedvar_lognormal_mecv <- 'https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/MODELS/seg_informedvar_lognormal_mecv.stan'
+
 
 ## Data interpretation
 

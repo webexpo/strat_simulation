@@ -6,6 +6,8 @@
 
 library(tolerance)
 library(parallel)
+library(rstan)
+library(rjags)
 
 ##### DATA ####
 
@@ -300,6 +302,22 @@ for (i in c(37,43,67)) {
         ## no error
     
         ## prep
+    
+    stan.models.list <- list()
+    
+    f <- code_seg_uninformative
+    stan.models.list <- augment.stan.models.list(stan.models.list, stan.file=f)
+    f <- code_seg_uninformative_lognormal_mecv
+    stan.models.list <- augment.stan.models.list(stan.models.list, stan.file=f)
+    f<-code_seg_informedvar
+    stan.models.list <- augment.stan.models.list(stan.models.list, stan.file=f)
+    f <- code_seg_informedvar_lognormal_mecv
+    stan.models.list <- augment.stan.models.list(stan.models.list, stan.file=f)
+    
+    compiled.models.list(stan.models.list)
+    
+    
+    
         
         source("C:/jerome/Dropbox/temp/stan webexpo/model-SEG-informedVar-stan.R")
         source("F:/Dropbox/temp/stan webexpo/model-SEG-informedVar-stan.R")

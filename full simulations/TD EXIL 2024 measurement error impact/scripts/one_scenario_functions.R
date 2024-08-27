@@ -205,7 +205,7 @@ ithpair.function.ideal.b.w <- function( index , simulated_data_object , oel ) {
 
 
 
-ithpair.function.ideal.b.s <- function( index , simulated_data_object , oel ) {
+ithpair.function.ideal.b.s <- function( index , simulated_data_object , oel ,  models.list) {
   
   # data preparation
   
@@ -213,7 +213,7 @@ ithpair.function.ideal.b.s <- function( index , simulated_data_object , oel ) {
   
   ## analysis
   
-  ideal_b = expostats.naive.s( true_data , oel)
+  ideal_b = expostats.naive.s( true_data , oel , models.list)
   
   ## results 
   
@@ -280,6 +280,32 @@ ithpair.function.naive.b <- function( index , simulated_data_object , oel ) {
   
 }
 
+#' function which analyses the ith pair of samples ( clean and dirtied ) in the simulation for case "NAIVE - BAYESIAN"  STAN
+#'
+#' @param index index of the simulation 
+#' @param simulated_data_object list containing the simulated data for a single scenario 
+#' @param oel occupational exposure limit
+#'
+#' @return vector of results 
+#'
+
+ithpair.function.naive.b.s <- function( index , simulated_data_object , oel , models.list) {
+  
+  # data preparation
+  
+  observed_data <- simulated_data_object$observed[,index]
+  
+  ## analysis
+  
+  naive_b = expostats.naive.s( observed_data , oel , models.list)
+  
+  ## results 
+  
+  results <- naive_b 
+  
+  return(results)
+  
+}
 
 
 #' function which analyses the ith pair of samples ( clean and dirtied ) in the simulation for case "NAIVE - FREQUENTIST" 
@@ -343,6 +369,36 @@ ithpair.function.me.b <- function( index , simulated_data_object , me_cv , oel )
   
 }
 
+#' function which analyses the ith pair of samples ( clean and dirtied ) in the simulation for case "ME - BAYESIAN"  STAN
+#'
+#' @param index index of the simulation 
+#' @param simulated_data_object list containing the simulated data for a single scenario 
+#' @param me_cv value for the measurement error as standard error CV, not in % and not expanded uncertainty CV
+#' @param oel occupational exposure limit
+
+#'
+#' @return vector of results 
+#'
+
+
+
+ithpair.function.me.b.s <- function( index , simulated_data_object , me_cv , oel , models.list) {
+  
+  # data preparation
+  
+  observed_data <- simulated_data_object$observed[,index]
+  
+  ## analysis
+  
+  me_b = expostats.me.s( observed_data , oel , me_cv , models.list)
+  
+  ## results 
+  
+  results <- me_b 
+  
+  return(results)
+  
+}
 
 #' function which analyses the ith pair of samples ( clean and dirtied ) in the simulation for case "ME - FREQUENTIST" 
 #'
