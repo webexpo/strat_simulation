@@ -1,6 +1,8 @@
 # Script for performing a simulation study with real GSD : 5000 iterations per scenario
 
-# test successfully run on 2024-07-17, then after ND and real GSD update, on 2024-07-31 
+#  errors encountered with JAGS on certain scenarios (see debug section)
+
+#  solved with STAN
 
 ##### LIBRARIES ####
 
@@ -184,9 +186,9 @@ true_p95 <- 100
 
 ###### generating the data ####
 
-simulated_data_objects <- vector("list", length = 3)
+simulated_data_objects <- vector("list", length = 72)
 
-for (i in c(37,43,67)) { 
+for (i in 1:dim(scenarios)[1]) { 
   
   true_gsd <- sample( real_gsds[ real_gsds>=quantile(real_gsds,0.025) & real_gsds<=quantile(real_gsds,0.975)] , n_sim , replace = TRUE )
   
@@ -297,41 +299,82 @@ for (i in c(37,43,67)) {
     }     
     
 
-    ###### ideal bayesian stan ####
-    
-        ## no error
+    ###### bayesian stan ####
     
         ## prep
     
-    stan.models.list <- list()
+                # compiling models
+                
+                stan.models.list <- list()
     
-    f <- code_seg_uninformative
-    stan.models.list <- augment.stan.models.list(stan.models.list, stan.file=f)
-    f <- code_seg_uninformative_lognormal_mecv
-    stan.models.list <- augment.stan.models.list(stan.models.list, stan.file=f)
-    f<-code_seg_informedvar
-    stan.models.list <- augment.stan.models.list(stan.models.list, stan.file=f)
-    f <- code_seg_informedvar_lognormal_mecv
-    stan.models.list <- augment.stan.models.list(stan.models.list, stan.file=f)
+                stan.models.list <- augment.stan.models.list(stan.models.list, stan.file=code_seg_informedvar)
+                stan.models.list <- augment.stan.models.list(stan.models.list, stan.file=code_seg_informedvar_lognormal_mecv)
+                stan.models.list <- augment.stan.models.list(stan.models.list, stan.file=code_seg_informedvar_lognormal_mecvknown)
+                
+                compiled.models.list(stan.models.list)
+                
+                # testing results on similar datasets
+                
+                test_data <- simulated_data_objects[[17]]$true[,1]
     
-    compiled.models.list(stan.models.list)
-    
-    
-    
+                test_naive_jags <- ithpair.function.ideal.b(index = 1 , 
+                                                            simulated_data_object = simulated_data_objects[[17]] , 
+                                                            oel = exp( qnorm(1 - scenarios$true_exceedance_perc[17]/100, mean = log( simulated_data_objects[[17]]$true_gm) , sd = log(simulated_data_objects[[17]]$true_gsd) ) )[1]
+                )
+                
+                test_naive_stan <- ithpair.function.ideal.b.s(index = 1 , 
+                                                            simulated_data_object = simulated_data_objects[[17]] , 
+                                                            oel = exp( qnorm(1 - scenarios$true_exceedance_perc[17]/100, mean = log( simulated_data_objects[[17]]$true_gm) , sd = log(simulated_data_objects[[17]]$true_gsd) ) )[1],
+                                                            models.list = stan.models.list
+                )
+                
+                
+                # testing parallel functions for JAGS and STAN for one scenario - NAIVE
+                
+                i <- 17
+                
+                oel <- exp( qnorm(1 - scenarios$true_exceedance_perc[i]/100, mean = log( simulated_data_objects[[i]]$true_gm) , sd = log(simulated_data_objects[[i]]$true_gsd) ) )
+                
+                simulation_results_ideal_b <- parallel.function.ideal.b( simulated_data_object = simulated_data_objects[[i]], 
+                                                                              n_sim = 100 , 
+                                                                              n_clusters = 8, oel = oel)
+                
+                
+                print(simulation_results_ideal_b$time) # 7 secs
+                
+
+                simulation_results_ideal_b_s <- parallel.function.ideal.b.s( simulated_data_object = simulated_data_objects[[i]], 
+                                                                         n_sim = 100 , 
+                                                                         n_clusters = 8, oel = oel,
+                                                                         models.list = stan.models.list)
+                
+                
+                print(simulation_results_ideal_b_s$time) # 17 secs
+                
+                      
+                # testing parallel functions for JAGS and STAN for one scenario - ME
+                
+                simulation_results_me_b <- parallel.function.me.b( simulated_data_object = simulated_data_objects[[i]], 
+                                                                          me_cv = me_cv,
+                                                                         n_sim = 100 , 
+                                                                         n_clusters = 8, oel = oel)
+                
+                
+                print(simulation_results_me_b$time) # 11 secondes
+                
+                
+                simulation_results_me_b_s <- parallel.function.me.b.s( simulated_data_object = simulated_data_objects[[i]], 
+                                                                         me_cv = me_cv,
+                                                                             n_sim = 100 , 
+                                                                             n_clusters = 8, oel = oel,
+                                                                             models.list = stan.models.list)
+                
+                
+                print(simulation_results_me_b_s$time) # 80 secondes
+                
+                # STAN FUNCTION ON THE PROBLEMATIC SCENARIOS : no error
         
-        source("C:/jerome/Dropbox/temp/stan webexpo/model-SEG-informedVar-stan.R")
-        source("F:/Dropbox/temp/stan webexpo/model-SEG-informedVar-stan.R")
-        
-        source("C:/jerome/Dropbox/temp/stan webexpo/webexpo.seg.mainbayesian.stan.R")
-        source("F:/Dropbox/temp/stan webexpo/webexpo.seg.mainbayesian.stan.R")
-        
-        
-        stan.file.informedVar        <- readLines("C:/jerome/Dropbox/temp/stan webexpo/SEG-informedVar.stan")
-        stan.file.informedVar        <- readLines("F:/Dropbox/temp/stan webexpo/SEG-informedVar.stan")
-        
-        stan.model.informedVar        <- stan_model(model_code=stan.file.informedVar)
-        
-        
+          
         simulation_results_ideal_b_s <- vector("list", length = 3)
         
         

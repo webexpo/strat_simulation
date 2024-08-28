@@ -108,10 +108,12 @@ source("https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MO
 #uninformative models code
 code_seg_uninformative <- 'https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/MODELS/seg_uninformative.stan'
 code_seg_uninformative_lognormal_mecv <- 'https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/MODELS/seg_uninformative_lognormal_mecv.stan'
+code_seg_uninformative_lognormal_mecvknown <- 'https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/MODELS/seg_uninformative_lognormal_mecvknown.stan'
 
 #informedvar models code
 code_seg_informedvar <- 'https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/MODELS/seg_informedvar.stan'
 code_seg_informedvar_lognormal_mecv <- 'https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/MODELS/seg_informedvar_lognormal_mecv.stan'
+code_seg_informedvar_lognormal_mecvknown <- 'https://raw.githubusercontent.com/webexpo/webexpo_r_lib/master/STAN%20MODELS/MODELS/seg_informedvar_lognormal_mecvknown.stan'
 
 
 ## Data interpretation

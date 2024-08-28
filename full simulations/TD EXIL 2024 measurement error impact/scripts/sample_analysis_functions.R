@@ -21,7 +21,7 @@ expostats.naive <- function( mysample , oel) {
                                            me.range = c(0.3,0.3) , 
                                            oel = oel ,
                                            prior.model = "informedvar",
-                                           n.iter = 50000))
+                                           n.iter = 25000))
   
   results <- c( gm_est = exp(median(mcmc$mu.chain)),
                 gsd_est = exp(median(mcmc$sigma.chain)),
@@ -53,7 +53,7 @@ expostats.naive.w <- function( mysample , oel) {
                                                              me.range = c(0.3,0.3) , 
                                                              oel = oel ,
                                                              prior.model = "informedvar",
-                                                             n.iter = 50000))
+                                                             n.iter = 25000))
   
   results <- c( gm_est = exp(median(mcmc$mu.chain)),
                 gsd_est = exp(median(mcmc$sigma.chain)),
@@ -87,7 +87,7 @@ expostats.naive.s <- function( mysample , oel , models.list) {
                                                                oel = oel ,
                                                                prior.model = "informedvar",
                                                                n.iter = 25000,
-                                                               models.list=stan.models.list))
+                                                               models.list=models.list))
   
   results <- c( gm_est = exp(median(mcmc$mu.chain)),
                 gsd_est = exp(median(mcmc$sigma.chain)),
@@ -121,7 +121,7 @@ expostats.me <- function( mysample , oel , me_cv) {
                                            me.range = c(me_cv,me_cv) , 
                                            oel = oel ,
                                            prior.model = "informedvar",
-                                           n.iter = 50000) )
+                                           n.iter = 25000) )
   
   
   results <- c( gm_est = exp(median(mcmc$mu.chain)),
@@ -156,8 +156,8 @@ expostats.me.s <- function( mysample , oel , me_cv , models.list) {
                                                              me.range = c(me_cv-0.001,me_cv+0.001) , 
                                                              oel = oel ,
                                                              prior.model = "informedvar",
-                                                             n.iter = 50000,
-                                                             models.list=stan.models.list) )
+                                                             n.iter = 25000,
+                                                             models.list=models.list) )
   
   
   results <- c( gm_est = exp(median(mcmc$mu.chain)),
