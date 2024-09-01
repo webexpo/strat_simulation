@@ -10,7 +10,6 @@
 
 library(tolerance)
 library(parallel)
-library(rstan)
 library(rjags)
 
 ##### DATA ####
