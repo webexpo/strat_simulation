@@ -103,8 +103,8 @@ for (i in 1:dim(scenarios)[1]) {
 }
 
 
-saveRDS( simulation_results , "C:/jerome/dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run2_data.RDS")
-saveRDS( simulated_data_objects , "C:/jerome/dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run2_sim.RDS")
+saveRDS( simulation_results , "C:/jerome/dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run2_sim.RDS")
+saveRDS( simulated_data_objects , "C:/jerome/dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run2_data.RDS")
 
 
 
