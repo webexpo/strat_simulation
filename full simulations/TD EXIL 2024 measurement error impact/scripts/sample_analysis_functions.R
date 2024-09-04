@@ -87,9 +87,7 @@ expostats.naive.s <- function( mysample , oel , models.list) {
                                                                oel = oel ,
                                                                prior.model = "informedvar",
                                                                n.iter = 25000,
-                                                               models.list=models.list,
-                                                             init.mu = NULL ,  
-                                                             init.sigma = NULL))
+                                                               models.list=models.list)
   
   results <- c( gm_est = exp(median(mcmc$mu.chain)),
                 gsd_est = exp(median(mcmc$sigma.chain)),
@@ -159,9 +157,7 @@ expostats.me.s <- function( mysample , oel , me_cv , models.list) {
                                                              oel = oel ,
                                                              prior.model = "informedvar",
                                                              n.iter = 25000,
-                                                             models.list=models.list,
-                                                             init.mu = NULL ,  
-                                                             init.sigma = NULL) )
+                                                             models.list=models.list )
   
   
   results <- c( gm_est = exp(median(mcmc$mu.chain)),
