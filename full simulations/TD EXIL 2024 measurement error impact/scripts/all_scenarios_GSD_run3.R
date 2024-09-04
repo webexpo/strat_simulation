@@ -90,7 +90,9 @@ for (i in 1:dim(scenarios)[1]) {
 }
 
 
-saveRDS(simulated_data_objects, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3_data.RDS")
+#saveRDS(simulated_data_objects, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3_data.RDS")
+
+simulated_data_objects <- readRDS( file = "F:/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3_sim.RDS")
 
 
 ## stan models
@@ -108,9 +110,9 @@ compiled.models.list(stan.models.list)
 
 start_time <- Sys.time()
 
-#for (i in 1:dim(scenarios)[1]) {
+for (i in 1:dim(scenarios)[1]) {
   
-  for (i in 5:14) {  
+  #for (i in 5:14) {  
   
   true_gsd <- simulated_data_objects[[i]]$true_gsd
   
@@ -120,7 +122,7 @@ start_time <- Sys.time()
   
   simulation_results[[i]] <- parallel.function.s( simulated_data_object = simulated_data_objects[[i]] , me_cv = me_cv , 
                                                 n_iterations_gum = n_iterations_gum , n_sim = n_sim , 
-                                                n_clusters = 20, oel = oel , models.list = stan.models.list)
+                                                n_clusters = 6, oel = oel , models.list = stan.models.list)
   
   
   print(i)
