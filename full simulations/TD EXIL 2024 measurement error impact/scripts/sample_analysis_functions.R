@@ -153,7 +153,7 @@ expostats.me.s <- function( mysample , oel , me_cv , models.list) {
   mcmc <- suppressWarnings( Webexpo.seg.globalbayesian.stan( data.sample = mysample ,
                                                              is.lognormal = TRUE , 
                                                              error.type = "CV" ,
-                                                             me.range = c(me_cv-0.001,me_cv+0.001) , 
+                                                             me.range = c(me_cv,me_cv) , 
                                                              oel = oel ,
                                                              prior.model = "informedvar",
                                                              n.iter = 25000,
