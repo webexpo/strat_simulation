@@ -2,7 +2,7 @@
 
 #  Because of errors, see run 1 script, will be fully run in STAN
 
-#  Here : all scenarios in STAN 
+#  Here : all scenarios in STAN , repetition of run 3
 
 ##### LIBRARIES ####
 
