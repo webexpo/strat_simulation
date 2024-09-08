@@ -90,9 +90,10 @@ for (i in 1:dim(scenarios)[1]) {
 }
 
 
-#saveRDS(simulated_data_objects, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3_data.RDS")
+#saveRDS(simulated_data_objects, file = "F:/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3_data.RDS")
 
-simulated_data_objects <- readRDS( file = "F:/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3_sim.RDS")
+simulated_data_objects <- readRDS(file = "F:/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3_data.RDS")
+
 
 
 ## stan models
@@ -110,9 +111,9 @@ compiled.models.list(stan.models.list)
 
 start_time <- Sys.time()
 
-for (i in 1:dim(scenarios)[1]) {
+#for (i in 1:dim(scenarios)[1]) {
   
-  #for (i in 5:14) {  
+  for (i in 36:dim(scenarios)[1]) {  
   
   true_gsd <- simulated_data_objects[[i]]$true_gsd
   
@@ -129,6 +130,7 @@ for (i in 1:dim(scenarios)[1]) {
   
   print(simulation_results[[i]]$time)
   
+  print(Sys.time())
 }
 
 end_time <- Sys.time()
@@ -137,7 +139,8 @@ mytime
 
 ## saving the simulation results and the simulated data
 
-saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3_sim.RDS")
+#saveRDS(simulation_results, file = "F:/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3b_sim.RDS")
+saveRDS(simulation_results, file = "F:/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3c_sim.RDS")
 
 
 
