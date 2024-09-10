@@ -109,7 +109,7 @@ compiled.models.list(stan.models.list)
 
 start_time <- Sys.time()
 
-for (i in 1:dim(scenarios)[1]) {
+for (i in 42:dim(scenarios)[1]) {
   
   #for (i in 5:14) {  
   
@@ -121,7 +121,7 @@ for (i in 1:dim(scenarios)[1]) {
   
   simulation_results[[i]] <- parallel.function.s( simulated_data_object = simulated_data_objects[[i]] , me_cv = me_cv , 
                                                 n_iterations_gum = n_iterations_gum , n_sim = n_sim , 
-                                                n_clusters = 6, oel = oel , models.list = stan.models.list)
+                                                n_clusters = 24, oel = oel , models.list = stan.models.list)
   
   
   print(i)
@@ -138,7 +138,7 @@ mytime
 
 ## saving the simulation results and the simulated data
 
-saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5_sim.RDS")
+saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5a_sim.RDS")
 
 
 
