@@ -12,21 +12,17 @@ source("full simulations/TD EXIL 2024 measurement error impact/scripts/simulatio
 source("other/performance_metrics.R")
 
 
-
-
 ##### DATA ####
 
 #init_path <- "F:/Dropbox/"
 init_path <- "C:/jerome/Dropbox/"
 
 
-load(file = paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run3a_sim.RDS", sep=""))
-run3a <- simulation_results
+run4a <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run4a_sim.RDS", sep=""))
 
-load(file = paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run3b_sim.RDS", sep=""))
-run3b <- simulation_results
+run4b <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run4b3_sim.RDS", sep=""))
 
-run3c <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run3c_sim.RDS", sep=""))
+run4c <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_run4c_sim.RDS", sep=""))
 
 ##### SCENARIOS ####
 
@@ -64,21 +60,21 @@ scenarios$oel <- exp( qnorm(1 - scenarios$true_exceedance_perc/100, mean = log(s
 
 ## calculations
 
-results_me_0.25 <- vector("list", length = dim(scenarios)[1])
+results_me_0.125 <- vector("list", length = dim(scenarios)[1])
 
 for ( i in 1:dim(scenarios)[1] ) {
   
   # summary of each run
   
-  summary_repa <-one_run_summary( index=i , simulation_result=run3a )
+  summary_repa <-one_run_summary( index=i , simulation_result=run4a )
   
-  summary_repb <-one_run_summary( index=i , simulation_result=run3b )
+  summary_repb <-one_run_summary( index=i , simulation_result=run4b )
   
-  summary_repc <-one_run_summary( index=i , simulation_result=run3c )  
+  summary_repc <-one_run_summary( index=i , simulation_result=run4c )  
   
   # summary across the 3 runs
   
-  results_me_0.25[[i]] <- three_run_summary( summary_repa , summary_repb , summary_repc )
+  results_me_0.125[[i]] <- three_run_summary( summary_repa , summary_repb , summary_repc )
   
 }
 

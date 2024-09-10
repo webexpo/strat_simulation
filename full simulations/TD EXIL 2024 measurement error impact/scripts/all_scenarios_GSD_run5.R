@@ -92,6 +92,7 @@ for (i in 1:dim(scenarios)[1]) {
 
 saveRDS(simulated_data_objects, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5_data.RDS")
 
+simulated_data_objects  <- readRDS(file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5_data.RDS")
 
 
 ## stan models
@@ -106,6 +107,10 @@ compiled.models.list(stan.models.list)
 
 
 ## running the parallel function 
+
+simulation_results  <- readRDS(file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5a_sim.RDS")
+
+
 
 start_time <- Sys.time()
 
@@ -138,7 +143,8 @@ mytime
 
 ## saving the simulation results and the simulated data
 
-saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5a_sim.RDS")
+#saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5a_sim.RDS")
+saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5b_sim.RDS")
 
 
 
