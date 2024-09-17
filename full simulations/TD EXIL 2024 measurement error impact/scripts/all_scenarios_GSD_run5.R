@@ -114,7 +114,7 @@ simulation_results  <- readRDS(file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling
 
 start_time <- Sys.time()
 
-for (i in 42:dim(scenarios)[1]) {
+for (i in 59:dim(scenarios)[1]) {
   
   #for (i in 5:14) {  
   
@@ -144,8 +144,9 @@ mytime
 ## saving the simulation results and the simulated data
 
 #saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5a_sim.RDS")
-saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5b_sim.RDS")
+#saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5b_sim.RDS")
 
+saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5c_sim.RDS")
 
 
 
