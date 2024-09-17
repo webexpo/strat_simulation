@@ -90,8 +90,9 @@ for (i in 1:dim(scenarios)[1]) {
 }
 
 
-saveRDS(simulated_data_objects, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4_data.RDS")
+#saveRDS(simulated_data_objects, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4_data.RDS")
 
+simulated_data_objects <- readRDS(file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4_data.RDS")
 
 
 ## stan models
@@ -107,28 +108,15 @@ compiled.models.list(stan.models.list)
 
 ## running the parallel function 
 
+simulation_results <-readRDS("C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4e_sim.RDS")
+
+
+
 start_time <- Sys.time()
 
-for (i in 1:dim(scenarios)[1]) {
+#for (i in 1:dim(scenarios)[1]) {
   
-  #for (i in 5:14) {  
-  
-  true_gsd <- simulated_data_objects[[i]]$true_gsd
-  
-  true_gm <- simulated_data_objects[[i]]$true_gm
-  
-  oel <- exp( qnorm(1 - scenarios$true_exceedance_perc[i]/100, mean = log(true_gm) , sd = log(true_gsd) ) )
-  
-  simulation_results[[i]] <- parallel.function.s( simulated_data_object = simulated_data_objects[[i]] , me_cv = me_cv , 
-                                                n_iterations_gum = n_iterations_gum , n_sim = n_sim , 
-                                                n_clusters = 6, oel = oel , models.list = stan.models.list)
-  
-  
-  print(i)
-  
-  print(simulation_results[[i]]$time)
-  
-}
+ hhh    
 
 end_time <- Sys.time()
 mytime <- end_time - start_time 
@@ -136,7 +124,10 @@ mytime
 
 ## saving the simulation results and the simulated data
 
-saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4_sim.RDS")
+#saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4a_sim.RDS")
+#saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4b_sim.RDS")
+#saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4d_sim.RDS")
+#saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4e_sim.RDS")
 
 
 
