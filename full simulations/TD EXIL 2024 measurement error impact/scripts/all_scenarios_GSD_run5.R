@@ -1,8 +1,7 @@
-# Script for performing a simulation study with real GSD : 5000 iterations per scenario
+# Script for performing a simulation study with real GSD : 5000 iterations per scenario using STAN
 
-#  Because of errors, see run 1 script, will be fully run in STAN
+# Script for the third official run of 3  
 
-#  Here : all scenarios in STAN , repetition of run 3
 
 ##### LIBRARIES ####
 

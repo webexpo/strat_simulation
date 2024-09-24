@@ -1,8 +1,6 @@
-# Script for performing a simulation study with real GSD : 5000 iterations per scenario
+# Script for performing a simulation study with real GSD : 5000 iterations per scenario using STAN
 
-#  Because of errors, see run 1 script, will be fully run in STAN
-
-#  Here : all scenarios in STAN , repetition of run 3
+# Script for the second official run of 3  
 
 ##### LIBRARIES ####
 
@@ -111,16 +109,29 @@ compiled.models.list(stan.models.list)
 simulation_results <-readRDS("C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4e_sim.RDS")
 
 
-
-start_time <- Sys.time()
-
-#for (i in 1:dim(scenarios)[1]) {
+for (i in 45:dim(scenarios)[1]) {
   
- hhh    
+  #for (i in 5:14) {  
+  
+  true_gsd <- simulated_data_objects[[i]]$true_gsd
+  
+  true_gm <- simulated_data_objects[[i]]$true_gm
+  
+  oel <- exp( qnorm(1 - scenarios$true_exceedance_perc[i]/100, mean = log(true_gm) , sd = log(true_gsd) ) )
+  
+  simulation_results[[i]] <- parallel.function.s( simulated_data_object = simulated_data_objects[[i]] , me_cv = me_cv , 
+                                                  n_iterations_gum = n_iterations_gum , n_sim = n_sim , 
+                                                  n_clusters = 24, oel = oel , models.list = stan.models.list)
+  
+  
+  print(i)
+  
+  print(simulation_results[[i]]$time)
+  
+  print(Sys.time())
+  
+}
 
-end_time <- Sys.time()
-mytime <- end_time - start_time 
-mytime
 
 ## saving the simulation results and the simulated data
 
@@ -128,6 +139,7 @@ mytime
 #saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4b_sim.RDS")
 #saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4d_sim.RDS")
 #saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4e_sim.RDS")
+saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4f_sim.RDS")
 
 
 
