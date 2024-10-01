@@ -134,17 +134,19 @@ run5 <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/a
 
 ## calculations
 
-results_me_0.125 <- vector("list", length = dim(scenarios)[1])
+results_me_0.25_gsd <- vector("list", length = dim(scenarios)[1])
 
 for ( i in 1:dim(scenarios)[1] ) {
   
   # summary of each run
   
-  summary_repa <-one_run_summary( index=i , simulation_result=run4a )
+  summary_repa <-one_run_summary_gsd( index=i , simulation_result=run3 , simulation_data = run3_data )
   
-  summary_repb <-one_run_summary( index=i , simulation_result=run4b )
+  #summary_repb <-one_run_summary_gsd( index=i , simulation_result=run4 , simulation_data = run4_data)
   
-  summary_repc <-one_run_summary( index=i , simulation_result=run4c )  
+  summary_repc <-one_run_summary_gsd( index=i , simulation_result=run5 , simulation_data = run5_data)  
+  
+}
   
   # summary across the 3 runs
   
