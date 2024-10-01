@@ -394,13 +394,13 @@ one_run_summary <- function( index , simulation_result ) {
                                        true_exceedance_perc = scenarios$true_exceedance_perc[index] ),
                      
                      coverage = coverage.result( results_one_scenario = simulation_result[[index]] , 
-                                                 true_p95 = scenarios$true_p95[i] , 
-                                                 true_exceedance_perc = scenarios$true_exceedance_perc[i] ),
+                                                 true_p95 = scenarios$true_p95[index] , 
+                                                 true_exceedance_perc = scenarios$true_exceedance_perc[index] ),
                      
                      perc_mistake = perc.mistake.result( results_one_scenario = simulation_result[[index]] , 
-                                                         true_p95 = scenarios$true_p95[i] , 
-                                                         true_exceedance_perc = scenarios$true_exceedance_perc[i] ,
-                                                         oel = scenarios$oel[i] )
+                                                         true_p95 = scenarios$true_p95[index] , 
+                                                         true_exceedance_perc = scenarios$true_exceedance_perc[index] ,
+                                                         oel = scenarios$oel[index] )
   )
   
   return(run_inter)
@@ -1070,4 +1070,84 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   
   
 }
+
+#### FUNCTIONS - REAL GSD ####
+
+
+#' function which creates the interpretation of the simulations for a single scenario and one run - REAL GSD
+#'
+#' @param index index of the scenario of interest
+#' @param simulation_result object of the results of a full run of the simulation 
+#'
+#' @return list of results with all performance metrics calculated across the iterations
+#'
+
+
+one_run_summary_gsd <- function( index , simulation_result , simulation_data ) {
+  
+  index <-72 
+  
+  simulation_result <- run3
+  simulation_data <- run3_data
+  
+  results_one_scenario= simulation_result[[index]]
+  true_gm = NA
+  true_gsd = NA
+  true_p95 = scenarios$true_p95[index]
+  true_exceedance_perc=scenarios$true_exceedance_perc[index]
+  
+  
+  run_inter <- list( rmse = rmse.result( results_one_scenario = simulation_result[[index]] , 
+                                         true_gm = NA ,
+                                         true_gsd = NA ,
+                                         true_p95 = scenarios$true_p95[index] ,
+                                         true_exceedance_perc = scenarios$true_exceedance_perc[index] ),
+                     
+                     precision = precision.result( results_one_scenario = simulation_result[[index]] , 
+                                                   true_gm = NA , 
+                                                   true_gsd = NA ,
+                                                   true_p95 = scenarios$true_p95[index] ,
+                                                   true_exceedance_perc = scenarios$true_exceedance_perc[index] ),
+                     
+                     bias = bias.result( results_one_scenario = simulation_result[[index]] , 
+                                         true_gm = NA , 
+                                         true_gsd = NA ,
+                                         true_p95 = scenarios$true_p95[index] ,
+                                         true_exceedance_perc = scenarios$true_exceedance_perc[index] ),
+                     
+                     median_error = median.error.result( results_one_scenario = simulation_result[[index]] , 
+                                                         true_gm = NA , 
+                                                         true_gsd = NA ,
+                                                         true_p95 = scenarios$true_p95[index] , 
+                                                         true_exceedance_perc = scenarios$true_exceedance_perc[index] ),
+                     
+                     rmsle = rmsle.result( results_one_scenario = simulation_result[[index]] , 
+                                           true_gm = NA , 
+                                           true_gsd = NA , 
+                                           true_p95 = scenarios$true_p95[index] , 
+                                           true_exceedance_perc = scenarios$true_exceedance_perc[index] ),
+                     
+                     mad = mad.result( results_one_scenario = simulation_result[[index]] , 
+                                       true_gm = scenarios$true_gm[index] , 
+                                       true_gsd = NA , 
+                                       true_p95 = NA , 
+                                       true_exceedance_perc = scenarios$true_exceedance_perc[index] ),
+                     
+                     coverage = coverage.result( results_one_scenario = simulation_result[[index]] , 
+                                                 true_p95 = scenarios$true_p95[index] , 
+                                                 true_exceedance_perc = scenarios$true_exceedance_perc[index] ),
+                     
+                     perc_mistake = perc.mistake.result( results_one_scenario = simulation_result[[index]] , 
+                                                         true_p95 = scenarios$true_p95[index] , 
+                                                         true_exceedance_perc = scenarios$true_exceedance_perc[index] ,
+                                                         oel = simulation_data[[index]]$oel )
+  )
+  
+  return(run_inter)
+  
+  
+  
+}
+
+
 

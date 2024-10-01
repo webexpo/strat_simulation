@@ -18,9 +18,15 @@ source("other/performance_metrics.R")
 init_path <- "C:/jerome/Dropbox/"
 
 
+run3_data <- readRDS(file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3_data.RDS")
+
+run4_data <- readRDS(file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4_data.RDS")
+
+run5_data <- readRDS(file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5_data.RDS")
+
 run3 <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3f_sim.RDS", sep=""))
 
-run4 <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4e_sim.RDS", sep=""))
+run4 <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4f_sim.RDS", sep=""))
 
 run5 <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5c_sim.RDS", sep=""))
 
@@ -32,6 +38,9 @@ run5 <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/a
       proportion_censored        = c(0, 0.3, 0.6),
       stringsAsFactors = FALSE)
     
+    scenarios$true_p95 <- 100
+
+
     ## fixed parameters
     
     n_sim <- 5000
@@ -42,7 +51,20 @@ run5 <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/a
     
     true_p95 <- 100
 
+    ## variable parameters
+    
+    for (i in 1:dim(scenarios)[1]) {
+      
+      run3_data[[i]]$oel <- exp( qnorm(1 - rep(scenarios$true_exceedance_perc[i],n_sim)/100, mean = log(run3_data[[i]]$true_gm) , sd = log(run3_data[[i]]$true_gsd) ) )
+      
+      run4_data[[i]]$oel <- exp( qnorm(1 - rep(scenarios$true_exceedance_perc[i],n_sim)/100, mean = log(run4_data[[i]]$true_gm) , sd = log(run4_data[[i]]$true_gsd) ) )
+      
+      run5_data[[i]]$oel <- exp( qnorm(1 - rep(scenarios$true_exceedance_perc[i],n_sim)/100, mean = log(run5_data[[i]]$true_gm) , sd = log(run5_data[[i]]$true_gsd) ) )
+      
+    }
+    
 
+    
 
 
 #### RESULTS ####
