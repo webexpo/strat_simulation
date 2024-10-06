@@ -18,15 +18,15 @@ source("other/performance_metrics.R")
 init_path <- "C:/jerome/Dropbox/"
 
 
-run3_data <- readRDS(file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3_data.RDS")
+run3_data <- readRDS(file = paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3_data.RDS", sep=""))
 
-run4_data <- readRDS(file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4_data.RDS")
+run4_data <- readRDS(file = paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4_data.RDS", sep=""))
 
-run5_data <- readRDS(file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5_data.RDS")
+run5_data <- readRDS(file = paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5_data.RDS", sep=""))
 
 run3 <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run3f_sim.RDS", sep=""))
 
-run4 <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4f_sim.RDS", sep=""))
+run4 <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run4g_sim.RDS", sep=""))
 
 run5 <- readRDS(paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run5c_sim.RDS", sep=""))
 
@@ -142,16 +142,22 @@ for ( i in 1:dim(scenarios)[1] ) {
   
   summary_repa <-one_run_summary_gsd( index=i , simulation_result=run3 , simulation_data = run3_data )
   
-  #summary_repb <-one_run_summary_gsd( index=i , simulation_result=run4 , simulation_data = run4_data)
+  summary_repb <-one_run_summary_gsd( index=i , simulation_result=run4 , simulation_data = run4_data)
   
   summary_repc <-one_run_summary_gsd( index=i , simulation_result=run5 , simulation_data = run5_data)  
   
-}
+
   
   # summary across the 3 runs
   
-  results_me_0.125[[i]] <- three_run_summary( summary_repa , summary_repb , summary_repc )
+  results_me_0.25_gsd[[i]] <- three_run_summary( summary_repa , summary_repb , summary_repc )
   
 }
 
+#### EXPORT ####
 
+saveRDS( list( scenarios = scenarios,
+               parameters = list( n_sim = n_sim, me_cv = me_cv, n_iterations_gum = n_iterations_gum, true_p95 = true_p95 ),
+               results = results_me_0.25_gsd ), file = paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/aggregated results/cv0.25_realgsd.RDS", sep=""))    
+    
+    

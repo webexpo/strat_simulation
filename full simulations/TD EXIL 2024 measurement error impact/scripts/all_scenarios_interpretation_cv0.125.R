@@ -38,7 +38,15 @@ scenarios$true_gm <- exp( log(scenarios$true_p95) - qnorm(0.95)*log(scenarios$tr
 
 scenarios$oel <- exp( qnorm(1 - scenarios$true_exceedance_perc/100, mean = log(scenarios$true_gm) , sd = log(scenarios$true_gsd) ) )
 
+## fixed parameters
 
+n_sim <- 5000
+
+me_cv <- 0.125
+
+n_iterations_gum = 5000  
+
+true_p95 <- 100
 
 #### RESULTS ####
 
@@ -79,3 +87,8 @@ for ( i in 1:dim(scenarios)[1] ) {
 }
 
 
+#### EXPORT ####
+
+saveRDS( list( scenarios = scenarios,
+               parameters = list( n_sim = n_sim, me_cv = me_cv, n_iterations_gum = n_iterations_gum, true_p95 = true_p95 ),
+               results = results_me_0.125 ), file = paste( init_path ,"GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/aggregated results/cv0.125.RDS", sep=""))    

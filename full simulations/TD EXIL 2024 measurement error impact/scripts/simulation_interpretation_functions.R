@@ -445,7 +445,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   
   # adding the sd
   
-  results$rmse$gm$cv_perc <- apply( results$rmse$gm[ , 2:4 ] , 1 , sd )*100 / results$rmse$gm$mean
+  results$rmse$gm$cv_perc <- apply( results$rmse$gm[ , 2:4 ] , 1 , sd )*100 / abs(results$rmse$gm$mean)
   
   #gsd
   
@@ -459,7 +459,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$rmse$gsd$mean <- rowMeans( results$rmse$gsd[ , 2:4 ] )
   
   # adding the sd
-  results$rmse$gsd$cv <- apply( results$rmse$gsd[ , 2:4 ] , 1 , sd )*100 / results$rmse$gsd$mean   
+  results$rmse$gsd$cv <- apply( results$rmse$gsd[ , 2:4 ] , 1 , sd )*100 / abs(results$rmse$gsd$mean)   
   
   #p95
   
@@ -473,7 +473,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$rmse$p95$mean <- rowMeans( results$rmse$p95[ , 2:4 ] )
   
   # adding the sd
-  results$rmse$p95$cv <- apply( results$rmse$p95[ , 2:4 ] , 1 , sd )*100 / results$rmse$p95$mean        
+  results$rmse$p95$cv <- apply( results$rmse$p95[ , 2:4 ] , 1 , sd )*100 / abs(results$rmse$p95$mean)        
   
   # exceedance
   
@@ -487,7 +487,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$rmse$exceedance$mean <- rowMeans( results$rmse$exceedance[ , 2:4 ] )
   
   # adding the sd
-  results$rmse$exceedance$cv <- apply( results$rmse$exceedance[ , 2:4 ] , 1 , sd )*100 / results$rmse$exceedance$mean    
+  results$rmse$exceedance$cv <- apply( results$rmse$exceedance[ , 2:4 ] , 1 , sd )*100 / abs(results$rmse$exceedance$mean)    
   
   # perc_estimable
   
@@ -501,7 +501,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$rmse$perc_estimable$mean <- rowMeans( results$rmse$perc_estimable[ , 2:4 ] )
   
   # adding the sd
-  results$rmse$perc_estimable$cv <- apply( results$rmse$perc_estimable[ , 2:4 ] , 1 , sd )*100 / results$rmse$perc_estimable$mean        
+  results$rmse$perc_estimable$cv <- apply( results$rmse$perc_estimable[ , 2:4 ] , 1 , sd )*100 / abs(results$rmse$perc_estimable$mean)        
   
   # precision  ------------------
   
@@ -522,7 +522,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   
   # adding the sd
   
-  results$precision$gm$cv_perc <- apply( results$precision$gm[ , 2:4 ] , 1 , sd )*100 / results$precision$gm$mean
+  results$precision$gm$cv_perc <- apply( results$precision$gm[ , 2:4 ] , 1 , sd )*100 / abs(results$precision$gm$mean)
   
   #gsd
   
@@ -536,7 +536,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$precision$gsd$mean <- rowMeans( results$precision$gsd[ , 2:4 ] )
   
   # adding the sd
-  results$precision$gsd$cv <- apply( results$precision$gsd[ , 2:4 ] , 1 , sd )*100 / results$precision$gsd$mean   
+  results$precision$gsd$cv <- apply( results$precision$gsd[ , 2:4 ] , 1 , sd )*100 / abs(results$precision$gsd$mean)   
   
   #p95
   
@@ -550,7 +550,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$precision$p95$mean <- rowMeans( results$precision$p95[ , 2:4 ] )
   
   # adding the sd
-  results$precision$p95$cv <- apply( results$precision$p95[ , 2:4 ] , 1 , sd )*100 / results$precision$p95$mean        
+  results$precision$p95$cv <- apply( results$precision$p95[ , 2:4 ] , 1 , sd )*100 / abs(results$precision$p95$mean)        
   
   # exceedance
   
@@ -564,7 +564,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$precision$exceedance$mean <- rowMeans( results$precision$exceedance[ , 2:4 ] )
   
   # adding the sd
-  results$precision$exceedance$cv <- apply( results$precision$exceedance[ , 2:4 ] , 1 , sd )*100 / results$precision$exceedance$mean    
+  results$precision$exceedance$cv <- apply( results$precision$exceedance[ , 2:4 ] , 1 , sd )*100 / abs(results$precision$exceedance$mean)    
   
   # perc_estimable
   
@@ -578,7 +578,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$precision$perc_estimable$mean <- rowMeans( results$precision$perc_estimable[ , 2:4 ] )
   
   # adding the sd
-  results$precision$perc_estimable$cv <- apply( results$precision$perc_estimable[ , 2:4 ] , 1 , sd )*100 / results$precision$perc_estimable$mean                
+  results$precision$perc_estimable$cv <- apply( results$precision$perc_estimable[ , 2:4 ] , 1 , sd )*100 / abs(results$precision$perc_estimable$mean)                
   
   
   
@@ -601,7 +601,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   
   # adding the sd
   
-  results$bias$gm$cv_perc <- apply( results$bias$gm[ , 2:4 ] , 1 , sd )*100 / results$bias$gm$mean
+  results$bias$gm$cv_perc <- apply( results$bias$gm[ , 2:4 ] , 1 , sd )*100 / abs(results$bias$gm$mean)
   
   #gsd
   
@@ -615,7 +615,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$bias$gsd$mean <- rowMeans( results$bias$gsd[ , 2:4 ] )
   
   # adding the sd
-  results$bias$gsd$cv <- apply( results$bias$gsd[ , 2:4 ] , 1 , sd )*100 / results$bias$gsd$mean   
+  results$bias$gsd$cv <- apply( results$bias$gsd[ , 2:4 ] , 1 , sd )*100 / abs(results$bias$gsd$mean)   
   
   #p95
   
@@ -629,7 +629,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$bias$p95$mean <- rowMeans( results$bias$p95[ , 2:4 ] )
   
   # adding the sd
-  results$bias$p95$cv <- apply( results$bias$p95[ , 2:4 ] , 1 , sd )*100 / results$bias$p95$mean        
+  results$bias$p95$cv <- apply( results$bias$p95[ , 2:4 ] , 1 , sd )*100 / abs(results$bias$p95$mean)        
   
   # exceedance
   
@@ -643,7 +643,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$bias$exceedance$mean <- rowMeans( results$bias$exceedance[ , 2:4 ] )
   
   # adding the sd
-  results$bias$exceedance$cv <- apply( results$bias$exceedance[ , 2:4 ] , 1 , sd )*100 / results$bias$exceedance$mean    
+  results$bias$exceedance$cv <- apply( results$bias$exceedance[ , 2:4 ] , 1 , sd )*100 / abs(results$bias$exceedance$mean)    
   
   # perc_estimable
   
@@ -657,7 +657,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$bias$perc_estimable$mean <- rowMeans( results$bias$perc_estimable[ , 2:4 ] )
   
   # adding the sd
-  results$bias$perc_estimable$cv <- apply( results$bias$perc_estimable[ , 2:4 ] , 1 , sd )*100 / results$bias$perc_estimable$mean                
+  results$bias$perc_estimable$cv <- apply( results$bias$perc_estimable[ , 2:4 ] , 1 , sd )*100 / abs(results$bias$perc_estimable$mean)                
   
   
   # median_error  ------------------
@@ -679,7 +679,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   
   # adding the sd
   
-  results$median_error$gm$cv_perc <- apply( results$median_error$gm[ , 2:4 ] , 1 , sd )*100 / results$median_error$gm$mean
+  results$median_error$gm$cv_perc <- apply( results$median_error$gm[ , 2:4 ] , 1 , sd )*100 / abs(results$median_error$gm$mean)
   
   #gsd
   
@@ -693,7 +693,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$median_error$gsd$mean <- rowMeans( results$median_error$gsd[ , 2:4 ] )
   
   # adding the sd
-  results$median_error$gsd$cv <- apply( results$median_error$gsd[ , 2:4 ] , 1 , sd )*100 / results$median_error$gsd$mean   
+  results$median_error$gsd$cv <- apply( results$median_error$gsd[ , 2:4 ] , 1 , sd )*100 / abs(results$median_error$gsd$mean)   
   
   #p95
   
@@ -707,7 +707,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$median_error$p95$mean <- rowMeans( results$median_error$p95[ , 2:4 ] )
   
   # adding the sd
-  results$median_error$p95$cv <- apply( results$median_error$p95[ , 2:4 ] , 1 , sd )*100 / results$median_error$p95$mean        
+  results$median_error$p95$cv <- apply( results$median_error$p95[ , 2:4 ] , 1 , sd )*100 / abs(results$median_error$p95$mean)        
   
   # exceedance
   
@@ -721,7 +721,7 @@ three_run_summary <- function( run1 , run2 , run3 ) {
   results$median_error$exceedance$mean <- rowMeans( results$median_error$exceedance[ , 2:4 ] )
   
   # adding the sd
-  results$median_error$exceedance$cv <- apply( results$median_error$exceedance[ , 2:4 ] , 1 , sd )*100 / results$median_error$exceedance$mean    
+  results$median_error$exceedance$cv <- apply( results$median_error$exceedance[ , 2:4 ] , 1 , sd )*100 / abs(results$median_error$exceedance$mean)    
   
   # perc_estimable
   
@@ -1268,7 +1268,7 @@ three_run_summary_gsd <- function( run1 , run2 , run3 ) {
   results$bias$p95$mean <- rowMeans( results$bias$p95[ , 2:4 ] )
   
   # adding the sd
-  results$bias$p95$cv <- apply( results$bias$p95[ , 2:4 ] , 1 , sd )*100 / results$bias$p95$mean        
+  results$bias$p95$cv <- apply( results$bias$p95[ , 2:4 ] , 1 , sd )*100 / abs(results$bias$p95$mean)        
   
   # exceedance
   
@@ -1282,7 +1282,7 @@ three_run_summary_gsd <- function( run1 , run2 , run3 ) {
   results$bias$exceedance$mean <- rowMeans( results$bias$exceedance[ , 2:4 ] )
   
   # adding the sd
-  results$bias$exceedance$cv <- apply( results$bias$exceedance[ , 2:4 ] , 1 , sd )*100 / results$bias$exceedance$mean    
+  results$bias$exceedance$cv <- apply( results$bias$exceedance[ , 2:4 ] , 1 , sd )*100 / abs(results$bias$exceedance$mean)    
   
   # perc_estimable
   
@@ -1296,7 +1296,7 @@ three_run_summary_gsd <- function( run1 , run2 , run3 ) {
   results$bias$perc_estimable$mean <- rowMeans( results$bias$perc_estimable[ , 2:4 ] )
   
   # adding the sd
-  results$bias$perc_estimable$cv <- apply( results$bias$perc_estimable[ , 2:4 ] , 1 , sd )*100 / results$bias$perc_estimable$mean                
+  results$bias$perc_estimable$cv <- apply( results$bias$perc_estimable[ , 2:4 ] , 1 , sd )*100 / abs(results$bias$perc_estimable$mean )               
   
   
   # median_error  ------------------
@@ -1316,7 +1316,7 @@ three_run_summary_gsd <- function( run1 , run2 , run3 ) {
   results$median_error$p95$mean <- rowMeans( results$median_error$p95[ , 2:4 ] )
   
   # adding the sd
-  results$median_error$p95$cv <- apply( results$median_error$p95[ , 2:4 ] , 1 , sd )*100 / results$median_error$p95$mean        
+  results$median_error$p95$cv <- apply( results$median_error$p95[ , 2:4 ] , 1 , sd )*100 / abs(results$median_error$p95$mean)        
   
   # exceedance
   
@@ -1330,7 +1330,7 @@ three_run_summary_gsd <- function( run1 , run2 , run3 ) {
   results$median_error$exceedance$mean <- rowMeans( results$median_error$exceedance[ , 2:4 ] )
   
   # adding the sd
-  results$median_error$exceedance$cv <- apply( results$median_error$exceedance[ , 2:4 ] , 1 , sd )*100 / results$median_error$exceedance$mean    
+  results$median_error$exceedance$cv <- apply( results$median_error$exceedance[ , 2:4 ] , 1 , sd )*100 / abs(results$median_error$exceedance$mean)    
   
   # perc_estimable
   
@@ -1344,7 +1344,7 @@ three_run_summary_gsd <- function( run1 , run2 , run3 ) {
   results$median_error$perc_estimable$mean <- rowMeans( results$median_error$perc_estimable[ , 2:4 ] )
   
   # adding the sd
-  results$median_error$perc_estimable$cv <- apply( results$median_error$perc_estimable[ , 2:4 ] , 1 , sd )*100 / results$median_error$perc_estimable$mean                
+  results$median_error$perc_estimable$cv <- apply( results$median_error$perc_estimable[ , 2:4 ] , 1 , sd )*100 / abs(results$median_error$perc_estimable$mean)                
   
   
   # rmsle  ------------------
