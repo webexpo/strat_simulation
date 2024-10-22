@@ -1,6 +1,6 @@
 # Script for performing a simulation study with real GSD : 5000 iterations per scenario using STAN
 
-# Script for the first run using me=0.125  
+# Script for the second run using me=0.125  
 
 ##### LIBRARIES ####
 
@@ -88,7 +88,7 @@ for (i in 1:dim(scenarios)[1]) {
 }
 
 
-saveRDS(simulated_data_objects, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run6a_data.RDS")
+saveRDS(simulated_data_objects, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run6b_data.RDS")
 
 
 
@@ -105,7 +105,7 @@ compiled.models.list(stan.models.list)
 
 ## running the parallel function 
 
-for (i in 34:dim(scenarios)[1]) {
+for (i in 1:dim(scenarios)[1]) {
 
   true_gsd <- simulated_data_objects[[i]]$true_gsd
   
@@ -129,8 +129,7 @@ for (i in 34:dim(scenarios)[1]) {
 
 ## saving the simulation results and the simulated data
 
-#saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run6a1_sim.RDS")
-saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run6a2_sim.RDS")
+saveRDS(simulation_results, file = "C:/jerome/Dropbox/GITHUB/WEBEXPO/sampling_strats/EXIL TD 2024/all_scenarios_GSD_run6b_sim.RDS")
 
 
 
