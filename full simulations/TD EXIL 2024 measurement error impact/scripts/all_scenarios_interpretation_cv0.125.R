@@ -1,4 +1,4 @@
-# Script for the interpretation of the simulations - all scenarios - error CV = 0.25
+# Script for the interpretation of the simulations - all scenarios - error CV = 0.125
 
 
 ##### LIBRARIES ####
@@ -50,6 +50,52 @@ true_p95 <- 100
 
 #### RESULTS ####
 
+###### computing time across all scenarios ######
+
+# computing time for each scenario in run a
+
+computing_timea_h <- vector("numeric", length = dim(scenarios)[1])
+
+for ( i in 1:dim(scenarios)[1] ) {
+  
+  computing_timea_h[i] <- as.numeric(run4a[[i]]$time, units = "hours") 
+  
+}
+
+summary(computing_timea_h )
+sum( computing_timea_h )
+# computing time for each scenario in run b
+
+computing_timeb_h <- vector("numeric", length = dim(scenarios)[1])
+
+for ( i in 1:dim(scenarios)[1] ) {
+  
+  if (!is.null(run4b[[i]]$time)) computing_timeb_h[i] <- as.numeric(run4b[[i]]$time, units = "hours", na.rm = FALSE) 
+  
+  else computing_timeb_h[i] <- NA
+}
+
+summary(computing_timeb_h )
+sum( computing_timeb_h )
+
+
+# computing time for each scenario in run 5
+
+computing_timec_h <- vector("numeric", length = dim(scenarios)[1])
+
+for ( i in 1:dim(scenarios)[1] ) {
+  
+  computing_timec_h[i] <- as.numeric(run4c[[i]]$time, units = "hours") 
+  
+}
+
+summary(computing_timec_h )
+sum( computing_timec_h )
+
+
+#total : 
+
+sum( computing_timea_h )+sum( computing_timeb_h )+sum( computing_timec_h ) #300 hours
 
 #### for one scenario : mean and sd(%) of all performance metrics
 
