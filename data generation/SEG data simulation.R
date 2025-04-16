@@ -2,6 +2,8 @@
 
 # WARNING :  random numbers generated below 0.001 will be replaced by 0.001. simulation is designed for 95th percentile around 100, GM around 10. Avoid values below.
 
+# WARNING : data.simulation.seg.gen compromised, needs revision
+
 ##### DATA ####
 
 
