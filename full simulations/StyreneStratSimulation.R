@@ -6,7 +6,7 @@
 ##################################################################################
 
 
-# libraries ---------------------------------------------
+# 1. libraries ---------------------------------------------
 
     #library(usethis)
     #library(here)
@@ -22,16 +22,19 @@
     
     ##  Webexpo functions
     source("parameter estimation/bayesian/load.webexpo.SEG.functions.R")
+
+    ##  arithmetic mean (MVUE + Land UCL95) function
+    source("parameter estimation/frequentist/arithmetic_mean.R")
     
 
         
-# data -----------------------------------------------------------------------------------
+# 2. data -----------------------------------------------------------------------------------
 
 
         mydata <- read.csv( "raw data/rappaport/styr.rappap.csv" , header = TRUE , sep = "," , dec = "." )
           
 
-# functions -----------------------------------------------
+# 3. functions -----------------------------------------------
 
         # function calculating P95 estimate + 70%UC + 95%UCL
         
@@ -131,26 +134,26 @@
          
       
        
-# MAIN analysis-----------------------------------------
+# 4. MAIN analysis-----------------------------------------
         
         
-      ##### OEL
+      ##### 4.1 OEL
         
         oel <- 350
         
-      #### whole data set analysis
+      #### 4.2 whole data set analysis
         
        main <- fun.expostats( x =  mydata$x , oel = oel) 
         
        main.fivestrats <- fun.five.strats( x =  mydata$x  , oel = oel ) 
         
-      ##### simulation : n=5000 6 samples OEL = 350
+      ##### 4.3 simulation : n=5000 6 samples OEL = 350
        
        results.1 <- fun.simulate( n.sim = 5000  , oel = 350 , n.sample = 6 , truepop = mydata$x  ) 
        
        
        
-       ######## interpretation for OEL = 350
+       ######## 4.4 interpretation for OEL = 350
        
        oel <- 350
        
@@ -182,7 +185,7 @@
        
        
        
-       ######## interpretation for OEL = 700
+       ######## 4.5 interpretation for OEL = 700
        
        oel <- 700
        
@@ -213,10 +216,10 @@
        100*length(strat1[!strat5])/length(strat5) #87
        
        
-##################################   AIHA risk band
+##################################   5. AIHA risk band
        
        
-       ##################  FR
+       ##################  5.1 FR
          
          c.oel <- 700
          
@@ -255,7 +258,7 @@
          
         
          
-         ##################  EN
+         ##################  5.2 EN
          
          c.oel <- 700
          
@@ -294,7 +297,7 @@
          
          
          
-       # graphiques
+# 6. graphiques -----------------------------------------
        
        
        data.to.plot <- data.frame( max = res.mat[ 1 , ],
@@ -338,3 +341,104 @@ fivenum(data.to.plot$P95ucl95)
        
        
         
+
+# 7. LEAP-TECK strategy -----------------------------------------
+#
+#   Decision rule : compliant ("green") if the 95% UCL on the arithmetic mean
+#   (Land's exact method, fun.am) is below the OEL ; otherwise "not green"
+#
+
+       ##### 7.0 settings
+
+       oel.lt <- 350          # OEL used for the LEAP-TECK assessment (TO CONFIRM)
+
+       n.sample.lt <- 6       # number of measurements per participant in the simulation (TO CONFIRM)
+
+       n.sim.lt <- 5000       # number of simulated participants
+
+       # helper : LEAP-TECK decision for one vector of measurements
+
+       fun.leapteck <- function( x , oel ) {
+
+         am <- fun.am( x = x , L = oel )
+
+         c( mvue = am$mvue , ucl95 = am$ucl , green = as.numeric( am$ucl < oel ) )
+
+       }
+
+
+       ##### 7.1 participants data
+
+       # one row per participant, 6 measurements each (mg/m3)
+
+       participants <- read.csv( text = "
+id,x1,x2,x3,x4,x5,x6
+1,179,154,256,72.6,221,70.5
+2,188,6.64,361,384,131,222
+3,241,66.7,96.8,72.6,82.3,19.4
+4,88,74.2,74.2,304,208,221
+5,2.78,285,180,185,18.7,19.4
+6,6.64,58.5,35.1,88,176,287
+7,190,158,208,241,184,56
+8,285,82.7,71,222,39.5,66.7
+9,108,82,210,158,42.4,195
+10,154,189,118,179,74.4,18.7
+12,211,214,72.6,210,67.9,66.9
+13,287,199,10.2,139,6.32,48
+14,86.2,2.78,49,157,361,31.6
+15,82.7,66.7,153,69.2,139,118
+16,43.6,195,47,56,264,30.6
+17,6.64,118,56,195,234,176
+18,276,66.6,48,131,131,69.6
+22,42.4,50.7,180,48,31.6,109
+23,158,210,154,133,109,109
+24,181,188,391,82.3,189,35.1
+25,195,118,115,67.9,47,256
+26,153,72.6,139,74.2,109,245
+27,2.78,10.2,176,35.1,32.1,181
+28,71,155,140,32.1,204,188
+29,21.6,361,118,66.6,6.32,139
+30,140,43.6,82.3,19.4,89.5,234
+31,154,56,18.7,157,49,304
+32,176,84.7,81.1,199,69.2,96.8
+33,10.2,21.6,31.6,32.1,140,10.2
+34,74.4,304,31.6,208,304,287
+35,214,6.64,88,72.6,35.1,285
+36,96.8,70.5,66.9,70.5,181,176
+" )
+
+       res.participants <- data.frame( id = participants$id ,
+                                       t( apply( participants[ , paste0( "x" , 1:6 ) ] , 1 ,
+                                                 fun.leapteck , oel = oel.lt ) ) )
+
+       res.participants
+
+       # number and % of participants concluding green
+
+       sum( res.participants$green )
+
+       100 * mean( res.participants$green )
+
+
+       ##### 7.2 simulation : n.sim.lt participants drawing n.sample.lt values from the styrene dataset
+
+       set.seed( 12345 )
+
+       samp.mat.lt <- matrix( sample( x = mydata$x , size = n.sample.lt * n.sim.lt , replace = TRUE ) ,
+                              nrow = n.sample.lt , ncol = n.sim.lt )
+
+       res.sim.lt <- t( apply( samp.mat.lt , 2 , fun.leapteck , oel = oel.lt ) )
+
+       # number and % of simulated participants concluding green
+
+       sum( res.sim.lt[ , "green" ] )
+
+       100 * mean( res.sim.lt[ , "green" ] )
+
+       # reference : the full styrene dataset assessed with the same rule
+
+       fun.leapteck( x = mydata$x , oel = oel.lt )
+
+       # distribution of the UCL95 across simulated participants
+
+       fivenum( res.sim.lt[ , "ucl95" ] )
